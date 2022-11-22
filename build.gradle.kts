@@ -16,7 +16,11 @@ allprojects {
         plugin("com.github.johnrengelman.shadow")
     }
 
-    java.toolchain.languageVersion.set(JavaLanguageVersion.of(8))
+    java {
+        toolchain.languageVersion.set(JavaLanguageVersion.of(8))
+        withJavadocJar()
+        withSourcesJar()
+    }
 
     repositories {
         mavenCentral()
@@ -27,7 +31,51 @@ allprojects {
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
     }
 
+    val javaComponent = components["java"] as AdhocComponentWithVariants
+    javaComponent.withVariantsFromConfiguration(configurations["sourcesElements"]) {
+        skip()
+    }
+
+    publishing {
+        repositories {
+            maven {
+                name = "repo"
+                credentials(PasswordCredentials::class)
+                url = uri(
+                    if (project.version.toString().endsWith("SNAPSHOT"))
+                        project.findProperty("deploySnapshotURL") ?: System.getProperty("deploySnapshotURL", "")
+                    else
+                        project.findProperty("deployReleasesURL") ?: System.getProperty("deployReleasesURL", "")
+                )
+            }
+        }
+
+        publications {
+            create<MavenPublication>("mavenJava") {
+                from(components["java"])
+                artifact(tasks.getByName("sourcesJar"))
+            }
+        }
+    }
+
     tasks {
+        processResources {
+            from(sourceSets.main.get().resources.srcDirs) {
+                include("**")
+                val tokenReplacementMap = mapOf(
+                    "version" to project.version,
+                )
+                filter<org.apache.tools.ant.filters.ReplaceTokens>("tokens" to tokenReplacementMap)
+            }
+            filteringCharset = "UTF-8"
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
+            from(projectDir) { include("LICENSE") }
+        }
+
+        compileJava {
+            options.encoding = "UTF-8"
+        }
+
         test {
             useJUnitPlatform()
         }

@@ -1,0 +1,7 @@
+name: AzisabaAchievements
+api-version: 1.13
+version: @version@
+main: net.azisaba.azisabaachievements.spigot.SpigotPlugin
+commands:
+  azisabaachievements:
+    permission: azisabaachievements.command.azisabaachievements

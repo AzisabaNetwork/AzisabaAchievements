@@ -23,6 +23,7 @@ public interface PacketRegistry {
     /**
      * Register a packet to the registry.
      * @param packetClass The packet class to register.
+     * @param packetConstructor The packet constructor which takes a single {@link PacketByteBuf} as an argument.
      * @return The packet id.
      */
     <T extends Packet<?>> int registerPacket(@NotNull Class<T> packetClass, @NotNull Function<PacketByteBuf, T> packetConstructor);

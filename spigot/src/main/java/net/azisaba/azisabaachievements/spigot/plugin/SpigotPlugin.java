@@ -29,7 +29,7 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
     }
 
     @Override
-    public void onEnable() {
+    public void onLoad() {
         saveDefaultConfig();
         this.pluginConfig = new PluginConfig(getConfig());
         this.jedisBox = createJedisBox();

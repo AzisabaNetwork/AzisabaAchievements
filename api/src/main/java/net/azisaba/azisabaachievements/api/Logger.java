@@ -13,6 +13,9 @@ import java.util.logging.Level;
  * Represents a logger.
  */
 public interface Logger {
+    /**
+     * The default logger interface which uses {@link java.util.logging.Logger} for logging.
+     */
     @NotNull Logger DEFAULT_LOGGER = createFromJavaLogger(java.util.logging.Logger.getLogger("AzisabaAchievements"));
 
     void info(@NotNull String message);
@@ -31,6 +34,11 @@ public interface Logger {
     void error(@NotNull String message, Object... params);
     void error(@NotNull String message, Throwable throwable);
 
+    /**
+     * Creates a logger by using a {@link Proxy}. The instance must implement all methods in this interface.
+     * @param instance the instance
+     * @return the logger
+     */
     @Contract(value = "_ -> new", pure = true)
     static @NotNull Logger createByProxy(@NotNull Object instance) {
         Objects.requireNonNull(instance, "instance cannot be null");
@@ -42,6 +50,11 @@ public interface Logger {
         });
     }
 
+    /**
+     * Creates a simple logger instance backed by {@link java.util.logging.Logger} instance.
+     * @param logger the java.lang.logger.Logger instance
+     * @return the logger
+     */
     @Contract(value = "_ -> new", pure = true)
     static @NotNull Logger createFromJavaLogger(@NotNull java.util.logging.Logger logger) {
         return new Logger() {

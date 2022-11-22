@@ -21,8 +21,13 @@ public class AzisabaAchievementsProvider {
         AzisabaAchievementsProvider.instance.set(instance);
     }
 
+    /**
+     * Returns the instance of {@link AzisabaAchievements}. Attempt to access the API before the plugin is loaded
+     * will result in an {@link IllegalStateException}.
+     * @return the instance
+     */
     @Contract(pure = true)
-    public static @NotNull AzisabaAchievements get() {
+    public static @NotNull AzisabaAchievements get() throws IllegalStateException {
         AzisabaAchievements api = instance.get();
         if (api == null) {
             throw NOT_INITIALIZED_ERROR;

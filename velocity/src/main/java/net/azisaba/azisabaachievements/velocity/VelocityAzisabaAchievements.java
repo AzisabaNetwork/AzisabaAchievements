@@ -7,6 +7,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class VelocityAzisabaAchievements extends AbstractAzisabaAchievements {
     public VelocityAzisabaAchievements(@NotNull VelocityPlugin plugin) {
-        super(Logger.createByProxy(plugin.getLogger()), plugin);
+        super(Logger.createByProxy(plugin.getLogger()), plugin, plugin.getJedisBox().getPubSubHandler());
     }
 }

@@ -7,6 +7,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class SpigotAzisabaAchievements extends AbstractAzisabaAchievements {
     public SpigotAzisabaAchievements(@NotNull SpigotPlugin plugin) {
-        super(Logger.createFromJavaLogger(plugin.getLogger()), plugin);
+        super(Logger.createFromJavaLogger(plugin.getLogger()), plugin, plugin.getJedisBox().getPubSubHandler());
     }
 }

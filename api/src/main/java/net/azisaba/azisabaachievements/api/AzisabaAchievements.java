@@ -1,6 +1,7 @@
 package net.azisaba.azisabaachievements.api;
 
 import net.azisaba.azisabaachievements.api.network.PacketRegistryPair;
+import net.azisaba.azisabaachievements.api.network.PacketSender;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,4 +22,12 @@ public interface AzisabaAchievements {
     @Contract(pure = true)
     @NotNull
     PacketRegistryPair getPacketRegistryPair();
+
+    /**
+     * Returns the packet sender. The packet sender is used for sending the packet to the listener.
+     * @return the packet sender
+     */
+    @Contract(pure = true)
+    @NotNull
+    PacketSender getPacketSender();
 }

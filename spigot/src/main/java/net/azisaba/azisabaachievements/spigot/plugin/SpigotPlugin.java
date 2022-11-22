@@ -7,7 +7,9 @@ import net.azisaba.azisabaachievements.api.network.PacketRegistryPair;
 import net.azisaba.azisabaachievements.common.network.PacketRegistryImpl;
 import net.azisaba.azisabaachievements.common.redis.JedisBox;
 import net.azisaba.azisabaachievements.spigot.SpigotAzisabaAchievements;
+import net.azisaba.azisabaachievements.spigot.command.AzisabaAchievementsCommand;
 import net.azisaba.azisabaachievements.spigot.network.SpigotPacketListener;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +36,12 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
         this.pluginConfig = new PluginConfig(getConfig());
         this.jedisBox = createJedisBox();
         AzisabaAchievementsProviderSetter.setInstance(new SpigotAzisabaAchievements(this));
+    }
+
+    @Override
+    public void onEnable() {
+        Objects.requireNonNull(Bukkit.getPluginCommand("azisabaachievements"))
+                .setExecutor(new AzisabaAchievementsCommand());
     }
 
     @Contract(" -> new")

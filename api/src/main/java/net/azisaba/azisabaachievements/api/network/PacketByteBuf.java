@@ -29,6 +29,11 @@ public class PacketByteBuf extends ByteBuf {
         this.buf = Objects.requireNonNull(buf, "buf");
     }
 
+    /**
+     * Writes the given string to the buffer. The string is encoded in UTF-16.
+     * @param str the string
+     * @throws IllegalArgumentException If the string is too long to be encoded
+     */
     public void writeString(@NotNull String str) {
         if (str.length() * 2 < 0) {
             throw new IllegalArgumentException("String too long");
@@ -37,6 +42,11 @@ public class PacketByteBuf extends ByteBuf {
         writeBytes(str.getBytes(StandardCharsets.UTF_16));
     }
 
+    /**
+     * Reads the string from the buffer. The string is encoded in UTF-16.
+     * @return the string
+     * @throws IllegalArgumentException If the string is not valid (e.g. negative length or length overflow)
+     */
     public @NotNull String readString() {
         int length = readInt();
         if (length < 0) {
@@ -53,6 +63,10 @@ public class PacketByteBuf extends ByteBuf {
         return new String(bytes, StandardCharsets.UTF_16);
     }
 
+    /**
+     * Writes the variable-length integer to the buffer.
+     * @return the number
+     */
     public int readVarInt() {
         int value = 0;
         int position = 0;
@@ -68,6 +82,10 @@ public class PacketByteBuf extends ByteBuf {
         return value;
     }
 
+    /**
+     * Reads the variable-length integer from the buffer.
+     * @param value the number
+     */
     public void writeVarInt(int value) {
         while (true) {
             if ((value & ~SEGMENT_BITS) == 0) {
@@ -79,6 +97,10 @@ public class PacketByteBuf extends ByteBuf {
         }
     }
 
+    /**
+     * Reads the variable-length long from the buffer.
+     * @return the number
+     */
     public long readVarLong() {
         long value = 0;
         int position = 0;
@@ -93,6 +115,10 @@ public class PacketByteBuf extends ByteBuf {
         return value;
     }
 
+    /**
+     * Writes the variable-length long to the buffer.
+     * @param value the number
+     */
     public void writeVarLong(long value) {
         while (true) {
             if ((value & ~((long) SEGMENT_BITS)) == 0) {

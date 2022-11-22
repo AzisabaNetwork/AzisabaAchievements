@@ -14,7 +14,7 @@ public interface AzisabaAchievements {
     Logger getLogger();
 
     /**
-     * Returns the packet registry pair. The server registry is used for packets sent from the server, and the client
+     * Returns the packet registry pair. The server registry is used for sending packets, and the client
      * registry is used for processing packets sent from somewhere.
      * @return the packet registry pair
      */

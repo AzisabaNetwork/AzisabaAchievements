@@ -5,6 +5,18 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface PacketRegistry {
+    default void registerCommonPackets() {
+        // TODO
+    }
+
+    default void registerServerPackets() {
+        // TODO
+    }
+
+    default void registerProxyPackets() {
+        // TODO
+    }
+
     /**
      * Register a packet to the registry.
      * @param packetClass The packet class to register.

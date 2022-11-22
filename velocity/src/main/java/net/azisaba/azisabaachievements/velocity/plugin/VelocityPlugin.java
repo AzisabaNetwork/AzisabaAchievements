@@ -22,14 +22,14 @@ import java.nio.file.Path;
 
 @Plugin(id = "azisaba-achievements", name = "AzisabaAchievements", version = "@YOU_SHOULD_NOT_SEE_THIS_AS_VERSION@")
 public class VelocityPlugin implements PacketRegistryPair {
+    private final PacketRegistry clientRegistry = new PacketRegistryImpl();
+    private final PacketRegistry serverRegistry = new PacketRegistryImpl();
+    private final VelocityPacketListener packetListener = new VelocityPacketListener();
     private final ProxyServer server;
     private final Logger logger;
     private final Path dataDirectory;
     private final PluginConfig config;
-    private final VelocityPacketListener packetListener;
     private final JedisBox jedisBox;
-    private final PacketRegistry clientRegistry = new PacketRegistryImpl();
-    private final PacketRegistry serverRegistry = new PacketRegistryImpl();
 
     @Inject
     public VelocityPlugin(@NotNull ProxyServer server, @NotNull Logger logger, @NotNull @DataDirectory Path dataDirectory) {
@@ -38,7 +38,6 @@ public class VelocityPlugin implements PacketRegistryPair {
         this.logger = logger;
         this.dataDirectory = dataDirectory;
         this.config = loadConfig();
-        this.packetListener = new VelocityPacketListener();
         this.jedisBox = createJedisBox();
         AzisabaAchievementsProviderSetter.setInstance(new VelocityAzisabaAchievements(this));
     }
@@ -86,15 +85,19 @@ public class VelocityPlugin implements PacketRegistryPair {
     }
 
     private void registerPackets() {
-    }
-
-    @Override
-    public @NotNull PacketRegistry getServerRegistry() {
-        return serverRegistry;
+        clientRegistry.registerCommonPackets();
+        clientRegistry.registerServerPackets();
+        serverRegistry.registerCommonPackets();
+        serverRegistry.registerProxyPackets();
     }
 
     @Override
     public @NotNull PacketRegistry getClientRegistry() {
         return clientRegistry;
+    }
+
+    @Override
+    public @NotNull PacketRegistry getServerRegistry() {
+        return serverRegistry;
     }
 }

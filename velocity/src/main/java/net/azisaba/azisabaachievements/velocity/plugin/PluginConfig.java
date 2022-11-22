@@ -5,6 +5,7 @@ import ninja.leaping.configurate.yaml.YAMLConfigurationLoader;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -16,7 +17,11 @@ public class PluginConfig {
 
     public PluginConfig(@NotNull Path configPath) throws IOException {
         if (Files.notExists(configPath)) {
-            Files.createFile(configPath);
+            try (InputStream configStream = VelocityPlugin.class.getClassLoader().getResourceAsStream("/config.yml")) {
+                if (configStream != null) {
+                    Files.copy(configStream, configPath);
+                }
+            }
         }
         ConfigurationNode node = YAMLConfigurationLoader.builder().setPath(configPath).build().load();
         this.redisHost = node.getNode("redis", "host").getString("localhost");

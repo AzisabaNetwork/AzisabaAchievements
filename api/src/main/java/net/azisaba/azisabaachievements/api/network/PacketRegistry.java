@@ -1,12 +1,15 @@
 package net.azisaba.azisabaachievements.api.network;
 
 import io.netty.buffer.ByteBuf;
+import net.azisaba.azisabaachievements.api.network.packet.PacketAchievementUnlocked;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Function;
+
 public interface PacketRegistry {
     default void registerCommonPackets() {
-        // TODO
+        registerPacket(PacketAchievementUnlocked.class, PacketAchievementUnlocked::new);
     }
 
     default void registerServerPackets() {
@@ -22,7 +25,7 @@ public interface PacketRegistry {
      * @param packetClass The packet class to register.
      * @return The packet id.
      */
-    int registerPacket(@NotNull Class<? extends Packet<?>> packetClass);
+    <T extends Packet<?>> int registerPacket(@NotNull Class<T> packetClass, @NotNull Function<PacketByteBuf, T> packetConstructor);
 
     /**
      * Get packet class by its id. Returns null if the id is not registered.

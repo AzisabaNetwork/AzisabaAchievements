@@ -12,13 +12,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Modifier;
 import java.util.Map;
+import java.util.function.Function;
 
 public class PacketRegistryImpl implements PacketRegistry {
-    private final Int2ObjectMap<Class<? extends Packet<?>>> idToPacket = new Int2ObjectOpenHashMap<>();
+    private final Int2ObjectMap<PacketData> idToPacket = new Int2ObjectOpenHashMap<>();
     private final Map<Class<? extends Packet<?>>, Integer> packetToId = new Object2IntArrayMap<>();
 
     @Override
-    public int registerPacket(@NotNull Class<? extends Packet<?>> packetClass) {
+    public <T extends Packet<?>> int registerPacket(@NotNull Class<T> packetClass, @NotNull Function<PacketByteBuf, T> packetConstructor) {
         if (Modifier.isAbstract(packetClass.getModifiers())) {
             throw new IllegalArgumentException("Cannot register abstract packet " + packetClass.getTypeName());
         }
@@ -32,21 +33,23 @@ public class PacketRegistryImpl implements PacketRegistry {
         if (packetToId.containsKey(packetClass)) {
             throw new IllegalArgumentException("Packet " + packetClass.getTypeName() + " is already registered");
         }
+        PacketData packetData = new PacketData(packetClass, packetConstructor);
         int id = packetToId.size();
         packetToId.put(packetClass, id);
-        idToPacket.put(id, packetClass);
+        idToPacket.put(id, packetData);
         return id;
     }
 
     @Override
     public @Nullable Class<? extends Packet<?>> getById(int id) {
-        return idToPacket.get(id);
+        PacketData packetData = idToPacket.get(id);
+        return packetData == null ? null : packetData.packetClass;
     }
 
     @Override
     public @NotNull Packet<?> createPacket(int id, @NotNull ByteBuf buf) throws IllegalArgumentException {
-        Class<? extends Packet<?>> packetClass = getById(id);
-        if (packetClass == null) {
+        PacketData packetData = idToPacket.get(id);
+        if (packetData == null) {
             throw new IllegalArgumentException("Packet id " + id + " is missing");
         }
         PacketByteBuf packetByteBuf;
@@ -55,15 +58,21 @@ public class PacketRegistryImpl implements PacketRegistry {
         } else {
             packetByteBuf = new PacketByteBuf(buf);
         }
-        try {
-            return packetClass.getConstructor(PacketByteBuf.class).newInstance(packetByteBuf);
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException("Failed to create the instance of packet " + packetClass.getTypeName(), e);
-        }
+        return packetData.packetConstructor.apply(packetByteBuf);
     }
 
     @Override
     public <T extends Packet<?>> int getId(@NotNull Class<T> packetClass) {
         return packetToId.getOrDefault(packetClass, -1);
+    }
+
+    public static class PacketData {
+        private final Class<? extends Packet<?>> packetClass;
+        private final Function<PacketByteBuf, ? extends Packet<?>> packetConstructor;
+
+        public PacketData(@NotNull Class<? extends Packet<?>> packetClass, @NotNull Function<PacketByteBuf, ? extends Packet<?>> packetConstructor) {
+            this.packetClass = packetClass;
+            this.packetConstructor = packetConstructor;
+        }
     }
 }

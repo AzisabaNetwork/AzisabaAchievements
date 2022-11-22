@@ -2,7 +2,9 @@ package net.azisaba.azisabaachievements.api.network;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.Unpooled;
 import io.netty.util.ByteProcessor;
+import net.azisaba.azisabaachievements.api.Key;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,8 +20,11 @@ import java.nio.channels.ScatteringByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.UUID;
 
 public class PacketByteBuf extends ByteBuf {
+    public static final PacketByteBuf EMPTY = new PacketByteBuf(Unpooled.EMPTY_BUFFER);
+
     private static final int SEGMENT_BITS = 0x7F;
     private static final int CONTINUE_BIT = 0x80;
 
@@ -27,6 +32,42 @@ public class PacketByteBuf extends ByteBuf {
 
     public PacketByteBuf(@NotNull ByteBuf buf) {
         this.buf = Objects.requireNonNull(buf, "buf");
+    }
+
+    /**
+     * Writes the uuid to the buffer.
+     * @param uuid the uuid
+     */
+    public void writeUUID(@NotNull UUID uuid) {
+        writeLong(uuid.getMostSignificantBits());
+        writeLong(uuid.getLeastSignificantBits());
+    }
+
+    /**
+     * Reads the uuid from the buffer.
+     * @return the uuid
+     */
+    @NotNull
+    public UUID readUUID() {
+        return new UUID(readLong(), readLong());
+    }
+
+    /**
+     * Writes the key to the buffer.
+     * @param key the key
+     */
+    public void writeKey(@NotNull Key key) {
+        writeString(key.namespace());
+        writeString(key.path());
+    }
+
+    /**
+     * Reads the key from the buffer.
+     * @return the key
+     */
+    @NotNull
+    public Key readKey() {
+        return Key.key(readString(), readString());
     }
 
     /**

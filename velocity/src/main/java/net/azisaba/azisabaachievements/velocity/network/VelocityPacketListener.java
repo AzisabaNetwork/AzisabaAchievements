@@ -6,10 +6,14 @@ import net.azisaba.azisabaachievements.api.network.ProxyPacketListener;
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonProxyLeaderChanged;
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonProxyLeaderLeave;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyCreateAchievement;
+import net.azisaba.azisabaachievements.api.network.packet.PacketProxyFetchAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerCreateAchievementCallback;
+import net.azisaba.azisabaachievements.api.network.packet.PacketServerFetchAchievementCallback;
 import net.azisaba.azisabaachievements.api.util.Either;
 import net.azisaba.azisabaachievements.velocity.plugin.VelocityPlugin;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 public class VelocityPacketListener implements ProxyPacketListener {
     private final VelocityPlugin plugin;
@@ -48,6 +52,25 @@ public class VelocityPacketListener implements ProxyPacketListener {
                         either = Either.right(data);
                     }
                     AzisabaAchievementsProvider.get().getPacketSender().sendPacket(new PacketServerCreateAchievementCallback(packet.getSeq(), either));
+                });
+    }
+
+    @Override
+    public void handle(@NotNull PacketProxyFetchAchievement packet) {
+        if (!plugin.getRedisConnectionLeader().isLeader()) {
+            return;
+        }
+        AzisabaAchievementsProvider.get()
+                .getAchievementManager()
+                .getAchievement(packet.getKey())
+                .whenComplete((data, throwable) -> {
+                    Either<String, Optional<AchievementData>> either;
+                    if (throwable != null) {
+                        either = Either.left(throwable.getMessage());
+                    } else {
+                        either = Either.right(data);
+                    }
+                    AzisabaAchievementsProvider.get().getPacketSender().sendPacket(new PacketServerFetchAchievementCallback(packet.getSeq(), either));
                 });
     }
 }

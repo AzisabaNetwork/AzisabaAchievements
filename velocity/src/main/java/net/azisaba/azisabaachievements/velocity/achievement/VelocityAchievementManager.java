@@ -8,6 +8,7 @@ import net.azisaba.azisabaachievements.common.util.QueryExecutor;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class VelocityAchievementManager implements AchievementManager {
@@ -35,6 +36,30 @@ public class VelocityAchievementManager implements AchievementManager {
                             future.complete(new AchievementData(id, key, count, point));
                         } else {
                             future.completeExceptionally(new IllegalStateException("Failed to create achievement"));
+                        }
+                    }
+                });
+            } catch (Throwable t) {
+                future.completeExceptionally(t);
+            }
+        }).async().schedule();
+        return future;
+    }
+
+    @Override
+    public @NotNull CompletableFuture<@NotNull Optional<AchievementData>> getAchievement(@NotNull Key key) {
+        CompletableFuture<Optional<AchievementData>> future = new CompletableFuture<>();
+        scheduler.builder(() -> {
+            try {
+                queryExecutor.queryVoid("SELECT `count`, `point` FROM `achievements` WHERE `key` = ?", ps -> {
+                    ps.setString(1, key.toString());
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            int count = rs.getInt("count");
+                            int point = rs.getInt("point");
+                            future.complete(Optional.of(new AchievementData(-1, key, count, point)));
+                        } else {
+                            future.complete(Optional.empty());
                         }
                     }
                 });

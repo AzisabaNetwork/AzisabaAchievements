@@ -2,13 +2,11 @@ package net.azisaba.azisabaachievements.common.sql;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import net.azisaba.azisabaachievements.common.util.MapEx;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mariadb.jdbc.Driver;
 
-import java.util.Objects;
 import java.util.Properties;
 
 public final class DatabaseConfig {
@@ -17,31 +15,25 @@ public final class DatabaseConfig {
     private final String hostname;
     private final int port;
     private final String name;
-    private final String guildChatDiscordName;
     private final String username;
     private final String password;
     private final Properties properties;
 
-    public DatabaseConfig(@NotNull MapEx<Object, Object> section) {
-        String driver = section.getString("driver");
-        String scheme = Objects.requireNonNull(section.getString("scheme"));
-        String hostname = Objects.requireNonNull(section.getString("hostname"));
-        int port = section.getInt("port", 3306);
-        String name = Objects.requireNonNull(section.getString("name"));
-        String guildChatDiscordName = section.getString("guildChatDiscordName", "guildchatdiscord");
-        String username = section.getString("username");
-        String password = section.getString("password");
-        Properties properties = new Properties();
-        MapEx<Object, Object> props = section.getMap("properties");
-        if (props != null) {
-            props.forEach(((key, value) -> properties.setProperty(String.valueOf(key), String.valueOf(value))));
-        }
+    public DatabaseConfig(
+            @Nullable String driver,
+            @NotNull String scheme,
+            @NotNull String hostname,
+            int port,
+            @NotNull String name,
+            @Nullable String username,
+            @Nullable String password,
+            @NotNull Properties properties
+    ) {
         this.driver = driver;
         this.scheme = scheme;
         this.hostname = hostname;
         this.port = port;
         this.name = name;
-        this.guildChatDiscordName = guildChatDiscordName;
         this.username = username;
         this.password = password;
         this.properties = properties;
@@ -74,12 +66,6 @@ public final class DatabaseConfig {
     @NotNull
     public String name() {
         return name;
-    }
-
-    @Contract(pure = true)
-    @NotNull
-    public String guildChatDiscordName() {
-        return guildChatDiscordName;
     }
 
     @Contract(pure = true)

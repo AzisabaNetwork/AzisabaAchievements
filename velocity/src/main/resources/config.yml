@@ -3,3 +3,27 @@ redis:
   port: 6379
   username: null
   password: null
+database:
+  # (scheme)://(host):(port)/(database)
+  # Keep the line commented out unless you get an obvious error message indicating that the driver was not found.
+  # Default driver (net.azisaba.azisabaachievements.libs.org.mariadb.jdbc.Driver) points to the bundled MariaDB driver in the AzisabaAchievements jar.
+  #driver: net.azisaba.azisabaachievements.libs.org.mariadb.jdbc.Driver
+
+  # change to jdbc:mysql if you want to use MySQL instead of MariaDB
+  scheme: jdbc:mariadb
+  hostname: localhost
+  port: 3306
+  name: azisabaachievements
+  username: azisabaachievements
+  password: azisabaachievements
+  properties:
+    useSSL: true
+    verifyServerCertificate: true
+    prepStmtCacheSize: 250
+    prepStmtCacheSqlLimit: 2048
+    cachePrepStmts: true
+    useServerPrepStmts: true # use server-side prepared statements for performance boost
+    socketTimeout: 30000 # milliseconds
+    useLocalSessionState: true
+    rewriteBatchedStatements: true
+    maintainTimeStats: false

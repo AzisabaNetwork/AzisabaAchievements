@@ -13,6 +13,7 @@ import net.azisaba.azisabaachievements.api.network.PacketRegistry;
 import net.azisaba.azisabaachievements.api.network.PacketRegistryPair;
 import net.azisaba.azisabaachievements.common.network.PacketRegistryImpl;
 import net.azisaba.azisabaachievements.common.redis.JedisBox;
+import net.azisaba.azisabaachievements.common.sql.DatabaseManager;
 import net.azisaba.azisabaachievements.velocity.redis.RedisConnectionLeader;
 import net.azisaba.azisabaachievements.velocity.redis.ServerIdProvider;
 import net.azisaba.azisabaachievements.velocity.VelocityAzisabaAchievements;
@@ -23,6 +24,7 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
 @Plugin(id = "azisaba-achievements", name = "AzisabaAchievements", version = "@YOU_SHOULD_NOT_SEE_THIS_AS_VERSION@")
@@ -37,9 +39,10 @@ public class VelocityPlugin implements PacketRegistryPair {
     private final JedisBox jedisBox;
     private final ServerIdProvider serverIdProvider;
     private final RedisConnectionLeader redisConnectionLeader;
+    private final DatabaseManager databaseManager;
 
     @Inject
-    public VelocityPlugin(@NotNull ProxyServer server, @NotNull Logger logger, @NotNull @DataDirectory Path dataDirectory) {
+    public VelocityPlugin(@NotNull ProxyServer server, @NotNull Logger logger, @NotNull @DataDirectory Path dataDirectory) throws SQLException {
         registerPackets();
         this.server = server;
         this.logger = logger;
@@ -54,6 +57,8 @@ public class VelocityPlugin implements PacketRegistryPair {
 
         redisConnectionLeader = new RedisConnectionLeader(jedisBox.getJedisPool(), serverIdProvider);
         redisConnectionLeader.trySwitch();
+
+        databaseManager = new DatabaseManager(config.databaseConfig.createDataSource());
 
         server.getScheduler()
                 .buildTask(this, () -> {
@@ -72,6 +77,7 @@ public class VelocityPlugin implements PacketRegistryPair {
         redisConnectionLeader.leaveLeader();
         serverIdProvider.deleteProxyId();
         jedisBox.close();
+        databaseManager.close();
     }
 
     @Contract(" -> new")
@@ -120,6 +126,11 @@ public class VelocityPlugin implements PacketRegistryPair {
     @NotNull
     public RedisConnectionLeader getRedisConnectionLeader() {
         return redisConnectionLeader;
+    }
+
+    @NotNull
+    public DatabaseManager getDatabaseManager() {
+        return databaseManager;
     }
 
     private void registerPackets() {

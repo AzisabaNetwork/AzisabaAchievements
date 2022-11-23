@@ -5,6 +5,7 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
+import com.velocitypowered.api.proxy.ProxyServer;
 import net.azisaba.azisabaachievements.api.AzisabaAchievementsProviderSetter;
 import net.azisaba.azisabaachievements.api.network.PacketRegistry;
 import net.azisaba.azisabaachievements.api.network.PacketRegistryPair;
@@ -24,14 +25,16 @@ public class VelocityPlugin implements PacketRegistryPair {
     private final PacketRegistry clientRegistry = new PacketRegistryImpl();
     private final PacketRegistry serverRegistry = new PacketRegistryImpl();
     private final VelocityPacketListener packetListener = new VelocityPacketListener();
+    private final ProxyServer server;
     private final Logger logger;
     private final Path dataDirectory;
     private final PluginConfig config;
     private final JedisBox jedisBox;
 
     @Inject
-    public VelocityPlugin(@NotNull Logger logger, @NotNull @DataDirectory Path dataDirectory) {
+    public VelocityPlugin(@NotNull ProxyServer server, @NotNull Logger logger, @NotNull @DataDirectory Path dataDirectory) {
         registerPackets();
+        this.server = server;
         this.logger = logger;
         this.dataDirectory = dataDirectory;
         this.config = loadConfig();
@@ -67,10 +70,16 @@ public class VelocityPlugin implements PacketRegistryPair {
     }
 
     @NotNull
+    public ProxyServer getServer() {
+        return server;
+    }
+
+    @NotNull
     public Logger getLogger() {
         return logger;
     }
 
+    @NotNull
     public JedisBox getJedisBox() {
         return jedisBox;
     }

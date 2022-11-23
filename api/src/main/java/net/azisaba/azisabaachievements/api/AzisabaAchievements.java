@@ -2,6 +2,7 @@ package net.azisaba.azisabaachievements.api;
 
 import net.azisaba.azisabaachievements.api.network.PacketRegistryPair;
 import net.azisaba.azisabaachievements.api.network.PacketSender;
+import net.azisaba.azisabaachievements.api.scheduler.TaskScheduler;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,4 +31,12 @@ public interface AzisabaAchievements {
     @Contract(pure = true)
     @NotNull
     PacketSender getPacketSender();
+
+    /**
+     * Returns the task scheduler. The task scheduler is used for scheduling tasks synchronously or asynchronously.
+     * @return the task scheduler
+     */
+    @Contract(pure = true)
+    @NotNull
+    TaskScheduler getScheduler();
 }

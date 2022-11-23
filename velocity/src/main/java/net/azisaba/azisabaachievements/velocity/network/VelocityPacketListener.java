@@ -1,7 +1,6 @@
 package net.azisaba.azisabaachievements.velocity.network;
 
 import net.azisaba.azisabaachievements.api.network.ProxyPacketListener;
-import net.azisaba.azisabaachievements.api.network.packet.PacketCommonAchievementUnlocked;
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonProxyLeaderChanged;
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonProxyLeaderLeave;
 import net.azisaba.azisabaachievements.velocity.plugin.VelocityPlugin;
@@ -12,11 +11,6 @@ public class VelocityPacketListener implements ProxyPacketListener {
 
     public VelocityPacketListener(@NotNull VelocityPlugin plugin) {
         this.plugin = plugin;
-    }
-
-    @Override
-    public void handle(@NotNull PacketCommonAchievementUnlocked packet) {
-        // TODO: save changes
     }
 
     @Override

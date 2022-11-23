@@ -1,7 +1,9 @@
 package net.azisaba.azisabaachievements.api;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 final class KeyImpl implements Key {
@@ -21,13 +23,35 @@ final class KeyImpl implements Key {
         this.path = path;
     }
 
+    @Contract(pure = true)
     @Override
     public @NotNull String namespace() {
         return namespace;
     }
 
+    @Contract(pure = true)
     @Override
     public @NotNull String path() {
         return path;
+    }
+
+    @Contract(pure = true)
+    @Override
+    public @NotNull String toString() {
+        return namespace + ':' + path;
+    }
+
+    @Contract(value = "null -> false", pure = true)
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof KeyImpl)) return false;
+        KeyImpl key = (KeyImpl) o;
+        return namespace.equals(key.namespace) && path.equals(key.path);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(namespace, path);
     }
 }

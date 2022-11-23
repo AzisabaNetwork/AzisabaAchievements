@@ -14,6 +14,7 @@ import net.azisaba.azisabaachievements.api.network.PacketRegistryPair;
 import net.azisaba.azisabaachievements.common.network.PacketRegistryImpl;
 import net.azisaba.azisabaachievements.common.redis.JedisBox;
 import net.azisaba.azisabaachievements.common.sql.DatabaseManager;
+import net.azisaba.azisabaachievements.velocity.listener.PlayerJoinListener;
 import net.azisaba.azisabaachievements.velocity.redis.RedisConnectionLeader;
 import net.azisaba.azisabaachievements.velocity.redis.ServerIdProvider;
 import net.azisaba.azisabaachievements.velocity.VelocityAzisabaAchievements;
@@ -70,6 +71,8 @@ public class VelocityPlugin implements PacketRegistryPair {
                 })
                 .repeat(5, TimeUnit.SECONDS)
                 .schedule();
+
+        server.getEventManager().register(this, new PlayerJoinListener(databaseManager));
     }
 
     @Subscribe

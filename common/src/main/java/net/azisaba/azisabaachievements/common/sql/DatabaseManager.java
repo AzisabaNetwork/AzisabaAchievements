@@ -31,12 +31,18 @@ public final class DatabaseManager implements QueryExecutor {
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS `achievements` (" +
                     "  `id` BIGINT NOT NULL AUTO_INCREMENT," + // internal id
-                    "  `key` VARCHAR(255) NOT NULL UNIQUE ," + // achievement key
-                    "  `name` VARCHAR(255) NOT NULL," + // achievement name
-                    "  `description` VARCHAR(255) NOT NULL," + // achievement description
+                    "  `key` VARCHAR(255) NOT NULL UNIQUE," + // achievement key
                     "  `count` BIGINT NOT NULL," + // achievement count required to actually "achieve"
                     "  `point` INT NOT NULL," + // achievement point
                     "  PRIMARY KEY (`id`)" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS `achievement_translations` (" +
+                    "  `id` BIGINT NOT NULL," + // achievement id
+                    "  `lang` VARCHAR(5) NOT NULL," + // language (Locale#getLanguage())
+                    "  `name` VARCHAR(255) NOT NULL," + // achievement name
+                    "  `description` VARCHAR(255) NOT NULL," + // achievement description
+                    "  PRIMARY KEY (`id`, `lang`)," +
+                    "  FOREIGN KEY (`id`) REFERENCES `achievements` (`id`)" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS `player_achievements` (" +
                     "  `player_id` VARCHAR(36) NOT NULL," + // -> players.id
@@ -68,9 +74,7 @@ public final class DatabaseManager implements QueryExecutor {
         }
     }
 
-    @Contract(pure = true)
-    @Override
-    public void query(@Language("SQL") @NotNull String sql, @NotNull SQLThrowableConsumer<PreparedStatement> action) throws SQLException {
+    public void queryVoid(@Language("SQL") @NotNull String sql, @NotNull SQLThrowableConsumer<PreparedStatement> action) throws SQLException {
         use(connection -> {
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 action.accept(statement);
@@ -78,8 +82,9 @@ public final class DatabaseManager implements QueryExecutor {
         });
     }
 
-    @Contract(pure = true)
-    public <R> R getPrepareStatement(@Language("SQL") @NotNull String sql, @NotNull SQLThrowableFunction<PreparedStatement, R> action) throws SQLException {
+    @Contract
+    @Override
+    public <R> R query(@Language("SQL") @NotNull String sql, @NotNull SQLThrowableFunction<PreparedStatement, R> action) throws SQLException {
         return use(connection -> {
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 return action.apply(statement);

@@ -19,6 +19,9 @@ public class AzisabaAchievementsCommand implements TabExecutor {
                 sender.sendMessage(ChatColor.RED + "Unknown command: " + args[0]);
                 return true;
             }
+            if (!sender.hasPermission("azisabaachievements.command.azisabaachievements." + args[0])) {
+                sender.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            }
             cmd.execute(sender, Stream.of(args).skip(1).toArray(String[]::new));
         } catch (Exception e) {
             if (e instanceof RuntimeException) {
@@ -33,7 +36,13 @@ public class AzisabaAchievementsCommand implements TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return filter(CommandManager.getCommands().stream().map(Command::getName), args[0]).collect(Collectors.toList());
+            return filter(
+                    CommandManager.getCommands()
+                            .stream()
+                            .filter(name -> sender.hasPermission("azisabaachievements.command.azisabaachievements." + name))
+                            .map(Command::getName),
+                    args[0]
+            ).collect(Collectors.toList());
         }
         return Collections.emptyList();
     }

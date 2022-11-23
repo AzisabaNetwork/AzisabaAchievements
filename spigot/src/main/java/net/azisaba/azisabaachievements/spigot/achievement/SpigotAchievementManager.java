@@ -7,6 +7,7 @@ import net.azisaba.azisabaachievements.api.achievement.AchievementManager;
 import net.azisaba.azisabaachievements.api.network.PacketSender;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyCreateAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyFetchAchievement;
+import net.azisaba.azisabaachievements.api.network.packet.PacketProxyProgressAchievement;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -39,5 +40,11 @@ public class SpigotAchievementManager implements AchievementManager {
         optionalAchievementDataCallback.put(packet.getSeq(), future);
         packetSender.sendPacket(packet);
         return future;
+    }
+
+    @Override
+    public @NotNull CompletableFuture<Boolean> progressAchievement(@NotNull UUID uuid, @NotNull Key key, int count) {
+        packetSender.sendPacket(new PacketProxyProgressAchievement(uuid, key, count));
+        return CompletableFuture.completedFuture(false);
     }
 }

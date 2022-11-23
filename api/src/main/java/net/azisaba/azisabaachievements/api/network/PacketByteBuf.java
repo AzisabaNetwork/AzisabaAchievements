@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.util.ByteProcessor;
 import net.azisaba.azisabaachievements.api.Key;
+import net.azisaba.azisabaachievements.api.achievement.AchievementData;
 import net.azisaba.azisabaachievements.api.util.Either;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +22,7 @@ import java.nio.channels.ScatteringByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 public class PacketByteBuf extends ByteBuf {
@@ -33,6 +35,29 @@ public class PacketByteBuf extends ByteBuf {
 
     public PacketByteBuf(@NotNull ByteBuf buf) {
         this.buf = Objects.requireNonNull(buf, "buf");
+    }
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public <T> void writeOptional(@NotNull Optional<T> optional, @NotNull PacketByteBufWriter<T> writer) {
+        writeBoolean(optional.isPresent());
+        optional.ifPresent(t -> writer.write(t, this));
+    }
+
+    @NotNull
+    public <T> Optional<T> readOptional(@NotNull PacketByteBufReader<T> reader) {
+        return readBoolean() ? Optional.of(reader.read(this)) : Optional.empty();
+    }
+
+    public void writeAchievementData(@NotNull AchievementData data) {
+        // id is not written
+        writeKey(data.getKey());
+        writeLong(data.getCount());
+        writeInt(data.getPoint());
+    }
+
+    @NotNull
+    public AchievementData readAchievementData() {
+        return new AchievementData(-1, readKey(), readLong(), readInt());
     }
 
     /**

@@ -18,16 +18,7 @@ public class PacketServerFetchAchievementCallback extends Packet<ServerPacketLis
     public PacketServerFetchAchievementCallback(@NotNull PacketByteBuf buf) {
         super(buf);
         this.seq = buf.readUUID();
-        this.result = buf.readEither(PacketByteBuf::readString, b -> {
-            if (b.readBoolean()) {
-                Key key = b.readKey();
-                int count = b.readInt();
-                int point = b.readInt();
-                return Optional.of(new AchievementData(0, key, count, point));
-            } else {
-                return Optional.empty();
-            }
-        });
+        this.result = buf.readEither(PacketByteBuf::readString, b -> b.readOptional(PacketByteBuf::readAchievementData));
     }
 
     public PacketServerFetchAchievementCallback(@NotNull UUID seq, @NotNull Either<@NotNull String, @NotNull Optional<AchievementData>> result) {
@@ -42,16 +33,7 @@ public class PacketServerFetchAchievementCallback extends Packet<ServerPacketLis
         buf.writeEither(
                 result,
                 (s, b) -> b.writeString(s),
-                (data, b) -> {
-                    if (data.isPresent()) {
-                        b.writeBoolean(true);
-                        b.writeKey(data.get().getKey());
-                        b.writeInt(data.get().getCount());
-                        b.writeInt(data.get().getPoint());
-                    } else {
-                        b.writeBoolean(false);
-                    }
-                }
+                (data, b) -> b.writeOptional(data, (d, bb) -> bb.writeAchievementData(d))
         );
     }
 

@@ -1,14 +1,9 @@
 package net.azisaba.azisabaachievements.common.data;
 
-import net.azisaba.azisabaachievements.common.util.QueryExecutor;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 public final class PlayerData {
@@ -53,39 +48,5 @@ public final class PlayerData {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';
-    }
-
-    @Contract(pure = true)
-    @NotNull
-    public static PlayerData getById(@NotNull QueryExecutor queryExecutor, @NotNull UUID id) {
-        try {
-            return queryExecutor.query("SELECT `name` FROM `players` WHERE `id` = ? LIMIT 1", ps -> {
-                ps.setString(1, id.toString());
-                try (ResultSet rs = ps.executeQuery()) {
-                    return new PlayerData(id, rs.getString("name"));
-                }
-            });
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Contract(pure = true)
-    @NotNull
-    public static Set<PlayerData> getByName(@NotNull QueryExecutor queryExecutor, @NotNull String name) {
-        try {
-            return queryExecutor.query("SELECT `id`, `name` FROM `players` WHERE `name` = ?", ps -> {
-                ps.setString(1, name);
-                try (ResultSet rs = ps.executeQuery()) {
-                    Set<PlayerData> set = new HashSet<>();
-                    while (rs.next()) {
-                        set.add(new PlayerData(UUID.fromString(rs.getString("id")), rs.getString("name")));
-                    }
-                    return set;
-                }
-            });
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

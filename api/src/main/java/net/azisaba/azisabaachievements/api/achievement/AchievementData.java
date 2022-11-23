@@ -9,11 +9,11 @@ import java.util.Objects;
 public final class AchievementData {
     private final long id;
     private final Key key;
-    private final int count;
+    private final long count;
     private final int point;
 
     @Contract(pure = true)
-    public AchievementData(long id, @NotNull Key key, int count, int point) {
+    public AchievementData(long id, @NotNull Key key, long count, int point) {
         this.id = id;
         this.key = Objects.requireNonNull(key, "key");
         this.count = count;
@@ -32,7 +32,7 @@ public final class AchievementData {
     }
 
     @Contract(pure = true)
-    public int getCount() {
+    public long getCount() {
         return count;
     }
 

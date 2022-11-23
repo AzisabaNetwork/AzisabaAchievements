@@ -1,6 +1,7 @@
 package net.azisaba.azisabaachievements.api.network.packet;
 
 import net.azisaba.azisabaachievements.api.Key;
+import net.azisaba.azisabaachievements.api.achievement.AchievementData;
 import net.azisaba.azisabaachievements.api.network.Packet;
 import net.azisaba.azisabaachievements.api.network.PacketByteBuf;
 import net.azisaba.azisabaachievements.api.network.PacketListener;
@@ -10,24 +11,24 @@ import java.util.UUID;
 
 public class PacketCommonAchievementUnlocked extends Packet<PacketListener> {
     private final UUID uuid;
-    private final Key achievementKey;
+    private final AchievementData achievement;
 
     public PacketCommonAchievementUnlocked(@NotNull PacketByteBuf buf) {
         super(buf);
         this.uuid = buf.readUUID();
-        this.achievementKey = buf.readKey();
+        this.achievement = buf.readAchievementData();
     }
 
-    public PacketCommonAchievementUnlocked(@NotNull UUID uuid, @NotNull Key achievementKey) {
+    public PacketCommonAchievementUnlocked(@NotNull UUID uuid, @NotNull AchievementData achievement) {
         super(PacketByteBuf.EMPTY);
         this.uuid = uuid;
-        this.achievementKey = achievementKey;
+        this.achievement = achievement;
     }
 
     @Override
     public void write(@NotNull PacketByteBuf buf) {
         buf.writeUUID(uuid);
-        buf.writeKey(achievementKey);
+        buf.writeAchievementData(achievement);
     }
 
     @Override
@@ -41,7 +42,7 @@ public class PacketCommonAchievementUnlocked extends Packet<PacketListener> {
     }
 
     @NotNull
-    public Key getAchievementKey() {
-        return achievementKey;
+    public AchievementData getAchievement() {
+        return achievement;
     }
 }

@@ -26,7 +26,7 @@ public class DataProvider {
                         return new AchievementData(
                                 rs.getLong("id"),
                                 Key.key(rs.getString("key")),
-                                rs.getInt("count"),
+                                rs.getLong("count"),
                                 rs.getInt("point")
                         );
                     } else {
@@ -50,7 +50,7 @@ public class DataProvider {
                         return new AchievementData(
                                 rs.getLong("id"),
                                 Key.key(rs.getString("key")),
-                                rs.getInt("count"),
+                                rs.getLong("count"),
                                 rs.getInt("point")
                         );
                     } else {

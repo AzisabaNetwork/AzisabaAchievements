@@ -13,7 +13,7 @@ public class PacketProxyProgressAchievement extends Packet<ProxyPacketListener> 
     private final Key key;
     private final int count;
 
-    public PacketProxyProgressAchievement(PacketByteBuf buf) {
+    public PacketProxyProgressAchievement(@NotNull PacketByteBuf buf) {
         super(buf);
         this.uuid = buf.readUUID();
         this.key = buf.readKey();

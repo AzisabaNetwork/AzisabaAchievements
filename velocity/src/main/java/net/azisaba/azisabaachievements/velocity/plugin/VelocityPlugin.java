@@ -6,11 +6,15 @@ import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
+import net.azisaba.azisabaachievements.api.AzisabaAchievementsProvider;
 import net.azisaba.azisabaachievements.api.AzisabaAchievementsProviderSetter;
+import net.azisaba.azisabaachievements.api.Side;
 import net.azisaba.azisabaachievements.api.network.PacketRegistry;
 import net.azisaba.azisabaachievements.api.network.PacketRegistryPair;
 import net.azisaba.azisabaachievements.common.network.PacketRegistryImpl;
 import net.azisaba.azisabaachievements.common.redis.JedisBox;
+import net.azisaba.azisabaachievements.velocity.redis.RedisConnectionLeader;
+import net.azisaba.azisabaachievements.velocity.redis.ServerIdProvider;
 import net.azisaba.azisabaachievements.velocity.VelocityAzisabaAchievements;
 import net.azisaba.azisabaachievements.velocity.network.VelocityPacketListener;
 import org.jetbrains.annotations.Contract;
@@ -19,17 +23,20 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
 
 @Plugin(id = "azisaba-achievements", name = "AzisabaAchievements", version = "@YOU_SHOULD_NOT_SEE_THIS_AS_VERSION@")
 public class VelocityPlugin implements PacketRegistryPair {
     private final PacketRegistry clientRegistry = new PacketRegistryImpl();
     private final PacketRegistry serverRegistry = new PacketRegistryImpl();
-    private final VelocityPacketListener packetListener = new VelocityPacketListener();
+    private final VelocityPacketListener packetListener = new VelocityPacketListener(this);
     private final ProxyServer server;
     private final Logger logger;
     private final Path dataDirectory;
     private final PluginConfig config;
     private final JedisBox jedisBox;
+    private final ServerIdProvider serverIdProvider;
+    private final RedisConnectionLeader redisConnectionLeader;
 
     @Inject
     public VelocityPlugin(@NotNull ProxyServer server, @NotNull Logger logger, @NotNull @DataDirectory Path dataDirectory) {
@@ -37,13 +44,33 @@ public class VelocityPlugin implements PacketRegistryPair {
         this.server = server;
         this.logger = logger;
         this.dataDirectory = dataDirectory;
-        this.config = loadConfig();
-        this.jedisBox = createJedisBox();
+        config = loadConfig();
+        jedisBox = createJedisBox();
+        serverIdProvider = new ServerIdProvider(jedisBox.getJedisPool());
         AzisabaAchievementsProviderSetter.setInstance(new VelocityAzisabaAchievements(this));
+
+        serverIdProvider.runIdKeeperTask(AzisabaAchievementsProvider.get().getScheduler());
+        logger.info("This proxy's ID is " + serverIdProvider.getId());
+
+        redisConnectionLeader = new RedisConnectionLeader(jedisBox.getJedisPool(), serverIdProvider);
+        redisConnectionLeader.trySwitch();
+
+        server.getScheduler()
+                .buildTask(this, () -> {
+                    if (redisConnectionLeader.isLeader()) {
+                        redisConnectionLeader.extendLeaderExpire();
+                    } else {
+                        redisConnectionLeader.trySwitch();
+                    }
+                })
+                .repeat(5, TimeUnit.SECONDS)
+                .schedule();
     }
 
     @Subscribe
     public void onProxyShutdown(ProxyShutdownEvent e) {
+        redisConnectionLeader.leaveLeader();
+        serverIdProvider.deleteProxyId();
         jedisBox.close();
     }
 
@@ -59,6 +86,7 @@ public class VelocityPlugin implements PacketRegistryPair {
     @Contract(" -> new")
     private @NotNull JedisBox createJedisBox() {
         return new JedisBox(
+                Side.SERVER,
                 net.azisaba.azisabaachievements.api.Logger.createByProxy(logger),
                 packetListener,
                 this,
@@ -82,6 +110,16 @@ public class VelocityPlugin implements PacketRegistryPair {
     @NotNull
     public JedisBox getJedisBox() {
         return jedisBox;
+    }
+
+    @NotNull
+    public ServerIdProvider getServerIdProvider() {
+        return serverIdProvider;
+    }
+
+    @NotNull
+    public RedisConnectionLeader getRedisConnectionLeader() {
+        return redisConnectionLeader;
     }
 
     private void registerPackets() {

@@ -1,6 +1,7 @@
 package net.azisaba.azisabaachievements.common.redis;
 
 import net.azisaba.azisabaachievements.api.Logger;
+import net.azisaba.azisabaachievements.api.Side;
 import net.azisaba.azisabaachievements.api.network.PacketListener;
 import net.azisaba.azisabaachievements.api.network.PacketRegistryPair;
 import org.jetbrains.annotations.Contract;
@@ -17,6 +18,7 @@ public final class JedisBox implements Closeable {
     private final PubSubHandler pubSubHandler;
 
     public JedisBox(
+            @NotNull Side side,
             @NotNull Logger logger,
             @NotNull PacketListener packetListener,
             @NotNull PacketRegistryPair packetRegistryPair,
@@ -26,7 +28,7 @@ public final class JedisBox implements Closeable {
             @Nullable String password
     ) {
         this.jedisPool = createPool(hostname, port, username, password);
-        this.pubSubHandler = new PubSubHandler(logger, jedisPool, packetListener, packetRegistryPair);
+        this.pubSubHandler = new PubSubHandler(side, logger, jedisPool, packetListener, packetRegistryPair);
     }
 
     @Contract(pure = true)

@@ -3,6 +3,7 @@ package net.azisaba.azisabaachievements.common.redis;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.azisaba.azisabaachievements.api.Logger;
+import net.azisaba.azisabaachievements.api.Side;
 import net.azisaba.azisabaachievements.api.network.Packet;
 import net.azisaba.azisabaachievements.api.network.PacketByteBuf;
 import net.azisaba.azisabaachievements.api.network.PacketListener;
@@ -31,6 +32,7 @@ public class PubSubHandler implements Closeable, PacketSender {
     public static final byte @NotNull [] CHANNEL = CHANNEL_STRING.getBytes(StandardCharsets.UTF_8);
     private final ArrayDeque<Consumer<byte[]>> pingPongQueue = new ArrayDeque<>();
     private final PubSubListener listener = new PubSubListener();
+    private final Side side;
     private final Logger logger;
     private final JedisPool jedisPool;
     private final PacketListener packetListener;
@@ -48,11 +50,13 @@ public class PubSubHandler implements Closeable, PacketSender {
     });
 
     public PubSubHandler(
+            @NotNull Side side,
             @NotNull Logger logger,
             @NotNull JedisPool jedisPool,
             @NotNull PacketListener packetListener,
             @NotNull PacketRegistryPair packetRegistryPair
     ) {
+        this.side = side;
         this.logger = logger;
         this.jedisPool = jedisPool;
         this.packetListener = packetListener;
@@ -102,6 +106,15 @@ public class PubSubHandler implements Closeable, PacketSender {
     public void sendPacket(@NotNull Packet<?> packet) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         int packetId = serverRegistry.getId(packet.getClass());
+        if (packetId == -1) {
+            throw new IllegalArgumentException("Packet " + packet.getClass().getTypeName() + " is not registered");
+        }
+        if (clientRegistry.getId(packet.getClass()) == -1) {
+            // sided packet
+            buf.writeByte(side.ordinal());
+        } else {
+            buf.writeByte(-1);
+        }
         buf.writeVarInt(packetId);
         packet.write(buf);
         try (Jedis jedis = jedisPool.getResource()) {
@@ -111,6 +124,11 @@ public class PubSubHandler implements Closeable, PacketSender {
 
     private void processRawMessage(byte[] message) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.wrappedBuffer(message));
+        int sideByte = buf.readByte();
+        if (sideByte == side.ordinal()) {
+            // ignore packets from same side
+            return;
+        }
         int packetId = buf.readVarInt();
         try {
             handlePacket(packetId, buf.slice());

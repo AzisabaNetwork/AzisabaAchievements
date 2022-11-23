@@ -8,17 +8,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-public class PacketAchievementUnlocked extends Packet<PacketListener> {
+public class PacketCommonAchievementUnlocked extends Packet<PacketListener> {
     private final UUID uuid;
     private final Key achievementKey;
 
-    public PacketAchievementUnlocked(@NotNull PacketByteBuf buf) {
+    public PacketCommonAchievementUnlocked(@NotNull PacketByteBuf buf) {
         super(buf);
         this.uuid = buf.readUUID();
         this.achievementKey = buf.readKey();
     }
 
-    public PacketAchievementUnlocked(@NotNull UUID uuid, @NotNull Key achievementKey) {
+    public PacketCommonAchievementUnlocked(@NotNull UUID uuid, @NotNull Key achievementKey) {
         super(PacketByteBuf.EMPTY);
         this.uuid = uuid;
         this.achievementKey = achievementKey;
@@ -33,5 +33,15 @@ public class PacketAchievementUnlocked extends Packet<PacketListener> {
     @Override
     public void handle(@NotNull PacketListener packetListener) {
         packetListener.handle(this);
+    }
+
+    @NotNull
+    public UUID getPlayerUniqueId() {
+        return uuid;
+    }
+
+    @NotNull
+    public Key getAchievementKey() {
+        return achievementKey;
     }
 }

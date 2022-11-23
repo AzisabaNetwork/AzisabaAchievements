@@ -1,7 +1,9 @@
 package net.azisaba.azisabaachievements.api.network;
 
 import io.netty.buffer.ByteBuf;
-import net.azisaba.azisabaachievements.api.network.packet.PacketAchievementUnlocked;
+import net.azisaba.azisabaachievements.api.network.packet.PacketCommonAchievementUnlocked;
+import net.azisaba.azisabaachievements.api.network.packet.PacketCommonProxyLeaderChanged;
+import net.azisaba.azisabaachievements.api.network.packet.PacketCommonProxyLeaderLeave;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,15 +11,15 @@ import java.util.function.Function;
 
 public interface PacketRegistry {
     default void registerCommonPackets() {
-        registerPacket(PacketAchievementUnlocked.class, PacketAchievementUnlocked::new);
+        registerPacket(PacketCommonAchievementUnlocked.class, PacketCommonAchievementUnlocked::new);
+        registerPacket(PacketCommonProxyLeaderLeave.class, PacketCommonProxyLeaderLeave::new);
+        registerPacket(PacketCommonProxyLeaderChanged.class, PacketCommonProxyLeaderChanged::new);
     }
 
     default void registerServerPackets() {
-        // TODO
     }
 
     default void registerProxyPackets() {
-        // TODO
     }
 
     /**

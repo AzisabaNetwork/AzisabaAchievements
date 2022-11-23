@@ -57,8 +57,8 @@ public class PacketByteBuf extends ByteBuf {
      * @param key the key
      */
     public void writeKey(@NotNull Key key) {
-        writeString(key.namespace());
-        writeString(key.path());
+        writeLatinString(key.namespace());
+        writeLatinString(key.path());
     }
 
     /**
@@ -67,41 +67,66 @@ public class PacketByteBuf extends ByteBuf {
      */
     @NotNull
     public Key readKey() {
-        return Key.key(readString(), readString());
+        return Key.key(readLatinString(), readLatinString());
+    }
+
+    /**
+     * Writes the given string to the buffer.
+     * @param str the string
+     */
+    public void writeString(@NotNull String str, @NotNull Charset charset) {
+        byte[] bytes = str.getBytes(charset);
+        writeVarInt(bytes.length);
+        if (bytes.length > 0) {
+            writeBytes(bytes);
+        }
     }
 
     /**
      * Writes the given string to the buffer. The string is encoded in UTF-16.
      * @param str the string
-     * @throws IllegalArgumentException If the string is too long to be encoded
      */
     public void writeString(@NotNull String str) {
-        if (str.length() * 2 < 0) {
-            throw new IllegalArgumentException("String too long");
+        writeString(str, StandardCharsets.UTF_16);
+    }
+
+    /**
+     * Writes the string to the buffer. The string is encoded in Latin (US_ASCII). This method will not throw exception
+     * if the string contains non-Latin characters.
+     * @param string the string
+     */
+    public void writeLatinString(@NotNull String string) {
+        writeString(string, StandardCharsets.US_ASCII);
+    }
+
+    /**
+     * Reads the string from the buffer.
+     * @return the string
+     */
+    public @NotNull String readString(@NotNull Charset charset) {
+        int length = readVarInt();
+        if (length == 0) {
+            return "";
         }
-        writeInt(str.length());
-        writeBytes(str.getBytes(StandardCharsets.UTF_16));
+        byte[] bytes = new byte[length];
+        readBytes(bytes);
+        return new String(bytes, charset);
     }
 
     /**
      * Reads the string from the buffer. The string is encoded in UTF-16.
      * @return the string
-     * @throws IllegalArgumentException If the string is not valid (e.g. negative length or length overflow)
      */
     public @NotNull String readString() {
-        int length = readInt();
-        if (length < 0) {
-            throw new IllegalArgumentException("String length is negative");
-        }
-        if (length == 0) {
-            return "";
-        }
-        if (length * 2 < 0) {
-            throw new IllegalArgumentException("String too long");
-        }
-        byte[] bytes = new byte[length * 2];
-        readBytes(bytes);
-        return new String(bytes, StandardCharsets.UTF_16);
+        return readString(StandardCharsets.UTF_16);
+    }
+
+    /**
+     * Reads the string from the buffer. The string is encoded in Latin (US_ASCII).
+     * @return the string
+     */
+    public @NotNull String readLatinString() {
+        return readString(StandardCharsets.US_ASCII);
     }
 
     /**

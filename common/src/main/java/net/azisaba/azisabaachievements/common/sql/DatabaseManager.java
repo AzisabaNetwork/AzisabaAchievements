@@ -21,16 +21,30 @@ public final class DatabaseManager implements QueryExecutor {
         createTables();
     }
 
+    @SuppressWarnings("SqlNoDataSourceInspection")
     private void createTables() throws SQLException {
         useStatement(statement -> {
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS `players` (" +
-                    "  `id` VARCHAR(36) NOT NULL," +
-                    "  `name` VARCHAR(36) NOT NULL," +
-                    "  `selected_guild` BIGINT NOT NULL DEFAULT -1," +
-                    "  `focused_guild` BIGINT NOT NULL DEFAULT -1," + // able to chat to guild without command
-                    "  `accepting_invites` TINYINT(1) NOT NULL DEFAULT 1," +
-                    "  `translate_kana` TINYINT(1) NOT NULL DEFAULT 1," +
+                    "  `id` VARCHAR(36) NOT NULL," + // uuid
+                    "  `name` VARCHAR(32) NOT NULL," + // username
                     "  PRIMARY KEY (`id`)" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS `achievements` (" +
+                    "  `id` BIGINT NOT NULL AUTO_INCREMENT," + // internal id
+                    "  `key` VARCHAR(255) NOT NULL UNIQUE ," + // achievement key
+                    "  `name` VARCHAR(255) NOT NULL," + // achievement name
+                    "  `description` VARCHAR(255) NOT NULL," + // achievement description
+                    "  `count` BIGINT NOT NULL," + // achievement count required to actually "achieve"
+                    "  `point` INT NOT NULL," + // achievement point
+                    "  PRIMARY KEY (`id`)" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS `player_achievements` (" +
+                    "  `player_id` VARCHAR(36) NOT NULL," + // -> players.id
+                    "  `achievement_id` BIGINT NOT NULL," + // -> achievements.id
+                    "  `count` BIGINT NOT NULL," +
+                    "  PRIMARY KEY (`player_id`, `achievement_id`)," +
+                    "  FOREIGN KEY (`player_id`) REFERENCES `players` (`id`)," +
+                    "  FOREIGN KEY (`achievement_id`) REFERENCES `achievements` (`id`)" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
         });
     }

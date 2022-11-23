@@ -1,6 +1,7 @@
 package net.azisaba.azisabaachievements.spigot.plugin;
 
 import net.azisaba.azisabaachievements.api.AzisabaAchievementsProviderSetter;
+import net.azisaba.azisabaachievements.api.Side;
 import net.azisaba.azisabaachievements.api.network.PacketListener;
 import net.azisaba.azisabaachievements.api.network.PacketRegistry;
 import net.azisaba.azisabaachievements.api.network.PacketRegistryPair;
@@ -47,6 +48,7 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
     @Contract(" -> new")
     private @NotNull JedisBox createJedisBox() {
         return new JedisBox(
+                Side.SERVER,
                 net.azisaba.azisabaachievements.api.Logger.createFromJavaLogger(getLogger()),
                 packetListener,
                 this,

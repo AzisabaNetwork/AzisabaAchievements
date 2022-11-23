@@ -138,9 +138,9 @@ public class VelocityPlugin implements PacketRegistryPair {
 
     private void registerPackets() {
         clientRegistry.registerCommonPackets();
-        clientRegistry.registerServerPackets();
+        clientRegistry.registerProxyBoundPackets();
         serverRegistry.registerCommonPackets();
-        serverRegistry.registerProxyPackets();
+        serverRegistry.registerServerBoundPackets();
     }
 
     @Override

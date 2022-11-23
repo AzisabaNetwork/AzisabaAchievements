@@ -26,9 +26,9 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
 
     public SpigotPlugin() {
         clientRegistry.registerCommonPackets();
-        clientRegistry.registerProxyPackets();
+        clientRegistry.registerServerBoundPackets();
         serverRegistry.registerCommonPackets();
-        serverRegistry.registerServerPackets();
+        serverRegistry.registerProxyBoundPackets();
     }
 
     @Override

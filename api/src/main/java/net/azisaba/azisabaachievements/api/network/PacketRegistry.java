@@ -16,10 +16,10 @@ public interface PacketRegistry {
         registerPacket(PacketCommonProxyLeaderChanged.class, PacketCommonProxyLeaderChanged::new);
     }
 
-    default void registerServerPackets() {
+    default void registerProxyBoundPackets() {
     }
 
-    default void registerProxyPackets() {
+    default void registerServerBoundPackets() {
     }
 
     /**

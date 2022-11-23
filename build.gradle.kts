@@ -81,6 +81,11 @@ allprojects {
         }
 
         shadowJar {
+            relocate("redis.clients", "net.azisaba.azisabaachievements.libs.redis.clients")
+            relocate("org.mariadb", "net.azisaba.azisabaachievements.libs.org.mariadb")
+            relocate("it.unimi.dsi", "net.azisaba.azisabaachievements.libs.it.unimi.dsi")
+            relocate("org.mariadb.jdbc", "net.azisaba.azisabaachievements.libs.org.mariadb.jdbc")
+            relocate("com.zaxxer.hikari", "net.azisaba.azisabaachievements.libs.com.zaxxer.hikari")
             archiveClassifier.set("")
         }
     }

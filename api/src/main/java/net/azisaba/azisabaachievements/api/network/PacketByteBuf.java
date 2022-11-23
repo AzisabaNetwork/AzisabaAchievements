@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.util.ByteProcessor;
 import net.azisaba.azisabaachievements.api.Key;
+import net.azisaba.azisabaachievements.api.util.Either;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,6 +33,30 @@ public class PacketByteBuf extends ByteBuf {
 
     public PacketByteBuf(@NotNull ByteBuf buf) {
         this.buf = Objects.requireNonNull(buf, "buf");
+    }
+
+    /**
+     * Writes the {@link Either} to the buffer.
+     */
+    public <L, R> void writeEither(@NotNull Either<L, R> either, @NotNull PacketByteBufWriter<L> left, @NotNull PacketByteBufWriter<R> right) {
+        if (either.isLeft()) {
+            writeBoolean(true);
+            left.write(either.getLeft(), this);
+        } else {
+            writeBoolean(false);
+            right.write(either.getRight(), this);
+        }
+    }
+
+    /**
+     * Reads the {@link Either} from the buffer.
+     */
+    public <L, R> Either<L, R> readEither(@NotNull PacketByteBufReader<L> left, @NotNull PacketByteBufReader<R> right) {
+        if (readBoolean()) {
+            return Either.left(left.read(this));
+        } else {
+            return Either.right(right.read(this));
+        }
     }
 
     /**

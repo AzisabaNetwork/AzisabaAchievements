@@ -1,5 +1,6 @@
 package net.azisaba.azisabaachievements.api;
 
+import net.azisaba.azisabaachievements.api.achievement.AchievementManager;
 import net.azisaba.azisabaachievements.api.network.PacketRegistryPair;
 import net.azisaba.azisabaachievements.api.network.PacketSender;
 import net.azisaba.azisabaachievements.api.scheduler.TaskScheduler;
@@ -39,4 +40,12 @@ public interface AzisabaAchievements {
     @Contract(pure = true)
     @NotNull
     TaskScheduler getScheduler();
+
+    /**
+     * Returns the achievement manager.
+     * @return the achievement manager
+     */
+    @Contract(pure = true)
+    @NotNull
+    AchievementManager getAchievementManager();
 }

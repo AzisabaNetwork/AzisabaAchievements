@@ -86,7 +86,7 @@ public final class DatabaseManager implements QueryExecutor {
     @Override
     public <R> R query(@Language("SQL") @NotNull String sql, @NotNull SQLThrowableFunction<PreparedStatement, R> action) throws SQLException {
         return use(connection -> {
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 return action.apply(statement);
             }
         });

@@ -20,10 +20,10 @@ public class CommandDumpProtocol implements Command {
     }
 
     private void dumpProtocol(@NotNull CommandSender sender, @NotNull PacketRegistry registry, @NotNull String prefix) {
-        int id = 0;
+        int id = -1;
         Class<? extends Packet<?>> packet;
         do {
-            packet = registry.getById(id);
+            packet = registry.getById(++id);
             if (packet != null) {
                 String hex = Integer.toString(id, 16);
                 if (hex.length() == 1) {

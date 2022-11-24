@@ -9,6 +9,7 @@ import net.azisaba.azisabaachievements.api.network.packet.PacketProxyFetchAchiev
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyProgressAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerCreateAchievementCallback;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerFetchAchievementCallback;
+import net.azisaba.azisabaachievements.api.network.packet.PacketServerProgressAchievementCallback;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,6 +31,7 @@ public interface PacketRegistry {
     default void registerServerBoundPackets() {
         registerPacket(PacketServerCreateAchievementCallback.class, PacketServerCreateAchievementCallback::new);
         registerPacket(PacketServerFetchAchievementCallback.class, PacketServerFetchAchievementCallback::new);
+        registerPacket(PacketServerProgressAchievementCallback.class, PacketServerProgressAchievementCallback::new);
     }
 
     /**

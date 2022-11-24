@@ -6,6 +6,7 @@ import net.azisaba.azisabaachievements.api.network.ServerPacketListener;
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonAchievementUnlocked;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerCreateAchievementCallback;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerFetchAchievementCallback;
+import net.azisaba.azisabaachievements.api.network.packet.PacketServerProgressAchievementCallback;
 import net.azisaba.azisabaachievements.spigot.achievement.SpigotAchievementManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -60,6 +61,21 @@ public class SpigotPacketListener implements ServerPacketListener {
     public void handle(@NotNull PacketServerFetchAchievementCallback packet) {
         CompletableFuture<Optional<AchievementData>> cb = ((SpigotAchievementManager) AzisabaAchievementsProvider.get().getAchievementManager())
                 .optionalAchievementDataCallback
+                .remove(packet.getSeq());
+        if (cb == null) {
+            return;
+        }
+        if (packet.getResult().isLeft()) {
+            cb.completeExceptionally(new RuntimeException("Proxy returned an error: " + packet.getResult().getLeft()));
+        } else {
+            cb.complete(packet.getResult().getRight());
+        }
+    }
+
+    @Override
+    public void handle(@NotNull PacketServerProgressAchievementCallback packet) {
+        CompletableFuture<Boolean> cb = ((SpigotAchievementManager) AzisabaAchievementsProvider.get().getAchievementManager())
+                .progressAchievementCallback
                 .remove(packet.getSeq());
         if (cb == null) {
             return;

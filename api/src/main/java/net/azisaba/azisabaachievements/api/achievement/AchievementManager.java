@@ -27,14 +27,11 @@ public interface AchievementManager {
     CompletableFuture<@NotNull Optional<AchievementData>> getAchievement(@NotNull Key key);
 
     /**
-     * Progresses the achievement. If the achievement does not exist, the future will be completed exceptionally. In
-     * spigot, this method will send a packet to the proxy server and completes the future immediately with false.
-     * In proxy server, this method will update the achievement data in the database and completes the future.
+     * Progresses the achievement. If the achievement does not exist, the future will be completed exceptionally.
      * @param uuid the player uuid
      * @param key the achievement key
      * @param count the progress count
-     * @return true if the achievement is unlocked (count >= required count) and achievement manager is instance of
-     * proxy server side achievement manager
+     * @return true if the achievement is unlocked (count >= required count) by this progress
      */
     @NotNull
     CompletableFuture<Boolean> progressAchievement(@NotNull UUID uuid, @NotNull Key key, long count);

@@ -9,12 +9,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 public class PacketProxyProgressAchievement extends Packet<ProxyPacketListener> {
+    private final UUID seq;
     private final UUID uuid;
     private final Key key;
     private final long count;
 
     public PacketProxyProgressAchievement(@NotNull PacketByteBuf buf) {
         super(buf);
+        this.seq = buf.readUUID();
         this.uuid = buf.readUUID();
         this.key = buf.readKey();
         this.count = buf.readLong();
@@ -22,6 +24,7 @@ public class PacketProxyProgressAchievement extends Packet<ProxyPacketListener> 
 
     public PacketProxyProgressAchievement(@NotNull UUID uuid, @NotNull Key key, long count) {
         super(PacketByteBuf.EMPTY);
+        this.seq = UUID.randomUUID();
         this.uuid = uuid;
         this.key = key;
         this.count = count;
@@ -37,6 +40,11 @@ public class PacketProxyProgressAchievement extends Packet<ProxyPacketListener> 
     @Override
     public void handle(@NotNull ProxyPacketListener packetListener) {
         packetListener.handle(this);
+    }
+
+    @NotNull
+    public UUID getSeq() {
+        return seq;
     }
 
     /**

@@ -11,6 +11,7 @@ import net.azisaba.azisabaachievements.api.network.packet.PacketProxyFetchAchiev
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyProgressAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerCreateAchievementCallback;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerFetchAchievementCallback;
+import net.azisaba.azisabaachievements.api.network.packet.PacketServerProgressAchievementCallback;
 import net.azisaba.azisabaachievements.api.util.Either;
 import net.azisaba.azisabaachievements.common.sql.DataProvider;
 import net.azisaba.azisabaachievements.velocity.plugin.VelocityPlugin;
@@ -85,8 +86,15 @@ public class VelocityPacketListener implements ProxyPacketListener {
         AzisabaAchievementsProvider.get()
                 .getAchievementManager()
                 .progressAchievement(packet.getUniqueId(), packet.getKey(), packet.getCount())
-                .thenAccept(result -> {
-                    if (result) {
+                .whenComplete((result, throwable) -> {
+                    Either<String, Boolean> either;
+                    if (throwable != null) {
+                        either = Either.left(throwable.getMessage());
+                    } else {
+                        either = Either.right(result);
+                    }
+                    AzisabaAchievementsProvider.get().getPacketSender().sendPacket(new PacketServerProgressAchievementCallback(packet.getSeq(), either));
+                    if (result != null && result) {
                         AchievementData achievement = DataProvider.getAchievementByKey(plugin.getDatabaseManager(), packet.getKey());
                         if (achievement == null) {
                             throw new AssertionError("Achievement " + packet.getKey() + " is missing");

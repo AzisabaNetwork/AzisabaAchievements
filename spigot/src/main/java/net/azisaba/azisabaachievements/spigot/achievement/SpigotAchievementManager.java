@@ -18,6 +18,7 @@ import java.util.concurrent.CompletableFuture;
 public class SpigotAchievementManager implements AchievementManager {
     public final Map<UUID, CompletableFuture<AchievementData>> achievementDataCallback = new Object2ObjectOpenHashMap<>();
     public final Map<UUID, CompletableFuture<Optional<AchievementData>>> optionalAchievementDataCallback = new Object2ObjectOpenHashMap<>();
+    public final Map<UUID, CompletableFuture<Boolean>> progressAchievementCallback = new Object2ObjectOpenHashMap<>();
     private final PacketSender packetSender;
 
     public SpigotAchievementManager(@NotNull PacketSender packetSender) {
@@ -44,7 +45,10 @@ public class SpigotAchievementManager implements AchievementManager {
 
     @Override
     public @NotNull CompletableFuture<Boolean> progressAchievement(@NotNull UUID uuid, @NotNull Key key, long count) {
-        packetSender.sendPacket(new PacketProxyProgressAchievement(uuid, key, count));
-        return CompletableFuture.completedFuture(false);
+        PacketProxyProgressAchievement packet = new PacketProxyProgressAchievement(uuid, key, count);
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        progressAchievementCallback.put(packet.getSeq(), future);
+        packetSender.sendPacket(packet);
+        return future;
     }
 }

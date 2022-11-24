@@ -50,7 +50,7 @@ public class SpigotPacketListener implements ServerPacketListener {
             return;
         }
         if (packet.getResult().isLeft()) {
-            cb.completeExceptionally(new RuntimeException(packet.getResult().getLeft()));
+            cb.completeExceptionally(new RuntimeException("Proxy returned an error: " + packet.getResult().getLeft()));
         } else {
             cb.complete(packet.getResult().getRight());
         }
@@ -65,7 +65,7 @@ public class SpigotPacketListener implements ServerPacketListener {
             return;
         }
         if (packet.getResult().isLeft()) {
-            cb.completeExceptionally(new RuntimeException(packet.getResult().getLeft()));
+            cb.completeExceptionally(new RuntimeException("Proxy returned an error: " + packet.getResult().getLeft()));
         } else {
             cb.complete(packet.getResult().getRight());
         }

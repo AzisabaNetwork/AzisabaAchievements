@@ -2,6 +2,7 @@ package net.azisaba.azisabaachievements.velocity.plugin;
 
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
@@ -52,14 +53,16 @@ public class VelocityPlugin implements PacketRegistryPair {
         jedisBox = createJedisBox();
         serverIdProvider = new ServerIdProvider(jedisBox.getJedisPool());
         AzisabaAchievementsProviderSetter.setInstance(new VelocityAzisabaAchievements(this));
+        redisConnectionLeader = new RedisConnectionLeader(jedisBox.getJedisPool(), serverIdProvider);
+        databaseManager = new DatabaseManager(config.databaseConfig.createDataSource());
+    }
 
+    @Subscribe
+    public void onProxyInitialization(ProxyInitializeEvent e) {
         serverIdProvider.runIdKeeperTask(AzisabaAchievementsProvider.get().getScheduler());
         logger.info("This proxy's ID is " + serverIdProvider.getId());
 
-        redisConnectionLeader = new RedisConnectionLeader(jedisBox.getJedisPool(), serverIdProvider);
         redisConnectionLeader.trySwitch();
-
-        databaseManager = new DatabaseManager(config.databaseConfig.createDataSource());
 
         server.getScheduler()
                 .buildTask(this, () -> {

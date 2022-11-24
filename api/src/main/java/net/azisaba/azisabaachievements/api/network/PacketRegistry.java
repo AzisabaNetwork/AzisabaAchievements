@@ -7,7 +7,9 @@ import net.azisaba.azisabaachievements.api.network.packet.PacketCommonProxyLeade
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyCreateAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyFetchAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyProgressAchievement;
+import net.azisaba.azisabaachievements.api.network.packet.PacketProxyRequestData;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerCreateAchievementCallback;
+import net.azisaba.azisabaachievements.api.network.packet.PacketServerDataResult;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerFetchAchievementCallback;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerProgressAchievementCallback;
 import org.jetbrains.annotations.NotNull;
@@ -23,12 +25,14 @@ public interface PacketRegistry {
     }
 
     default void registerProxyBoundPackets() {
+        registerPacket(PacketProxyRequestData.class, PacketProxyRequestData::new);
         registerPacket(PacketProxyCreateAchievement.class, PacketProxyCreateAchievement::new);
         registerPacket(PacketProxyFetchAchievement.class, PacketProxyFetchAchievement::new);
         registerPacket(PacketProxyProgressAchievement.class, PacketProxyProgressAchievement::new);
     }
 
     default void registerServerBoundPackets() {
+        registerPacket(PacketServerDataResult.class, PacketServerDataResult::new);
         registerPacket(PacketServerCreateAchievementCallback.class, PacketServerCreateAchievementCallback::new);
         registerPacket(PacketServerFetchAchievementCallback.class, PacketServerFetchAchievementCallback::new);
         registerPacket(PacketServerProgressAchievementCallback.class, PacketServerProgressAchievementCallback::new);

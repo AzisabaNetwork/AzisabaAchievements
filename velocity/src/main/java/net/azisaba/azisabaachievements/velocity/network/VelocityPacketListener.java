@@ -2,6 +2,7 @@ package net.azisaba.azisabaachievements.velocity.network;
 
 import net.azisaba.azisabaachievements.api.AzisabaAchievementsProvider;
 import net.azisaba.azisabaachievements.api.achievement.AchievementData;
+import net.azisaba.azisabaachievements.api.achievement.AchievementTranslationData;
 import net.azisaba.azisabaachievements.api.network.ProxyPacketListener;
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonAchievementUnlocked;
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonProxyLeaderChanged;
@@ -9,7 +10,9 @@ import net.azisaba.azisabaachievements.api.network.packet.PacketCommonProxyLeade
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyCreateAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyFetchAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyProgressAchievement;
+import net.azisaba.azisabaachievements.api.network.packet.PacketProxyRequestData;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerCreateAchievementCallback;
+import net.azisaba.azisabaachievements.api.network.packet.PacketServerDataResult;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerFetchAchievementCallback;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerProgressAchievementCallback;
 import net.azisaba.azisabaachievements.api.util.Either;
@@ -18,6 +21,7 @@ import net.azisaba.azisabaachievements.velocity.plugin.VelocityPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.Set;
 
 public class VelocityPacketListener implements ProxyPacketListener {
     private final VelocityPlugin plugin;
@@ -38,6 +42,20 @@ public class VelocityPacketListener implements ProxyPacketListener {
         if (!packet.getServerId().equals(plugin.getServerIdProvider().getId())) {
             plugin.getRedisConnectionLeader().trySwitch();
         }
+    }
+
+    @Override
+    public void handle(@NotNull PacketProxyRequestData packet) {
+        if (!plugin.getRedisConnectionLeader().isLeader()) {
+            return;
+        }
+        AzisabaAchievementsProvider.get()
+                .getScheduler()
+                .builder(() -> {
+                    Set<AchievementData> achievements = DataProvider.getAllAchievements(plugin.getDatabaseManager());
+                    Set<AchievementTranslationData> translations = DataProvider.getAllTranslations(plugin.getDatabaseManager());
+                    AzisabaAchievementsProvider.get().getPacketSender().sendPacket(new PacketServerDataResult(achievements, translations));
+                }).async().schedule();
     }
 
     @Override

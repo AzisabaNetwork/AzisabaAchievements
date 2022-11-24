@@ -6,6 +6,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.util.ByteProcessor;
 import net.azisaba.azisabaachievements.api.Key;
 import net.azisaba.azisabaachievements.api.achievement.AchievementData;
+import net.azisaba.azisabaachievements.api.achievement.AchievementTranslationData;
 import net.azisaba.azisabaachievements.api.util.Either;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -21,9 +22,11 @@ import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.ScatteringByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 
 public class PacketByteBuf extends ByteBuf {
     public static final PacketByteBuf EMPTY = new PacketByteBuf(Unpooled.EMPTY_BUFFER);
@@ -37,6 +40,23 @@ public class PacketByteBuf extends ByteBuf {
         this.buf = Objects.requireNonNull(buf, "buf");
     }
 
+    public <T> void writeCollection(@NotNull Collection<T> list, @NotNull PacketByteBufWriter<T> writer) {
+        writeVarInt(list.size());
+        for (T t : list) {
+            writer.write(t, this);
+        }
+    }
+
+    @NotNull
+    public <T, L extends Collection<T>> L readCollection(@NotNull Function<@NotNull Integer, @NotNull L> listConstructor, @NotNull PacketByteBufReader<T> reader) {
+        int size = readVarInt();
+        L list = listConstructor.apply(size);
+        for (int i = 0; i < size; i++) {
+            list.add(reader.read(this));
+        }
+        return list;
+    }
+
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public <T> void writeOptional(@NotNull Optional<T> optional, @NotNull PacketByteBufWriter<T> writer) {
         writeBoolean(optional.isPresent());
@@ -46,6 +66,24 @@ public class PacketByteBuf extends ByteBuf {
     @NotNull
     public <T> Optional<T> readOptional(@NotNull PacketByteBufReader<T> reader) {
         return readBoolean() ? Optional.of(reader.read(this)) : Optional.empty();
+    }
+
+    public void writeAchievementTranslationData(@NotNull AchievementTranslationData data) {
+        writeKey(data.getAchievementKey());
+        writeString(data.getLanguage());
+        writeString(data.getName());
+        writeString(data.getDescription());
+    }
+
+    @NotNull
+    public AchievementTranslationData readAchievementTranslationData() {
+        return new AchievementTranslationData(
+                -1,
+                /* achievementKey = */ readKey(),
+                /* language = */ readString(),
+                /* name = */ readString(),
+                /* description = */ readString()
+        );
     }
 
     public void writeAchievementData(@NotNull AchievementData data) {

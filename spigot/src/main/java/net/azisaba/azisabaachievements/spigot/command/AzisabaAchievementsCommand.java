@@ -1,5 +1,6 @@
 package net.azisaba.azisabaachievements.spigot.command;
 
+import net.azisaba.azisabaachievements.spigot.plugin.SpigotPlugin;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -11,6 +12,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class AzisabaAchievementsCommand implements TabExecutor {
+    public AzisabaAchievementsCommand(@NotNull SpigotPlugin plugin) {
+        CommandManager.registerCommands(plugin);
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
         try {
@@ -36,7 +41,7 @@ public class AzisabaAchievementsCommand implements TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return filter(
+            return Command.filter(
                     CommandManager.getCommands()
                             .stream()
                             .filter(name -> sender.hasPermission("azisabaachievements.command.azisabaachievements." + name))
@@ -44,10 +49,12 @@ public class AzisabaAchievementsCommand implements TabExecutor {
                     args[0]
             ).collect(Collectors.toList());
         }
+        if (args.length >= 2) {
+            Command cmd = CommandManager.getCommand(args[0]);
+            if (cmd != null && sender.hasPermission("azisabaachievements.command.azisabaachievements." + args[0])) {
+                return cmd.getSuggestions(sender, Stream.of(args).skip(1).toArray(String[]::new));
+            }
+        }
         return Collections.emptyList();
-    }
-
-    private static Stream<String> filter(@NotNull Stream<String> stream, @NotNull String str) {
-        return stream.filter(s -> s.toLowerCase().startsWith(str.toLowerCase()));
     }
 }

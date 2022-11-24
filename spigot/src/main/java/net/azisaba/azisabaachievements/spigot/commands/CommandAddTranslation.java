@@ -2,13 +2,21 @@ package net.azisaba.azisabaachievements.spigot.commands;
 
 import net.azisaba.azisabaachievements.api.Key;
 import net.azisaba.azisabaachievements.spigot.command.Command;
+import net.azisaba.azisabaachievements.spigot.data.AchievementDataCache;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Locale;
 
 public class CommandAddTranslation implements Command {
+    private final AchievementDataCache achievementDataCache;
+
+    public CommandAddTranslation(@NotNull AchievementDataCache achievementDataCache) {
+        this.achievementDataCache = achievementDataCache;
+    }
+
     @Override
     public void execute(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
         if (args.length < 4) {
@@ -24,6 +32,14 @@ public class CommandAddTranslation implements Command {
         String name = args[2]; // TODO: quotable
         String description = args[3]; // TODO: quotable
         // TODO: implement
+    }
+
+    @Override
+    public @NotNull List<String> getSuggestions(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
+        if (args.length == 1) {
+            return Command.suggestAchievementKey(achievementDataCache, args[0]);
+        }
+        return Command.super.getSuggestions(sender, args);
     }
 
     @Override

@@ -7,7 +7,8 @@ import org.jetbrains.annotations.Range;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Represents a task builder which can be used to build and schedule a task.
+ * Represents a task builder which can be used to build and schedule a task. Default synchronization mode varies by
+ * implementation.
  */
 public interface TaskBuilder {
     /**

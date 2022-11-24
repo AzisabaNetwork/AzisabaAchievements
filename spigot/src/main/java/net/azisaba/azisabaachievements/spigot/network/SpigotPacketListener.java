@@ -11,7 +11,6 @@ import net.azisaba.azisabaachievements.spigot.achievement.SpigotAchievementManag
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
-import org.bukkit.EntityEffect;
 import org.bukkit.FireworkEffect;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
@@ -20,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 public class SpigotPacketListener implements ServerPacketListener {
     @Override
@@ -33,12 +33,22 @@ public class SpigotPacketListener implements ServerPacketListener {
                     }
                     // TODO: hardcoded message
                     player.sendMessage(ChatColor.GREEN + "実績解除！ 「" + ChatColor.YELLOW + packet.getAchievement().getKey() + ChatColor.GREEN + "」");
-                    Firework firework = player.getWorld().spawn(player.getLocation(), Firework.class);
-                    FireworkMeta meta = firework.getFireworkMeta();
-                    meta.getEffects().add(FireworkEffect.builder().withColor(Color.GREEN).withFade(Color.RED).build());
-                    meta.setPower(0);
-                    firework.setFireworkMeta(meta);
-                    firework.playEffect(EntityEffect.FIREWORK_EXPLODE);
+                    Firework spawnedFirework = player.getWorld().spawn(player.getLocation(), Firework.class, firework -> {
+                        FireworkMeta meta = firework.getFireworkMeta();
+                        meta.addEffect(FireworkEffect.builder()
+                                .withColor(Color.GREEN)
+                                .withFade(Color.RED)
+                                .with(FireworkEffect.Type.BALL)
+                                .build());
+                        meta.setPower(0);
+                        firework.setFireworkMeta(meta);
+                    });
+                    AzisabaAchievementsProvider.get()
+                            .getScheduler()
+                            .builder(spawnedFirework::detonate)
+                            .delay(500, TimeUnit.MILLISECONDS)
+                            .sync()
+                            .schedule();
                 }).sync().schedule();
     }
 

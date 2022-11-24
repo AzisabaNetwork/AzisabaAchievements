@@ -76,7 +76,7 @@ public final class DatabaseManager implements QueryExecutor {
 
     public void queryVoid(@Language("SQL") @NotNull String sql, @NotNull SQLThrowableConsumer<PreparedStatement> action) throws SQLException {
         use(connection -> {
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 action.accept(statement);
             }
         });

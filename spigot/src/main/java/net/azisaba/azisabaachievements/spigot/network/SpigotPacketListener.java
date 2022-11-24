@@ -23,18 +23,22 @@ import java.util.concurrent.CompletableFuture;
 public class SpigotPacketListener implements ServerPacketListener {
     @Override
     public void handle(@NotNull PacketCommonAchievementUnlocked packet) {
-        Player player = Bukkit.getPlayer(packet.getPlayerUniqueId());
-        if (player == null) {
-            return;
-        }
-        // TODO: hardcoded message
-        player.sendMessage(ChatColor.GREEN + "実績解除！ 「" + ChatColor.YELLOW + packet.getAchievement().getKey() + ChatColor.GREEN + "」");
-        Firework firework = player.getWorld().spawn(player.getLocation(), Firework.class);
-        FireworkMeta meta = firework.getFireworkMeta();
-        meta.getEffects().add(FireworkEffect.builder().withColor(Color.GREEN).withFade(Color.RED).build());
-        meta.setPower(0);
-        firework.setFireworkMeta(meta);
-        firework.playEffect(EntityEffect.FIREWORK_EXPLODE);
+        AzisabaAchievementsProvider.get()
+                .getScheduler()
+                .builder(() -> {
+                    Player player = Bukkit.getPlayer(packet.getPlayerUniqueId());
+                    if (player == null) {
+                        return;
+                    }
+                    // TODO: hardcoded message
+                    player.sendMessage(ChatColor.GREEN + "実績解除！ 「" + ChatColor.YELLOW + packet.getAchievement().getKey() + ChatColor.GREEN + "」");
+                    Firework firework = player.getWorld().spawn(player.getLocation(), Firework.class);
+                    FireworkMeta meta = firework.getFireworkMeta();
+                    meta.getEffects().add(FireworkEffect.builder().withColor(Color.GREEN).withFade(Color.RED).build());
+                    meta.setPower(0);
+                    firework.setFireworkMeta(meta);
+                    firework.playEffect(EntityEffect.FIREWORK_EXPLODE);
+                }).sync().schedule();
     }
 
     @Override

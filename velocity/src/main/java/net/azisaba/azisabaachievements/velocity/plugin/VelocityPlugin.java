@@ -52,9 +52,9 @@ public class VelocityPlugin implements PacketRegistryPair {
         config = loadConfig();
         jedisBox = createJedisBox();
         serverIdProvider = new ServerIdProvider(jedisBox.getJedisPool());
-        AzisabaAchievementsProviderSetter.setInstance(new VelocityAzisabaAchievements(this));
         redisConnectionLeader = new RedisConnectionLeader(jedisBox.getJedisPool(), serverIdProvider);
         databaseManager = new DatabaseManager(config.databaseConfig.createDataSource());
+        AzisabaAchievementsProviderSetter.setInstance(new VelocityAzisabaAchievements(this));
     }
 
     @Subscribe

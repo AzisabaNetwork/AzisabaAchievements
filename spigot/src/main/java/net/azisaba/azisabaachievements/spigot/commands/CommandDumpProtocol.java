@@ -15,8 +15,8 @@ public class CommandDumpProtocol implements Command {
         PacketRegistryPair pair = AzisabaAchievementsProvider.get().getPacketRegistryPair();
         PacketRegistry clientRegistry = pair.getClientRegistry();
         PacketRegistry serverRegistry = pair.getServerRegistry();
-        dumpProtocol(sender, clientRegistry, "Client ");
-        dumpProtocol(sender, serverRegistry, "Server ");
+        dumpProtocol(sender, clientRegistry, ChatColor.LIGHT_PURPLE + "Client ");
+        dumpProtocol(sender, serverRegistry, ChatColor.AQUA + "Server ");
     }
 
     private void dumpProtocol(@NotNull CommandSender sender, @NotNull PacketRegistry registry, @NotNull String prefix) {
@@ -29,7 +29,7 @@ public class CommandDumpProtocol implements Command {
                 if (hex.length() == 1) {
                     hex = "0" + hex;
                 }
-                sender.sendMessage(prefix + ChatColor.GREEN + id + " (0x" + hex + ") " + packet.getSimpleName());
+                sender.sendMessage(prefix + ChatColor.GREEN + id + " (0x" + hex + ") " + ChatColor.WHITE + packet.getSimpleName());
             }
         } while (packet != null);
     }

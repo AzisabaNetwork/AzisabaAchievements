@@ -74,6 +74,9 @@ public class VelocityAchievementManager implements AchievementManager {
 
     @Override
     public @NotNull CompletableFuture<Boolean> progressAchievement(@NotNull UUID uuid, @NotNull Key key, long count) {
+        if (count == 0L) {
+            return CompletableFuture.completedFuture(false);
+        }
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         scheduler.builder(() -> {
             try {
@@ -83,12 +86,23 @@ public class VelocityAchievementManager implements AchievementManager {
                     return;
                 }
                 long achievementId = data.getId();
-                queryExecutor.queryVoid("INSERT INTO `player_achievements` (`player_id`, `achievement_id`, `count`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `count` = `count` + VALUES(`count`)", ps -> {
+                long currentCount = queryExecutor.query("SELECT `count` FROM `player_achievements` WHERE `player_id` = ? AND `achievement_id` = ?", ps -> {
                     ps.setString(1, uuid.toString());
                     ps.setLong(2, achievementId);
-                    ps.setLong(3, count);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            return rs.getLong("count");
+                        } else {
+                            return 0L;
+                        }
+                    }
+                });
+                queryExecutor.queryVoid("INSERT INTO `player_achievements` (`player_id`, `achievement_id`, `count`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `count` = VALUES(`count`)", ps -> {
+                    ps.setString(1, uuid.toString());
+                    ps.setLong(2, achievementId);
+                    ps.setLong(3, Math.min(data.getCount(), currentCount + count));
                     ps.executeUpdate();
-                    future.complete(count >= data.getCount());
+                    future.complete(currentCount < data.getCount() && currentCount + count >= data.getCount());
                 });
             } catch (Throwable t) {
                 future.completeExceptionally(t);

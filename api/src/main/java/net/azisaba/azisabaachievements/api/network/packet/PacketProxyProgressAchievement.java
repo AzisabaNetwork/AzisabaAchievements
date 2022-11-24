@@ -32,6 +32,7 @@ public class PacketProxyProgressAchievement extends Packet<ProxyPacketListener> 
 
     @Override
     public void write(@NotNull PacketByteBuf buf) {
+        buf.writeUUID(seq);
         buf.writeUUID(uuid);
         buf.writeKey(key);
         buf.writeLong(count);

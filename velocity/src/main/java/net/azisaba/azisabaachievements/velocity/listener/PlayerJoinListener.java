@@ -19,7 +19,7 @@ public class PlayerJoinListener {
     public void onPlayerJoin(LoginEvent e) {
         // update player data
         try {
-            databaseManager.queryVoid("INSERT INTO `players` (`uuid`, `name`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `name` = VALUES(`name`)", ps -> {
+            databaseManager.queryVoid("INSERT INTO `players` (`id`, `name`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `name` = VALUES(`name`)", ps -> {
                 ps.setString(1, e.getPlayer().getUniqueId().toString());
                 ps.setString(2, e.getPlayer().getUsername());
                 ps.executeUpdate();

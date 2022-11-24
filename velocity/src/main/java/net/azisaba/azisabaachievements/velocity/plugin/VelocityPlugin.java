@@ -98,7 +98,7 @@ public class VelocityPlugin implements PacketRegistryPair {
     @Contract(" -> new")
     private @NotNull JedisBox createJedisBox() {
         return new JedisBox(
-                Side.SERVER,
+                Side.PROXY,
                 net.azisaba.azisabaachievements.api.Logger.createByProxy(logger),
                 packetListener,
                 this,

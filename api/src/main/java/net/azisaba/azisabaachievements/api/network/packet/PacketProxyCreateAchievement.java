@@ -11,18 +11,18 @@ import java.util.UUID;
 public class PacketProxyCreateAchievement extends Packet<ProxyPacketListener> {
     private final UUID seq;
     private final Key key;
-    private final int count;
+    private final long count;
     private final int point;
 
     public PacketProxyCreateAchievement(@NotNull PacketByteBuf buf) {
         super(buf);
         this.seq = buf.readUUID();
         this.key = buf.readKey();
-        this.count = buf.readInt();
+        this.count = buf.readLong();
         this.point = buf.readInt();
     }
 
-    public PacketProxyCreateAchievement(@NotNull Key key, int count, int point) {
+    public PacketProxyCreateAchievement(@NotNull Key key, long count, int point) {
         super(PacketByteBuf.EMPTY);
         this.seq = UUID.randomUUID();
         this.key = key;
@@ -33,7 +33,7 @@ public class PacketProxyCreateAchievement extends Packet<ProxyPacketListener> {
     @Override
     public void write(@NotNull PacketByteBuf buf) {
         buf.writeKey(key);
-        buf.writeInt(count);
+        buf.writeLong(count);
         buf.writeInt(point);
     }
 
@@ -52,7 +52,7 @@ public class PacketProxyCreateAchievement extends Packet<ProxyPacketListener> {
         return key;
     }
 
-    public int getCount() {
+    public long getCount() {
         return count;
     }
 

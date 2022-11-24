@@ -23,13 +23,13 @@ public class VelocityAchievementManager implements AchievementManager {
     }
 
     @Override
-    public @NotNull CompletableFuture<AchievementData> createAchievement(@NotNull Key key, int count, int point) {
+    public @NotNull CompletableFuture<AchievementData> createAchievement(@NotNull Key key, long count, int point) {
         CompletableFuture<AchievementData> future = new CompletableFuture<>();
         scheduler.builder(() -> {
             try {
                 queryExecutor.queryVoid("INSERT INTO `achievements` (`key`, `count`, `point`) VALUES (?, ?, ?)", ps -> {
                     ps.setString(1, key.toString());
-                    ps.setInt(2, count);
+                    ps.setLong(2, count);
                     ps.setInt(3, point);
                     ps.executeUpdate();
                     try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
@@ -73,7 +73,7 @@ public class VelocityAchievementManager implements AchievementManager {
     }
 
     @Override
-    public @NotNull CompletableFuture<Boolean> progressAchievement(@NotNull UUID uuid, @NotNull Key key, int count) {
+    public @NotNull CompletableFuture<Boolean> progressAchievement(@NotNull UUID uuid, @NotNull Key key, long count) {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         scheduler.builder(() -> {
             try {
@@ -86,7 +86,7 @@ public class VelocityAchievementManager implements AchievementManager {
                 queryExecutor.queryVoid("INSERT INTO `progress` (`player_id`, `achievement_id`, `count`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `count` = `count` + VALUES(`count`)", ps -> {
                     ps.setString(1, uuid.toString());
                     ps.setLong(2, achievementId);
-                    ps.setInt(3, count);
+                    ps.setLong(3, count);
                     ps.executeUpdate();
                     future.complete(count >= data.getCount());
                 });

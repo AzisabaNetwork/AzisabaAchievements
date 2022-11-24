@@ -11,16 +11,16 @@ import java.util.UUID;
 public class PacketProxyProgressAchievement extends Packet<ProxyPacketListener> {
     private final UUID uuid;
     private final Key key;
-    private final int count;
+    private final long count;
 
     public PacketProxyProgressAchievement(@NotNull PacketByteBuf buf) {
         super(buf);
         this.uuid = buf.readUUID();
         this.key = buf.readKey();
-        this.count = buf.readInt();
+        this.count = buf.readLong();
     }
 
-    public PacketProxyProgressAchievement(@NotNull UUID uuid, @NotNull Key key, int count) {
+    public PacketProxyProgressAchievement(@NotNull UUID uuid, @NotNull Key key, long count) {
         super(PacketByteBuf.EMPTY);
         this.uuid = uuid;
         this.key = key;
@@ -31,7 +31,7 @@ public class PacketProxyProgressAchievement extends Packet<ProxyPacketListener> 
     public void write(@NotNull PacketByteBuf buf) {
         buf.writeUUID(uuid);
         buf.writeKey(key);
-        buf.writeInt(count);
+        buf.writeLong(count);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class PacketProxyProgressAchievement extends Packet<ProxyPacketListener> 
      * Returns the progress count.
      * @return the count
      */
-    public int getCount() {
+    public long getCount() {
         return count;
     }
 }

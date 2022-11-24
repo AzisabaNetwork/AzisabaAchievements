@@ -16,7 +16,7 @@ public interface AchievementManager {
      * @return newly created achievement data
      */
     @NotNull
-    CompletableFuture<@NotNull AchievementData> createAchievement(@NotNull Key key, int count, int point);
+    CompletableFuture<@NotNull AchievementData> createAchievement(@NotNull Key key, long count, int point);
 
     /**
      * Fetches the achievement data. If the achievement does not exist, the optional will be empty.
@@ -37,5 +37,5 @@ public interface AchievementManager {
      * proxy server side achievement manager
      */
     @NotNull
-    CompletableFuture<Boolean> progressAchievement(@NotNull UUID uuid, @NotNull Key key, int count);
+    CompletableFuture<Boolean> progressAchievement(@NotNull UUID uuid, @NotNull Key key, long count);
 }

@@ -25,7 +25,7 @@ public class SpigotAchievementManager implements AchievementManager {
     }
 
     @Override
-    public @NotNull CompletableFuture<@NotNull AchievementData> createAchievement(@NotNull Key key, int count, int point) {
+    public @NotNull CompletableFuture<@NotNull AchievementData> createAchievement(@NotNull Key key, long count, int point) {
         PacketProxyCreateAchievement packet = new PacketProxyCreateAchievement(key, count, point);
         CompletableFuture<AchievementData> future = new CompletableFuture<>();
         achievementDataCallback.put(packet.getSeq(), future);
@@ -43,7 +43,7 @@ public class SpigotAchievementManager implements AchievementManager {
     }
 
     @Override
-    public @NotNull CompletableFuture<Boolean> progressAchievement(@NotNull UUID uuid, @NotNull Key key, int count) {
+    public @NotNull CompletableFuture<Boolean> progressAchievement(@NotNull UUID uuid, @NotNull Key key, long count) {
         packetSender.sendPacket(new PacketProxyProgressAchievement(uuid, key, count));
         return CompletableFuture.completedFuture(false);
     }

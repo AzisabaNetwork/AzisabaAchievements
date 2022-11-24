@@ -83,7 +83,7 @@ public class VelocityAchievementManager implements AchievementManager {
                     return;
                 }
                 long achievementId = data.getId();
-                queryExecutor.queryVoid("INSERT INTO `progress` (`player_id`, `achievement_id`, `count`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `count` = `count` + VALUES(`count`)", ps -> {
+                queryExecutor.queryVoid("INSERT INTO `player_achievements` (`player_id`, `achievement_id`, `count`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `count` = `count` + VALUES(`count`)", ps -> {
                     ps.setString(1, uuid.toString());
                     ps.setLong(2, achievementId);
                     ps.setLong(3, count);

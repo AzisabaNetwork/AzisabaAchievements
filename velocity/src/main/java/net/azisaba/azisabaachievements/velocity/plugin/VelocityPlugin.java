@@ -82,6 +82,9 @@ public class VelocityPlugin implements PacketRegistryPair {
     public void onProxyShutdown(ProxyShutdownEvent e) {
         redisConnectionLeader.leaveLeader();
         serverIdProvider.deleteProxyId();
+        try {
+            Thread.sleep(500); // Wait for the leader to be deleted
+        } catch (InterruptedException ignored) {}
         jedisBox.close();
         databaseManager.close();
     }

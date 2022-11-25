@@ -1,16 +1,22 @@
 package net.azisaba.azisabaachievements.spigot.commands;
 
+import net.azisaba.azisabaachievements.api.AzisabaAchievementsProvider;
 import net.azisaba.azisabaachievements.api.Key;
+import net.azisaba.azisabaachievements.api.network.packet.PacketProxyAddAchievementTranslation;
 import net.azisaba.azisabaachievements.spigot.command.Command;
 import net.azisaba.azisabaachievements.spigot.data.AchievementDataCache;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+import xyz.acrylicstyle.util.InvalidArgumentException;
+import xyz.acrylicstyle.util.StringReader;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
 public class CommandAddTranslation implements Command {
+    private static final char[] ALLOWED_ESCAPES = new char[]{'\n', '\r', '\\', '"', '\t'};
     private final AchievementDataCache achievementDataCache;
 
     public CommandAddTranslation(@NotNull AchievementDataCache achievementDataCache) {
@@ -18,7 +24,7 @@ public class CommandAddTranslation implements Command {
     }
 
     @Override
-    public void execute(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
+    public void execute(@NotNull CommandSender sender, @NotNull String @NotNull [] args) throws InvalidArgumentException {
         if (args.length < 4) {
             sender.sendMessage(ChatColor.RED + "Usage: " + getFullUsage());
             return;
@@ -29,9 +35,12 @@ public class CommandAddTranslation implements Command {
             sender.sendMessage(ChatColor.RED + "Invalid language tag: " + args[1]);
             return;
         }
-        String name = args[2]; // TODO: quotable
-        String description = args[3]; // TODO: quotable
-        // TODO: implement
+        String joined = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
+        StringReader reader = StringReader.create(joined);
+        String name = reader.readQuotableString(ALLOWED_ESCAPES);
+        String description = reader.readQuotableString(ALLOWED_ESCAPES);
+        AzisabaAchievementsProvider.get().getPacketSender()
+                .sendPacket(new PacketProxyAddAchievementTranslation(key, lang, name,description));
     }
 
     @Override

@@ -26,6 +26,10 @@ public final class TranslatedAchievement {
         return translation;
     }
 
+    public void addTranslation(@NotNull AchievementTranslationData data) {
+        translation.put(data.getLanguage(), data);
+    }
+
     @Nullable
     public AchievementTranslationData getTranslationForLocale(@NotNull String locale) {
         // try to get the exact locale

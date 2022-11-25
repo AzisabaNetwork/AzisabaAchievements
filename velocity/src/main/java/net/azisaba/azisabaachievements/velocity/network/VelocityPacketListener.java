@@ -7,10 +7,12 @@ import net.azisaba.azisabaachievements.api.network.ProxyPacketListener;
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonAchievementUnlocked;
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonProxyLeaderChanged;
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonProxyLeaderLeave;
+import net.azisaba.azisabaachievements.api.network.packet.PacketProxyAddAchievementTranslation;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyCreateAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyFetchAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyProgressAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyRequestData;
+import net.azisaba.azisabaachievements.api.network.packet.PacketServerAddAchievementTranslation;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerCreateAchievementCallback;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerDataResult;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerFetchAchievementCallback;
@@ -20,6 +22,7 @@ import net.azisaba.azisabaachievements.common.sql.DataProvider;
 import net.azisaba.azisabaachievements.velocity.plugin.VelocityPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.Set;
 
@@ -120,5 +123,25 @@ public class VelocityPacketListener implements ProxyPacketListener {
                         AzisabaAchievementsProvider.get().getPacketSender().sendPacket(new PacketCommonAchievementUnlocked(packet.getUniqueId(), achievement));
                     }
                 });
+    }
+
+    @Override
+    public void handle(@NotNull PacketProxyAddAchievementTranslation packet) {
+        if (!plugin.getRedisConnectionLeader().isLeader()) {
+            return;
+        }
+        try {
+            plugin.getDatabaseManager().queryVoid("INSERT INTO `achievement_translations` (`id`, `lang`, `name`, `description`) " +
+                    "VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `description` = VALUES(`description`)", ps -> {
+                ps.setLong(1, packet.getData().getAchievementId());
+                ps.setString(2, packet.getData().getLanguage());
+                ps.setString(3, packet.getData().getName());
+                ps.setString(4, packet.getData().getDescription());
+                ps.executeUpdate();
+                AzisabaAchievementsProvider.get().getPacketSender().sendPacket(new PacketServerAddAchievementTranslation(packet.getData()));
+            });
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

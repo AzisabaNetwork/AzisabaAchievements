@@ -5,6 +5,7 @@ import net.azisaba.azisabaachievements.api.achievement.AchievementData;
 import net.azisaba.azisabaachievements.api.achievement.AchievementTranslationData;
 import net.azisaba.azisabaachievements.api.network.ServerPacketListener;
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonAchievementUnlocked;
+import net.azisaba.azisabaachievements.api.network.packet.PacketServerAddAchievementTranslation;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerCreateAchievementCallback;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerDataResult;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerFetchAchievementCallback;
@@ -127,5 +128,12 @@ public class SpigotPacketListener implements ServerPacketListener {
         } else {
             cb.complete(packet.getResult().getRight());
         }
+    }
+
+    @Override
+    public void handle(@NotNull PacketServerAddAchievementTranslation packet) {
+        AchievementDataCache cache = plugin.getAchievementDataCache();
+        TranslatedAchievement achievement = cache.getAchievement(packet.getData().getAchievementKey());
+        achievement.addTranslation(packet.getData());
     }
 }

@@ -15,6 +15,9 @@ import net.azisaba.azisabaachievements.api.network.packet.PacketServerProgressAc
 import net.azisaba.azisabaachievements.spigot.achievement.SpigotAchievementManager;
 import net.azisaba.azisabaachievements.spigot.data.AchievementDataCache;
 import net.azisaba.azisabaachievements.spigot.data.TranslatedAchievement;
+import net.azisaba.azisabaachievements.spigot.event.AchievementUnlockedEvent;
+import net.azisaba.azisabaachievements.spigot.event.AsyncEvent;
+import net.azisaba.azisabaachievements.spigot.event.PlayerDataUpdatedEvent;
 import net.azisaba.azisabaachievements.spigot.plugin.SpigotPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -39,6 +42,7 @@ public class SpigotPacketListener implements ServerPacketListener {
 
     @Override
     public void handle(@NotNull PacketCommonAchievementUnlocked packet) {
+        AsyncEvent.call(new AchievementUnlockedEvent(packet.getPlayerUniqueId(), packet.getAchievement()));
         AzisabaAchievementsProvider.get()
                 .getScheduler()
                 .builder(() -> {
@@ -153,6 +157,7 @@ public class SpigotPacketListener implements ServerPacketListener {
 
     @Override
     public void handle(@NotNull PacketServerPlayerData packet) {
+        AsyncEvent.call(new PlayerDataUpdatedEvent(packet.getData()));
         AchievementDataCache cache = plugin.getAchievementDataCache();
         for (PlayerAchievementData data : packet.getData()) {
             cache.add(data);

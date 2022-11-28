@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class AzisabaAchievementsProvider {
     private static final IllegalStateException NOT_INITIALIZED_ERROR =
-            new IllegalStateException("API singleton not defined! Possible reasons:\n" +
+            new IllegalStateException("AzisabaAchievements is not loaded. Possible reasons:\n" +
                     "- You forgot to \"depend\" on AzisabaAchievements in your plugin.yml (or its equivalent)\n" +
                     "- Tried to access the API before the plugin was loaded");
     private static final AtomicReference<AzisabaAchievements> instance = new AtomicReference<>();

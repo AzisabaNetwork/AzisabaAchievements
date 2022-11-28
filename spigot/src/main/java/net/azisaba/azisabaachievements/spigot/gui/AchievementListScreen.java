@@ -44,7 +44,16 @@ public class AchievementListScreen extends Screen {
         int end = Math.min(start + 45, achievements.size());
         for (int i = start; i < end; i++) {
             TranslatedAchievement achievement = achievements.get(i);
-            ItemStack item = new ItemStack(Material.DIAMOND);
+            long current = progress.getOrDefault(achievement.getData().getKey(), 0L);
+            Material type;
+            if (current == 0) {
+                type = Material.IRON_INGOT;
+            } else if (current >= achievement.getData().getCount()) {
+                type = Material.DIAMOND;
+            } else {
+                type = Material.GOLD_INGOT;
+            }
+            ItemStack item = new ItemStack(type);
             ItemMeta meta = item.getItemMeta();
             AchievementTranslationData translationData = achievement.getTranslationForLocale(player.getLocale());
             List<String> lore;
@@ -58,7 +67,6 @@ public class AchievementListScreen extends Screen {
                 lore = new ArrayList<>(Collections.singletonList(ChatColor.GRAY + "No description defined."));
             }
             lore.add("");
-            long current = progress.getOrDefault(achievement.getData().getKey(), 0L);
             ChatColor color;
             if (current >= achievement.getData().getCount()) {
                 color = ChatColor.GREEN;

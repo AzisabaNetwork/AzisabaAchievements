@@ -25,6 +25,7 @@ import net.azisaba.azisabaachievements.common.sql.DataProvider;
 import net.azisaba.azisabaachievements.velocity.plugin.VelocityPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Optional;
@@ -148,9 +149,22 @@ public class VelocityPacketListener implements ProxyPacketListener {
             return;
         }
         try {
+            long achievementId = plugin.getDatabaseManager().query("SELECT `id` FROM `achievements` WHERE `key` = ? LIMIT 1", ps -> {
+                ps.setString(1, packet.getData().getAchievementKey().toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getLong("id");
+                    } else {
+                        return 0L;
+                    }
+                }
+            });
+            if (achievementId == 0L) {
+                return;
+            }
             plugin.getDatabaseManager().queryVoid("INSERT INTO `achievement_translations` (`id`, `lang`, `name`, `description`) " +
                     "VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `description` = VALUES(`description`)", ps -> {
-                ps.setLong(1, packet.getData().getAchievementId());
+                ps.setLong(1, achievementId);
                 ps.setString(2, packet.getData().getLanguage());
                 ps.setString(3, packet.getData().getName());
                 ps.setString(4, packet.getData().getDescription());

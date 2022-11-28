@@ -8,6 +8,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
+/**
+ * This packet is sent from proxy to server to notify that an achievement is unlocked for a player.
+ */
 public class PacketCommonAchievementUnlocked extends Packet<PacketListener> {
     private final UUID uuid;
     private final AchievementData achievement;

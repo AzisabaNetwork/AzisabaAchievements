@@ -9,6 +9,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * This packet is sent from proxy to server to send the updated achievement progression data of a player.
+ * @see PacketProxyRequestPlayerData
+ */
 public class PacketServerPlayerData extends Packet<ServerPacketListener> {
     private final Collection<PlayerAchievementData> data;
 

@@ -7,6 +7,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
+/**
+ * This packet is sent from server to proxy to request the achievement progression data of a player. This packet is
+ * sent automatically when a player joins the server (not the proxy).
+ * The server may delete their cache of the player's data if they have not been online for a while.
+ * @see PacketServerPlayerData
+ */
 public class PacketProxyRequestPlayerData extends Packet<ProxyPacketListener> {
     private final UUID playerId;
 

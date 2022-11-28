@@ -8,6 +8,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
+/**
+ * This packet is sent from proxy to server to return the result of progressing an achievement.
+ * @see PacketProxyProgressAchievement
+ */
 public class PacketServerProgressAchievementCallback extends Packet<ServerPacketListener> {
     private final UUID seq;
     private final Either<String, Boolean> result;

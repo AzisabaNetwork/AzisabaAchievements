@@ -9,6 +9,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
+/**
+ * This packet is sent from proxy to server to return the result of creating an achievement.
+ * @see PacketProxyCreateAchievement
+ */
 public class PacketServerCreateAchievementCallback extends Packet<ServerPacketListener> {
     private final UUID seq;
     private final Either<String, AchievementData> result;

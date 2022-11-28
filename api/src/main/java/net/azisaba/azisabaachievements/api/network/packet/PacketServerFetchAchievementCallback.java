@@ -10,6 +10,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * This packet is sent from proxy to server to return the result of fetching an achievement.
+ * @see PacketProxyFetchAchievement
+ */
 public class PacketServerFetchAchievementCallback extends Packet<ServerPacketListener> {
     private final UUID seq;
     private final Either<String, Optional<AchievementData>> result;

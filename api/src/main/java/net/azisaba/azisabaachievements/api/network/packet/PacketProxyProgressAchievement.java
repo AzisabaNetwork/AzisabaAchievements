@@ -8,6 +8,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
+/**
+ * This packet is sent from server to proxy to progress an achievement for a player.
+ * @see net.azisaba.azisabaachievements.api.achievement.AchievementManager#progressAchievement(UUID, Key, long)
+ * @see PacketServerProgressAchievementCallback
+ */
 public class PacketProxyProgressAchievement extends Packet<ProxyPacketListener> {
     private final UUID seq;
     private final UUID uuid;

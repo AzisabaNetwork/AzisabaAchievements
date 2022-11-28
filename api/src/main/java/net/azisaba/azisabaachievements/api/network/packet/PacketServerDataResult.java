@@ -10,6 +10,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * This packet is sent from proxy to server to return all achievement data from the proxy.
+ * @see PacketProxyRequestData
+ */
 public class PacketServerDataResult extends Packet<ServerPacketListener> {
     private final Collection<AchievementData> achievements;
     private final Collection<AchievementTranslationData> achievementTranslations;

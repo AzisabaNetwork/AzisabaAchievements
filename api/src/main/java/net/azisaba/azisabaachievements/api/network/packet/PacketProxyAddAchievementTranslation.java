@@ -7,6 +7,10 @@ import net.azisaba.azisabaachievements.api.network.PacketByteBuf;
 import net.azisaba.azisabaachievements.api.network.ProxyPacketListener;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * This packet is sent from server to proxy to add a new translation for an achievement.
+ * @see PacketServerAddAchievementTranslation
+ */
 public class PacketProxyAddAchievementTranslation extends Packet<ProxyPacketListener> {
     private final AchievementTranslationData data;
 

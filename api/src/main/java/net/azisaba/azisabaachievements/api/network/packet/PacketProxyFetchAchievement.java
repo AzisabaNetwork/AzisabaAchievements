@@ -8,6 +8,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
+/**
+ * This packet is sent from server to proxy to request a single achievement data from the proxy.
+ * @see net.azisaba.azisabaachievements.api.achievement.AchievementManager#getAchievement(Key)
+ * @see PacketServerFetchAchievementCallback
+ */
 public class PacketProxyFetchAchievement extends Packet<ProxyPacketListener> {
     private final UUID seq;
     private final Key key;

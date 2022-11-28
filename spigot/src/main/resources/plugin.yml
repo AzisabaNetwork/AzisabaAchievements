@@ -5,3 +5,4 @@ main: net.azisaba.azisabaachievements.spigot.plugin.SpigotPlugin
 commands:
   azisabaachievements:
     permission: azisabaachievements.command.azisabaachievements
+    aliases: ["achievements"]

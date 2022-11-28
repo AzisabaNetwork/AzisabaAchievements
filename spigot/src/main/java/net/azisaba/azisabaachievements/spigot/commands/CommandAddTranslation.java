@@ -38,9 +38,10 @@ public class CommandAddTranslation implements Command {
         String joined = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
         StringReader reader = StringReader.create(joined);
         String name = reader.readQuotableString(ALLOWED_ESCAPES);
+        reader.skipWhitespace();
         String description = reader.readQuotableString(ALLOWED_ESCAPES);
         AzisabaAchievementsProvider.get().getPacketSender()
-                .sendPacket(new PacketProxyAddAchievementTranslation(key, lang, name,description));
+                .sendPacket(new PacketProxyAddAchievementTranslation(key, lang, name, description));
     }
 
     @Override

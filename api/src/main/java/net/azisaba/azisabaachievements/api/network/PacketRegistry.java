@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonAchievementUnlocked;
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonProxyLeaderChanged;
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonProxyLeaderLeave;
+import net.azisaba.azisabaachievements.api.network.packet.PacketProxyAddAchievementTranslation;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyCreateAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyFetchAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyProgressAchievement;
@@ -32,6 +33,7 @@ public interface PacketRegistry {
         registerPacket(PacketProxyFetchAchievement.class, PacketProxyFetchAchievement::new);
         registerPacket(PacketProxyProgressAchievement.class, PacketProxyProgressAchievement::new);
         registerPacket(PacketProxyRequestPlayerData.class, PacketProxyRequestPlayerData::new);
+        registerPacket(PacketProxyAddAchievementTranslation.class, PacketProxyAddAchievementTranslation::new);
     }
 
     default void registerServerBoundPackets() {

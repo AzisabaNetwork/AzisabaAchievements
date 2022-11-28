@@ -38,12 +38,9 @@ public class AzisabaAchievementsCommand implements TabExecutor {
         }
         try {
             Command cmd = CommandManager.getCommand(args[0]);
-            if (cmd == null) {
+            if (cmd == null || !sender.hasPermission("azisabaachievements.command.azisabaachievements." + args[0])) {
                 sender.sendMessage(ChatColor.RED + "Unknown command: " + args[0]);
                 return true;
-            }
-            if (!sender.hasPermission("azisabaachievements.command.azisabaachievements." + args[0])) {
-                sender.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
             }
             cmd.execute(sender, Stream.of(args).skip(1).toArray(String[]::new));
         } catch (Exception e) {

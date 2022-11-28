@@ -1,3 +1,5 @@
+import org.gradle.configurationcache.extensions.capitalized
+
 plugins {
     java
     `java-library`
@@ -51,7 +53,7 @@ allprojects {
         }
 
         publications {
-            create<MavenPublication>("mavenJava") {
+            create<MavenPublication>("mavenJava${project.name.capitalized()}") {
                 from(components["java"])
                 artifact(tasks.getByName("sourcesJar"))
             }
@@ -76,6 +78,10 @@ allprojects {
             options.encoding = "UTF-8"
         }
 
+        javadoc {
+            options.encoding = "UTF-8"
+        }
+
         test {
             useJUnitPlatform()
         }
@@ -86,7 +92,6 @@ allprojects {
             relocate("it.unimi.dsi", "net.azisaba.azisabaachievements.libs.it.unimi.dsi")
             relocate("org.mariadb.jdbc", "net.azisaba.azisabaachievements.libs.org.mariadb.jdbc")
             relocate("com.zaxxer.hikari", "net.azisaba.azisabaachievements.libs.com.zaxxer.hikari")
-            archiveClassifier.set("")
         }
     }
 }

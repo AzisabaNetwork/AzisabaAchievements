@@ -12,6 +12,7 @@ import net.azisaba.azisabaachievements.spigot.command.AzisabaAchievementsCommand
 import net.azisaba.azisabaachievements.spigot.data.AchievementDataCache;
 import net.azisaba.azisabaachievements.spigot.gui.AchievementListScreen;
 import net.azisaba.azisabaachievements.spigot.gui.AchievementsMainScreen;
+import net.azisaba.azisabaachievements.spigot.listener.PlayerJoinListener;
 import net.azisaba.azisabaachievements.spigot.network.SpigotPacketListener;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -57,6 +58,7 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
             throw new RuntimeException("Failed to fetch data", e);
         }
         getLogger().info("Initial data load completed in " + (System.currentTimeMillis() - start) + " ms.");
+        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(this), this);
         Bukkit.getPluginManager().registerEvents(new AchievementsMainScreen.EventListener(), this);
         Bukkit.getPluginManager().registerEvents(new AchievementListScreen.EventListener(), this);
         Objects.requireNonNull(Bukkit.getPluginCommand("azisabaachievements"))

@@ -1,7 +1,9 @@
 package net.azisaba.azisabaachievements.spigot.gui;
 
+import net.azisaba.azisabaachievements.api.Key;
 import net.azisaba.azisabaachievements.api.achievement.AchievementTranslationData;
 import net.azisaba.azisabaachievements.spigot.data.TranslatedAchievement;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,19 +13,23 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class AchievementListScreen extends Screen {
     private final Player player;
     private final List<TranslatedAchievement> achievements;
+    private final Map<Key, Long> progress;
     private int page = 1;
 
-    public AchievementListScreen(@NotNull Player player, @NotNull List<TranslatedAchievement> achievements, @NotNull String title) {
+    public AchievementListScreen(@NotNull Player player, @NotNull List<TranslatedAchievement> achievements, @NotNull Map<Key, Long> progress, @NotNull String title) {
         super(54, title);
         this.player = player;
         this.achievements = achievements;
+        this.progress = progress;
         refresh();
     }
 
@@ -38,13 +44,24 @@ public class AchievementListScreen extends Screen {
             ItemStack item = new ItemStack(Material.DIAMOND);
             ItemMeta meta = item.getItemMeta();
             AchievementTranslationData translationData = achievement.getTranslationForLocale(player.getLocale());
+            List<String> lore;
             if (translationData != null) {
                 meta.setDisplayName(translationData.getName());
-                meta.setLore(Arrays.asList(translationData.getDescription().split("\n")));
+                lore = new ArrayList<>(Arrays.asList(translationData.getDescription().split("\n")));
             } else {
                 meta.setDisplayName(achievement.getData().getKey().toString());
-                meta.setLore(Collections.singletonList("No description defined"));
+                lore = new ArrayList<>(Collections.singletonList("No description defined"));
             }
+            lore.add("");
+            long current = progress.getOrDefault(achievement.getData().getKey(), 0L);
+            ChatColor color;
+            if (current >= achievement.getData().getCount()) {
+                color = ChatColor.GREEN;
+            } else {
+                color = ChatColor.RED;
+            }
+            lore.add(ChatColor.GOLD + "進行度: " + color + current + ChatColor.GRAY + "/" + ChatColor.GREEN + achievement.getData().getCount());
+            meta.setLore(lore);
             item.setItemMeta(meta);
             setItem(i - start, item);
         }

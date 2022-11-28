@@ -34,7 +34,9 @@ public class AchievementsMainScreen extends Screen {
 
     private void initCounts(@NotNull Set<PlayerAchievementData> playerAchievements) {
         for (PlayerAchievementData data : playerAchievements) {
-            counts.put(data.getAchievementKey(), data.getCount());
+            if (counts.getOrDefault(data.getAchievementKey(), 0L) < data.getCount() || data.getCount() < 0) {
+                counts.put(data.getAchievementKey(), data.getCount());
+            }
         }
     }
 
@@ -79,7 +81,8 @@ public class AchievementsMainScreen extends Screen {
                                 .stream()
                                 .filter(achievement -> screen.counts.getOrDefault(achievement.getData().getKey(), 0L) >= achievement.getData().getCount())
                                 .collect(Collectors.toList());
-                screen.player.openInventory(new AchievementListScreen(screen.player, list, "解除済みの実績").getInventory());
+                // TODO: hardcoded message
+                screen.player.openInventory(new AchievementListScreen(screen.player, list, screen.counts, "解除済みの実績").getInventory());
             }
             if (e.getSlot() == 15) {
                 List<TranslatedAchievement> list =
@@ -87,7 +90,8 @@ public class AchievementsMainScreen extends Screen {
                                 .stream()
                                 .filter(achievement -> screen.counts.getOrDefault(achievement.getData().getKey(), 0L) < achievement.getData().getCount())
                                 .collect(Collectors.toList());
-                screen.player.openInventory(new AchievementListScreen(screen.player, list, "未解除の実績").getInventory());
+                // TODO: hardcoded message
+                screen.player.openInventory(new AchievementListScreen(screen.player, list, screen.counts, "未解除の実績").getInventory());
             }
         }
     }

@@ -13,7 +13,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public abstract class Screen implements InventoryHolder {
-    protected static final ItemStack BLACK_PANE = createItem(Material.STAINED_GLASS_PANE, (short) 15, null, null);
+    protected static final ItemStack BLACK_PANE = createItem(Material.STAINED_GLASS_PANE, (short) 15, " ", null);
+    protected static final ItemStack GRAY_PANE = createItem(Material.STAINED_GLASS_PANE, (short) 7, " ", null);
     protected final Inventory inventory;
 
     public Screen(int size, @Nullable String title) {

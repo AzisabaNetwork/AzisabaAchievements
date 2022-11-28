@@ -34,7 +34,10 @@ public class AchievementListScreen extends Screen {
     }
 
     private void refresh() {
-        for (int i = 0; i < 54; i++) {
+        for (int i = 0; i < 45; i++) {
+            setItem(i, GRAY_PANE);
+        }
+        for (int i = 45; i < 54; i++) {
             setItem(i, BLACK_PANE);
         }
         int start = (page - 1) * 45;
@@ -46,11 +49,13 @@ public class AchievementListScreen extends Screen {
             AchievementTranslationData translationData = achievement.getTranslationForLocale(player.getLocale());
             List<String> lore;
             if (translationData != null) {
-                meta.setDisplayName(translationData.getName());
-                lore = new ArrayList<>(Arrays.asList(translationData.getDescription().split("\n")));
+                meta.setDisplayName(ChatColor.GREEN + ChatColor.translateAlternateColorCodes('&', translationData.getName()));
+                lore = new ArrayList<>(Arrays.asList(
+                        ChatColor.translateAlternateColorCodes('&', translationData.getDescription()).split("\n")
+                ));
             } else {
-                meta.setDisplayName(achievement.getData().getKey().toString());
-                lore = new ArrayList<>(Collections.singletonList("No description defined"));
+                meta.setDisplayName(ChatColor.GREEN + achievement.getData().getKey().toString());
+                lore = new ArrayList<>(Collections.singletonList(ChatColor.GRAY + "No description defined."));
             }
             lore.add("");
             long current = progress.getOrDefault(achievement.getData().getKey(), 0L);
@@ -65,14 +70,22 @@ public class AchievementListScreen extends Screen {
             item.setItemMeta(meta);
             setItem(i - start, item);
         }
-        if (page > 1) {
+        if (hasPreviousPage()) {
             ItemStack item = new ItemStack(Material.ARROW);
             setItem(45, item);
         }
-        if (page < achievements.size() / 45 + 1) {
+        if (hasNextPage()) {
             ItemStack item = new ItemStack(Material.ARROW);
             setItem(53, item);
         }
+    }
+
+    private boolean hasNextPage() {
+        return page < achievements.size() / 45 + 1;
+    }
+
+    private boolean hasPreviousPage() {
+        return page > 1;
     }
 
     public static class EventListener implements Listener {
@@ -98,10 +111,10 @@ public class AchievementListScreen extends Screen {
             if (e.getCurrentItem() == null) {
                 return;
             }
-            if (e.getSlot() == 45) {
+            if (e.getSlot() == 45 && screen.hasPreviousPage()) {
                 screen.page--;
                 screen.refresh();
-            } else if (e.getSlot() == 53) {
+            } else if (e.getSlot() == 53 && screen.hasNextPage()) {
                 screen.page++;
                 screen.refresh();
             }

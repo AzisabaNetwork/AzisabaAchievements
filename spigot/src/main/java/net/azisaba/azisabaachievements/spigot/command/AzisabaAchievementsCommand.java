@@ -1,6 +1,6 @@
 package net.azisaba.azisabaachievements.spigot.command;
 
-import net.azisaba.azisabaachievements.spigot.gui.AchievementListScreen;
+import net.azisaba.azisabaachievements.spigot.gui.AchievementsMainScreen;
 import net.azisaba.azisabaachievements.spigot.plugin.SpigotPlugin;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -29,7 +29,11 @@ public class AzisabaAchievementsCommand implements TabExecutor {
                 return true;
             }
             Player player = (Player) sender;
-            player.openInventory(new AchievementListScreen(plugin.getAchievementDataCache(), player).getInventory());
+            player.openInventory(new AchievementsMainScreen(
+                    player,
+                    plugin.getAchievementDataCache().getAchievementsAsList(),
+                    plugin.getAchievementDataCache().getPlayerAchievements(player.getUniqueId())
+            ).getInventory());
             return true;
         }
         try {

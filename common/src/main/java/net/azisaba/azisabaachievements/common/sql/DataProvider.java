@@ -3,6 +3,7 @@ package net.azisaba.azisabaachievements.common.sql;
 import net.azisaba.azisabaachievements.api.Key;
 import net.azisaba.azisabaachievements.api.achievement.AchievementData;
 import net.azisaba.azisabaachievements.api.achievement.AchievementTranslationData;
+import net.azisaba.azisabaachievements.api.achievement.PlayerAchievementData;
 import net.azisaba.azisabaachievements.common.data.PlayerData;
 import net.azisaba.azisabaachievements.common.util.QueryExecutor;
 import org.jetbrains.annotations.Contract;
@@ -139,6 +140,53 @@ public class DataProvider {
                         ));
                     }
                     return set;
+                }
+            });
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Contract(pure = true)
+    @NotNull
+    public static Set<PlayerAchievementData> getPlayerAchievements(@NotNull QueryExecutor queryExecutor, @NotNull UUID uuid) {
+        try {
+            return queryExecutor.query("SELECT `player_achievements`.*, `achievements`.`key` FROM `player_achievements` " +
+                    "LEFT JOIN `achievements` ON `player_achievements`.`achievement_id` = `achievements`.`id` " +
+                    "WHERE `player_achievements`.`player_id` = ?", ps -> {
+                ps.setString(1, uuid.toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    Set<PlayerAchievementData> set = new HashSet<>();
+                    while (rs.next()) {
+                        set.add(new PlayerAchievementData(
+                                uuid,
+                                Key.key(rs.getString("key")),
+                                rs.getLong("count")
+                        ));
+                    }
+                    return set;
+                }
+            });
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Contract(pure = true)
+    @Nullable
+    public static PlayerAchievementData getPlayerAchievement(@NotNull QueryExecutor queryExecutor, @NotNull UUID uuid, @NotNull Key key) {
+        try {
+            return queryExecutor.query("SELECT `player_achievements`.count FROM `player_achievements` " +
+                    "LEFT JOIN `achievements` ON `player_achievements`.`achievement_id` = `achievements`.`id` " +
+                    "WHERE `player_achievements`.`player_id` = ? AND `achievements`.`key` = ?", ps -> {
+                ps.setString(1, uuid.toString());
+                ps.setString(2, key.toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return new PlayerAchievementData(uuid, key, rs.getLong("count"));
+                    } else {
+                        return null;
+                    }
                 }
             });
         } catch (SQLException e) {

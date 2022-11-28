@@ -7,6 +7,7 @@ import io.netty.util.ByteProcessor;
 import net.azisaba.azisabaachievements.api.Key;
 import net.azisaba.azisabaachievements.api.achievement.AchievementData;
 import net.azisaba.azisabaachievements.api.achievement.AchievementTranslationData;
+import net.azisaba.azisabaachievements.api.achievement.PlayerAchievementData;
 import net.azisaba.azisabaachievements.api.util.Either;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -96,6 +97,17 @@ public class PacketByteBuf extends ByteBuf {
     @NotNull
     public AchievementData readAchievementData() {
         return new AchievementData(-1, readKey(), readLong(), readInt());
+    }
+
+    public void writePlayerAchievementData(@NotNull PlayerAchievementData data) {
+        writeUUID(data.getPlayerId());
+        writeKey(data.getAchievementKey());
+        writeLong(data.getCount());
+    }
+
+    @NotNull
+    public PlayerAchievementData readPlayerAchievementData() {
+        return new PlayerAchievementData(readUUID(), readKey(), readLong());
     }
 
     /**

@@ -1,6 +1,5 @@
 package net.azisaba.azisabaachievements.api.network.packet;
 
-import net.azisaba.azisabaachievements.api.Key;
 import net.azisaba.azisabaachievements.api.achievement.AchievementData;
 import net.azisaba.azisabaachievements.api.network.Packet;
 import net.azisaba.azisabaachievements.api.network.PacketByteBuf;

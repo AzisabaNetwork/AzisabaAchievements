@@ -1,16 +1,12 @@
 package net.azisaba.azisabaachievements.spigot.gui;
 
 import net.azisaba.azisabaachievements.api.achievement.AchievementTranslationData;
-import net.azisaba.azisabaachievements.spigot.data.AchievementDataCache;
 import net.azisaba.azisabaachievements.spigot.data.TranslatedAchievement;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -19,28 +15,21 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class AchievementListScreen implements InventoryHolder {
-    private final List<TranslatedAchievement> achievements;
-    private final Inventory inventory;
+public class AchievementListScreen extends Screen {
     private final Player player;
+    private final List<TranslatedAchievement> achievements;
     private int page = 1;
 
-    public AchievementListScreen(@NotNull AchievementDataCache cache, @NotNull Player player) {
-        this.achievements = cache.getAchievementsAsList();
-        this.inventory = Bukkit.createInventory(this, 54, "nanntoka");
+    public AchievementListScreen(@NotNull Player player, @NotNull List<TranslatedAchievement> achievements, @NotNull String title) {
+        super(54, title);
         this.player = player;
+        this.achievements = achievements;
         refresh();
     }
 
     private void refresh() {
-        inventory.clear();
         for (int i = 0; i < 54; i++) {
-            ItemStack blackPane = new ItemStack(Material.STAINED_GLASS_PANE);
-            blackPane.setDurability((short) 15);
-            ItemMeta meta = blackPane.getItemMeta();
-            meta.setDisplayName(" ");
-            blackPane.setItemMeta(meta);
-            inventory.setItem(i, blackPane);
+            setItem(i, BLACK_PANE);
         }
         int start = (page - 1) * 45;
         int end = Math.min(start + 45, achievements.size());
@@ -57,21 +46,16 @@ public class AchievementListScreen implements InventoryHolder {
                 meta.setLore(Collections.singletonList("No description defined"));
             }
             item.setItemMeta(meta);
-            inventory.setItem(i - start, item);
+            setItem(i - start, item);
         }
         if (page > 1) {
             ItemStack item = new ItemStack(Material.ARROW);
-            inventory.setItem(45, item);
+            setItem(45, item);
         }
         if (page < achievements.size() / 45 + 1) {
             ItemStack item = new ItemStack(Material.ARROW);
-            inventory.setItem(53, item);
+            setItem(53, item);
         }
-    }
-
-    @Override
-    public Inventory getInventory() {
-        return inventory;
     }
 
     public static class EventListener implements Listener {
@@ -87,13 +71,13 @@ public class AchievementListScreen implements InventoryHolder {
             if (!(e.getInventory().getHolder() instanceof AchievementListScreen)) {
                 return;
             }
+            e.setCancelled(true);
             AchievementListScreen screen = (AchievementListScreen) e.getInventory().getHolder();
             if (!e.getWhoClicked().equals(screen.player)) {
                 // wrong player
                 e.getWhoClicked().closeInventory();
                 return;
             }
-            e.setCancelled(true);
             if (e.getCurrentItem() == null) {
                 return;
             }

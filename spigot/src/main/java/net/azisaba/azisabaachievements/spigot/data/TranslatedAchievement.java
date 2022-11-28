@@ -6,19 +6,27 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public final class TranslatedAchievement {
-    private final AchievementData data;
+    private final AtomicReference<AchievementData> data = new AtomicReference<>();
     private final Map<String, AchievementTranslationData> translation;
 
     public TranslatedAchievement(@NotNull AchievementData data, @NotNull Map<String, AchievementTranslationData> translation) {
-        this.data = data;
+        this.data.set(data);
         this.translation = translation;
     }
 
     @NotNull
     public AchievementData getData() {
-        return data;
+        return data.get();
+    }
+
+    public void replaceData(@NotNull AchievementData data) {
+        if (!this.data.get().getKey().equals(data.getKey())) {
+            throw new IllegalArgumentException("Key mismatch");
+        }
+        this.data.set(data);
     }
 
     @NotNull

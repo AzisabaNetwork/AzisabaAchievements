@@ -3,12 +3,14 @@ package net.azisaba.azisabaachievements.spigot.network;
 import net.azisaba.azisabaachievements.api.AzisabaAchievementsProvider;
 import net.azisaba.azisabaachievements.api.achievement.AchievementData;
 import net.azisaba.azisabaachievements.api.achievement.AchievementTranslationData;
+import net.azisaba.azisabaachievements.api.achievement.PlayerAchievementData;
 import net.azisaba.azisabaachievements.api.network.ServerPacketListener;
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonAchievementUnlocked;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerAddAchievementTranslation;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerCreateAchievementCallback;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerDataResult;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerFetchAchievementCallback;
+import net.azisaba.azisabaachievements.api.network.packet.PacketServerPlayerData;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerProgressAchievementCallback;
 import net.azisaba.azisabaachievements.spigot.achievement.SpigotAchievementManager;
 import net.azisaba.azisabaachievements.spigot.data.AchievementDataCache;
@@ -102,6 +104,18 @@ public class SpigotPacketListener implements ServerPacketListener {
 
     @Override
     public void handle(@NotNull PacketServerFetchAchievementCallback packet) {
+        // add to cache
+        if (packet.getResult().isRight()) {
+            AchievementDataCache cache = plugin.getAchievementDataCache();
+            Optional<AchievementData> opt = packet.getResult().getRight();
+            opt.ifPresent(data ->
+                    cache.getAchievements()
+                            .computeIfAbsent(data.getKey(), k -> new TranslatedAchievement(data, new HashMap<>()))
+                            .replaceData(data)
+            );
+        }
+
+        // process callback
         CompletableFuture<Optional<AchievementData>> cb = ((SpigotAchievementManager) AzisabaAchievementsProvider.get().getAchievementManager())
                 .optionalAchievementDataCallback
                 .remove(packet.getSeq());
@@ -135,5 +149,13 @@ public class SpigotPacketListener implements ServerPacketListener {
         AchievementDataCache cache = plugin.getAchievementDataCache();
         TranslatedAchievement achievement = cache.getAchievement(packet.getData().getAchievementKey());
         achievement.addTranslation(packet.getData());
+    }
+
+    @Override
+    public void handle(@NotNull PacketServerPlayerData packet) {
+        AchievementDataCache cache = plugin.getAchievementDataCache();
+        for (PlayerAchievementData data : packet.getData()) {
+            cache.add(data);
+        }
     }
 }

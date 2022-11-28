@@ -3,6 +3,7 @@ package net.azisaba.azisabaachievements.velocity.network;
 import net.azisaba.azisabaachievements.api.AzisabaAchievementsProvider;
 import net.azisaba.azisabaachievements.api.achievement.AchievementData;
 import net.azisaba.azisabaachievements.api.achievement.AchievementTranslationData;
+import net.azisaba.azisabaachievements.api.achievement.PlayerAchievementData;
 import net.azisaba.azisabaachievements.api.network.ProxyPacketListener;
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonAchievementUnlocked;
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonProxyLeaderChanged;
@@ -12,10 +13,12 @@ import net.azisaba.azisabaachievements.api.network.packet.PacketProxyCreateAchie
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyFetchAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyProgressAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyRequestData;
+import net.azisaba.azisabaachievements.api.network.packet.PacketProxyRequestPlayerData;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerAddAchievementTranslation;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerCreateAchievementCallback;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerDataResult;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerFetchAchievementCallback;
+import net.azisaba.azisabaachievements.api.network.packet.PacketServerPlayerData;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerProgressAchievementCallback;
 import net.azisaba.azisabaachievements.api.util.Either;
 import net.azisaba.azisabaachievements.common.sql.DataProvider;
@@ -23,6 +26,7 @@ import net.azisaba.azisabaachievements.velocity.plugin.VelocityPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
@@ -104,6 +108,11 @@ public class VelocityPacketListener implements ProxyPacketListener {
         if (!plugin.getRedisConnectionLeader().isLeader()) {
             return;
         }
+        if (packet.getCount() == 0) {
+            AzisabaAchievementsProvider.get().getPacketSender()
+                    .sendPacket(new PacketServerProgressAchievementCallback(packet.getSeq(), Either.right(false)));
+            return;
+        }
         AzisabaAchievementsProvider.get()
                 .getAchievementManager()
                 .progressAchievement(packet.getUniqueId(), packet.getKey(), packet.getCount())
@@ -114,13 +123,21 @@ public class VelocityPacketListener implements ProxyPacketListener {
                     } else {
                         either = Either.right(result);
                     }
-                    AzisabaAchievementsProvider.get().getPacketSender().sendPacket(new PacketServerProgressAchievementCallback(packet.getSeq(), either));
+                    AzisabaAchievementsProvider.get().getPacketSender()
+                            .sendPacket(new PacketServerProgressAchievementCallback(packet.getSeq(), either));
+                    PlayerAchievementData playerAchievementData =
+                            DataProvider.getPlayerAchievement(plugin.getDatabaseManager(), packet.getUniqueId(), packet.getKey());
+                    if (playerAchievementData != null) {
+                        AzisabaAchievementsProvider.get().getPacketSender()
+                                .sendPacket(new PacketServerPlayerData(Collections.singleton(playerAchievementData)));
+                    }
                     if (result != null && result) {
                         AchievementData achievement = DataProvider.getAchievementByKey(plugin.getDatabaseManager(), packet.getKey());
                         if (achievement == null) {
                             throw new AssertionError("Achievement " + packet.getKey() + " is missing");
                         }
-                        AzisabaAchievementsProvider.get().getPacketSender().sendPacket(new PacketCommonAchievementUnlocked(packet.getUniqueId(), achievement));
+                        AzisabaAchievementsProvider.get().getPacketSender()
+                                .sendPacket(new PacketCommonAchievementUnlocked(packet.getUniqueId(), achievement));
                     }
                 });
     }
@@ -143,5 +160,18 @@ public class VelocityPacketListener implements ProxyPacketListener {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void handle(@NotNull PacketProxyRequestPlayerData packet) {
+        if (!plugin.getRedisConnectionLeader().isLeader()) {
+            return;
+        }
+        AzisabaAchievementsProvider.get()
+                .getScheduler()
+                .builder(() -> {
+                    Set<PlayerAchievementData> achievements = DataProvider.getPlayerAchievements(plugin.getDatabaseManager(), packet.getPlayerId());
+                    AzisabaAchievementsProvider.get().getPacketSender().sendPacket(new PacketServerPlayerData(achievements));
+                }).async().schedule();
     }
 }

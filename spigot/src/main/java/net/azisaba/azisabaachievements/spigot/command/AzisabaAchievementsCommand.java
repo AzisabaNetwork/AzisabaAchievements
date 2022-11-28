@@ -59,8 +59,8 @@ public class AzisabaAchievementsCommand implements TabExecutor {
             return Command.filter(
                     CommandManager.getCommands()
                             .stream()
-                            .filter(name -> sender.hasPermission("azisabaachievements.command.azisabaachievements." + name))
-                            .map(Command::getName),
+                            .map(Command::getName)
+                            .filter(name -> sender.hasPermission("azisabaachievements.command.azisabaachievements." + name)),
                     args[0]
             ).collect(Collectors.toList());
         }

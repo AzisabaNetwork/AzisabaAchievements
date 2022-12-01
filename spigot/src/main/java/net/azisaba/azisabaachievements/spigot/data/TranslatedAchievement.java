@@ -5,6 +5,7 @@ import net.azisaba.azisabaachievements.api.achievement.AchievementTranslationDat
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -14,7 +15,7 @@ public final class TranslatedAchievement {
 
     public TranslatedAchievement(@NotNull AchievementData data, @NotNull Map<String, AchievementTranslationData> translation) {
         this.data.set(data);
-        this.translation = translation;
+        this.translation = new HashMap<>(translation); // make it mutable if it isn't already
     }
 
     @NotNull

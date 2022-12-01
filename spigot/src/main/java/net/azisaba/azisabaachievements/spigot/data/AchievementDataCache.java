@@ -83,7 +83,7 @@ public final class AchievementDataCache {
             translations.computeIfAbsent(translation.getAchievementKey(), k -> new HashMap<>()).put(translation.getLanguage(), translation);
         }
         for (AchievementData achievement : packet.getAchievements()) {
-            map.put(achievement.getKey(), new TranslatedAchievement(achievement, translations.get(achievement.getKey())));
+            map.put(achievement.getKey(), new TranslatedAchievement(achievement, translations.getOrDefault(achievement.getKey(), Collections.emptyMap())));
         }
         achievements.putAll(map);
         achievements.forEach((key, value) -> {

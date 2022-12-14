@@ -52,7 +52,7 @@ public final class AchievementDataCache {
     public @NotNull CompletableFuture<Void> requestRefresh() {
         CompletableFuture<Void> future;
         if (callback.compareAndSet(null, new CompletableFuture<>())) {
-            future = callback.get();
+            future = Objects.requireNonNull(callback.get(), "callback reference modified by another thread");
             packetSender.sendPacket(new PacketProxyRequestData());
         } else {
             future = callback.get();

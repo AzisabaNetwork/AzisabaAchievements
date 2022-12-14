@@ -25,7 +25,7 @@ public class AchievementsMainScreen extends Screen {
     private final Map<Key, Long> counts = new HashMap<>();
 
     public AchievementsMainScreen(@NotNull Player player, @NotNull List<TranslatedAchievement> achievements, @NotNull Set<PlayerAchievementData> playerAchievements) {
-        super(27, "実績メニュー"); // TODO: hardcoded message
+        super(null, 27, "実績メニュー"); // TODO: hardcoded message
         this.player = player;
         this.achievements = achievements;
         initCounts(playerAchievements);
@@ -82,7 +82,7 @@ public class AchievementsMainScreen extends Screen {
                                 .filter(achievement -> screen.counts.getOrDefault(achievement.getData().getKey(), 0L) >= achievement.getData().getCount())
                                 .collect(Collectors.toList());
                 // TODO: hardcoded message
-                screen.player.openInventory(new AchievementListScreen(screen.player, list, screen.counts, "解除済みの実績").getInventory());
+                screen.player.openInventory(new AchievementListScreen(screen.inventory, screen.player, list, screen.counts, "解除済みの実績").getInventory());
             }
             if (e.getSlot() == 15) {
                 List<TranslatedAchievement> list =
@@ -91,7 +91,7 @@ public class AchievementsMainScreen extends Screen {
                                 .filter(achievement -> screen.counts.getOrDefault(achievement.getData().getKey(), 0L) < achievement.getData().getCount())
                                 .collect(Collectors.toList());
                 // TODO: hardcoded message
-                screen.player.openInventory(new AchievementListScreen(screen.player, list, screen.counts, "未解除の実績").getInventory());
+                screen.player.openInventory(new AchievementListScreen(screen.inventory, screen.player, list, screen.counts, "未解除の実績").getInventory());
             }
         }
     }

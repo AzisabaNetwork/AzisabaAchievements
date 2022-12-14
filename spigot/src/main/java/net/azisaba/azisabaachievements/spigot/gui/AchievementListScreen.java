@@ -9,9 +9,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,8 +27,8 @@ public class AchievementListScreen extends Screen {
     private final Map<Key, Long> progress;
     private int page = 1;
 
-    public AchievementListScreen(@NotNull Player player, @NotNull List<TranslatedAchievement> achievements, @NotNull Map<Key, Long> progress, @NotNull String title) {
-        super(54, title);
+    public AchievementListScreen(@Nullable Inventory parent, @NotNull Player player, @NotNull List<TranslatedAchievement> achievements, @NotNull Map<Key, Long> progress, @NotNull String title) {
+        super(parent, 54, title);
         this.player = player;
         this.achievements = achievements;
         this.progress = progress;

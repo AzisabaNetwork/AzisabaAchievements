@@ -8,27 +8,28 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * This packet is sent from proxy to server to send the updated achievement progression data of a player.
  * @see PacketProxyRequestPlayerData
  */
 public class PacketServerPlayerData extends Packet<ServerPacketListener> {
-    private final Collection<PlayerAchievementData> data;
+    private final List<PlayerAchievementData> data;
 
     public PacketServerPlayerData(@NotNull PacketByteBuf buf) {
         super(buf);
-        this.data = buf.readCollection(ArrayList::new, PacketByteBuf::readPlayerAchievementData);
+        this.data = buf.readWithCodec(PlayerAchievementData.CODEC.list());
     }
 
     public PacketServerPlayerData(@NotNull Collection<PlayerAchievementData> data) {
         super(PacketByteBuf.EMPTY);
-        this.data = data;
+        this.data = new ArrayList<>(data);
     }
 
     @Override
     public void write(@NotNull PacketByteBuf buf) {
-        buf.writeCollection(this.data, (data, b) -> b.writePlayerAchievementData(data));
+        buf.writeWithCodec(data, PlayerAchievementData.CODEC.list());
     }
 
     @Override

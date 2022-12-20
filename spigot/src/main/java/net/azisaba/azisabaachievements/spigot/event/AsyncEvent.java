@@ -18,7 +18,7 @@ public abstract class AsyncEvent extends Event {
     /**
      * Calls the event asynchronously (using new thread).
      * @param event the event to call
-     * @return true if the event is cancelled (if the event is cancellable); false otherwise (event is not cancelled
+     * @return boolean - true if the event is cancelled (if the event is cancellable); false otherwise (event is not cancelled
      *         or the event is not cancellable)
      */
     public static @NotNull CompletableFuture<@NotNull Boolean> call(@NotNull AsyncEvent event) {
@@ -31,5 +31,13 @@ public abstract class AsyncEvent extends Event {
             }
         }, "AzisabaAchievements-Event-" + nextId.getAndIncrement()).start();
         return future;
+    }
+
+    public static boolean callBlocking(@NotNull AsyncEvent event) {
+        if (Bukkit.isPrimaryThread()) {
+            throw new IllegalStateException("Cannot call async event from main thread");
+        }
+        Bukkit.getPluginManager().callEvent(event);
+        return event instanceof Cancellable && ((Cancellable) event).isCancelled();
     }
 }

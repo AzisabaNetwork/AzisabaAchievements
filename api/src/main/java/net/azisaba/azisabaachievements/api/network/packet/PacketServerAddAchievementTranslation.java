@@ -15,7 +15,7 @@ public class PacketServerAddAchievementTranslation extends Packet<ServerPacketLi
 
     public PacketServerAddAchievementTranslation(@NotNull PacketByteBuf buf) {
         super(buf);
-        data = buf.readAchievementTranslationData();
+        data = buf.readWithCodec(AchievementTranslationData.NETWORK_CODEC);
     }
 
     public PacketServerAddAchievementTranslation(@NotNull AchievementTranslationData data) {
@@ -25,7 +25,7 @@ public class PacketServerAddAchievementTranslation extends Packet<ServerPacketLi
 
     @Override
     public void write(@NotNull PacketByteBuf buf) {
-        buf.writeAchievementTranslationData(data);
+        buf.writeWithCodec(data, AchievementTranslationData.NETWORK_CODEC);
     }
 
     @Override

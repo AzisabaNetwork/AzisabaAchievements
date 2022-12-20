@@ -5,13 +5,14 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.util.ByteProcessor;
 import net.azisaba.azisabaachievements.api.Key;
-import net.azisaba.azisabaachievements.api.achievement.AchievementData;
-import net.azisaba.azisabaachievements.api.achievement.AchievementTranslationData;
 import net.azisaba.azisabaachievements.api.achievement.PlayerAchievementData;
 import net.azisaba.azisabaachievements.api.util.Either;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import xyz.acrylicstyle.util.serialization.codec.Codec;
+import xyz.acrylicstyle.util.serialization.decoder.ByteBufValueDecoder;
+import xyz.acrylicstyle.util.serialization.encoder.ByteBufValueEncoder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +40,14 @@ public class PacketByteBuf extends ByteBuf {
 
     public PacketByteBuf(@NotNull ByteBuf buf) {
         this.buf = Objects.requireNonNull(buf, "buf");
+    }
+
+    public <A> void writeWithCodec(A input, @NotNull Codec<A> codec) {
+        codec.encode(input, new ByteBufValueEncoder(buf));
+    }
+
+    public <A> A readWithCodec(@NotNull Codec<A> codec) {
+        return codec.decode(new ByteBufValueDecoder(buf));
     }
 
     public <T> void writeCollection(@NotNull Collection<T> list, @NotNull PacketByteBufWriter<T> writer) {
@@ -69,47 +78,6 @@ public class PacketByteBuf extends ByteBuf {
         return readBoolean() ? Optional.of(reader.read(this)) : Optional.empty();
     }
 
-    public void writeAchievementTranslationData(@NotNull AchievementTranslationData data) {
-        writeKey(data.getAchievementKey());
-        writeString(data.getLanguage());
-        writeString(data.getName());
-        writeString(data.getDescription());
-    }
-
-    @NotNull
-    public AchievementTranslationData readAchievementTranslationData() {
-        return new AchievementTranslationData(
-                -1,
-                /* achievementKey = */ readKey(),
-                /* language = */ readString(),
-                /* name = */ readString(),
-                /* description = */ readString()
-        );
-    }
-
-    public void writeAchievementData(@NotNull AchievementData data) {
-        // id is not written
-        writeKey(data.getKey());
-        writeLong(data.getCount());
-        writeInt(data.getPoint());
-    }
-
-    @NotNull
-    public AchievementData readAchievementData() {
-        return new AchievementData(-1, readKey(), readLong(), readInt());
-    }
-
-    public void writePlayerAchievementData(@NotNull PlayerAchievementData data) {
-        writeUUID(data.getPlayerId());
-        writeKey(data.getAchievementKey());
-        writeLong(data.getCount());
-    }
-
-    @NotNull
-    public PlayerAchievementData readPlayerAchievementData() {
-        return new PlayerAchievementData(readUUID(), readKey(), readLong());
-    }
-
     /**
      * Writes the {@link Either} to the buffer.
      */
@@ -132,6 +100,14 @@ public class PacketByteBuf extends ByteBuf {
         } else {
             return Either.right(right.read(this));
         }
+    }
+
+    public <E extends Enum<E>> void writeEnum(@NotNull E e) {
+        writeVarInt(e.ordinal());
+    }
+
+    public <E extends Enum<E>> @NotNull E readEnum(@NotNull Class<E> enumClass) {
+        return enumClass.getEnumConstants()[readVarInt()];
     }
 
     /**

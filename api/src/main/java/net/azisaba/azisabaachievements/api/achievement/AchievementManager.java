@@ -31,7 +31,7 @@ public interface AchievementManager {
      * @param uuid the player uuid
      * @param key the achievement key
      * @param count the progress count
-     * @return true if the achievement is unlocked (count &gt;= required count) by this progress
+     * @return boolean - true if the achievement is unlocked (count &gt;= required count) by this progress
      */
     @NotNull
     CompletableFuture<Boolean> progressAchievement(@NotNull UUID uuid, @NotNull Key key, long count);

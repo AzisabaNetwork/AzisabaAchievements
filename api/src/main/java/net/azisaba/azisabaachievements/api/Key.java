@@ -2,8 +2,15 @@ package net.azisaba.azisabaachievements.api;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import xyz.acrylicstyle.util.serialization.codec.Codec;
 
 public interface Key {
+    Codec<Key> CODEC =
+            Codec.<Key>builder()
+                    .group(Codec.STRING.fieldOf("namespace").getter(Key::namespace), Codec.STRING.fieldOf("path").getter(Key::path))
+                    .build(Key::key)
+                    .named("Key");
+
     @NotNull
     String namespace();
 

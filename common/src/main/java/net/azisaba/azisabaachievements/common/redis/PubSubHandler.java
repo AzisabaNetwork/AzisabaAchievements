@@ -133,7 +133,7 @@ public class PubSubHandler implements Closeable, PacketSender {
         try {
             handlePacket(packetId, buf.slice());
         } catch (Exception e) {
-            logger.error("Failed to process packet {}", packetId, e);
+            logger.error("Failed to process packet " + packetId, e);
         } finally {
             if (buf.refCnt() > 0) {
                 buf.release();
@@ -147,7 +147,7 @@ public class PubSubHandler implements Closeable, PacketSender {
         try {
             packet.handle((P) packetListener);
         } catch (Exception e) {
-            logger.error("Failed to handle packet {}/{}", packetId, packet.getClass().getTypeName(), e);
+            logger.error("Failed to handle packet " + packetId + "/" + packet.getClass().getTypeName(), e);
         }
     }
 

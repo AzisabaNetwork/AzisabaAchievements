@@ -2,8 +2,12 @@ package net.azisaba.azisabaachievements.common.sql;
 
 import net.azisaba.azisabaachievements.api.Key;
 import net.azisaba.azisabaachievements.api.achievement.AchievementData;
+import net.azisaba.azisabaachievements.api.achievement.AchievementFlags;
+import net.azisaba.azisabaachievements.api.achievement.AchievementHideFlags;
 import net.azisaba.azisabaachievements.api.achievement.AchievementTranslationData;
 import net.azisaba.azisabaachievements.api.achievement.PlayerAchievementData;
+import net.azisaba.azisabaachievements.api.serialization.ResultSetValueDecoder;
+import net.azisaba.azisabaachievements.api.util.MagicConstantBitField;
 import net.azisaba.azisabaachievements.common.data.PlayerData;
 import net.azisaba.azisabaachievements.common.util.QueryExecutor;
 import org.jetbrains.annotations.Contract;
@@ -21,7 +25,7 @@ public class DataProvider {
     @Nullable
     public static AchievementData getAchievementById(@NotNull QueryExecutor queryExecutor, long id) {
         try {
-            return queryExecutor.query("SELECT `id`, `key`, `count`, `point` FROM `achievements` WHERE `id` = ?", ps -> {
+            return queryExecutor.query("SELECT `id`, `key`, `count`, `point`, `hidden`, `flags` FROM `achievements` WHERE `id` = ?", ps -> {
                 ps.setLong(1, id);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -29,7 +33,9 @@ public class DataProvider {
                                 rs.getLong("id"),
                                 Key.key(rs.getString("key")),
                                 rs.getLong("count"),
-                                rs.getInt("point")
+                                rs.getInt("point"),
+                                AchievementHideFlags.values()[rs.getInt("hidden")],
+                                MagicConstantBitField.of(AchievementFlags.class, rs.getInt("flags"))
                         );
                     } else {
                         return null;
@@ -45,7 +51,7 @@ public class DataProvider {
     @Nullable
     public static AchievementData getAchievementByKey(@NotNull QueryExecutor queryExecutor, @NotNull Key key) {
         try {
-            return queryExecutor.query("SELECT `id`, `key`, `count`, `point` FROM `achievements` WHERE `key` = ?", ps -> {
+            return queryExecutor.query("SELECT `id`, `key`, `count`, `point`, `hidden`, `flags` FROM `achievements` WHERE `key` = ?", ps -> {
                 ps.setString(1, key.toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -53,7 +59,9 @@ public class DataProvider {
                                 rs.getLong("id"),
                                 Key.key(rs.getString("key")),
                                 rs.getLong("count"),
-                                rs.getInt("point")
+                                rs.getInt("point"),
+                                AchievementHideFlags.values()[rs.getInt("hidden")],
+                                MagicConstantBitField.of(AchievementFlags.class, rs.getInt("flags"))
                         );
                     } else {
                         return null;
@@ -103,7 +111,7 @@ public class DataProvider {
     @NotNull
     public static Set<AchievementData> getAllAchievements(@NotNull QueryExecutor queryExecutor) {
         try {
-            return queryExecutor.query("SELECT `id`, `key`, `count`, `point` FROM `achievements`", ps -> {
+            return queryExecutor.query("SELECT `id`, `key`, `count`, `point`, `hidden`, `flags` FROM `achievements`", ps -> {
                 try (ResultSet rs = ps.executeQuery()) {
                     Set<AchievementData> set = new HashSet<>();
                     while (rs.next()) {
@@ -111,7 +119,9 @@ public class DataProvider {
                                 rs.getLong("id"),
                                 Key.key(rs.getString("key")),
                                 rs.getLong("count"),
-                                rs.getInt("point")
+                                rs.getInt("point"),
+                                AchievementHideFlags.values()[rs.getInt("hidden")],
+                                MagicConstantBitField.of(AchievementFlags.class, rs.getInt("flags"))
                         ));
                     }
                     return set;
@@ -131,13 +141,7 @@ public class DataProvider {
                 try (ResultSet rs = ps.executeQuery()) {
                     Set<AchievementTranslationData> set = new HashSet<>();
                     while (rs.next()) {
-                        set.add(new AchievementTranslationData(
-                                rs.getLong("id"),
-                                Key.key(rs.getString("key")),
-                                rs.getString("lang"),
-                                rs.getString("name"),
-                                rs.getString("description")
-                        ));
+                        set.add(AchievementTranslationData.FLAT_CODEC.decode(new ResultSetValueDecoder(rs)));
                     }
                     return set;
                 }

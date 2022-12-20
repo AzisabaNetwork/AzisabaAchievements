@@ -20,7 +20,7 @@ public class PacketServerCreateAchievementCallback extends Packet<ServerPacketLi
     public PacketServerCreateAchievementCallback(@NotNull PacketByteBuf buf) {
         super(buf);
         this.seq = buf.readUUID();
-        this.result = buf.readEither(PacketByteBuf::readString, PacketByteBuf::readAchievementData);
+        this.result = buf.readEither(PacketByteBuf::readString, b -> b.readWithCodec(AchievementData.NETWORK_CODEC));
     }
 
     public PacketServerCreateAchievementCallback(@NotNull UUID seq, @NotNull Either<@NotNull String, @NotNull AchievementData> result) {
@@ -32,7 +32,7 @@ public class PacketServerCreateAchievementCallback extends Packet<ServerPacketLi
     @Override
     public void write(@NotNull PacketByteBuf buf) {
         buf.writeUUID(seq);
-        buf.writeEither(result, (s, b) -> b.writeString(s), (data, b) -> b.writeAchievementData(data));
+        buf.writeEither(result, (s, b) -> b.writeString(s), (data, b) -> b.writeWithCodec(data, AchievementData.NETWORK_CODEC));
     }
 
     @Override

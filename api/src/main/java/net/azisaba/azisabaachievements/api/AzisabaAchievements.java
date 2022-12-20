@@ -7,6 +7,8 @@ import net.azisaba.azisabaachievements.api.scheduler.TaskScheduler;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+
 public interface AzisabaAchievements {
     /**
      * Returns the logger instance. The logger can also be obtained by {@link Logger#getCurrentLogger()}.
@@ -48,4 +50,19 @@ public interface AzisabaAchievements {
     @Contract(pure = true)
     @NotNull
     AchievementManager getAchievementManager();
+
+    /**
+     * Creates a fastutil Int2ObjectHashMap instance.
+     * @return the Int2ObjectHashMap instance
+     * @throws UnsupportedOperationException if the fastutil library is not found
+     */
+    @SuppressWarnings("unchecked")
+    default <T> @NotNull Map<@NotNull Integer, T> createInt2ObjectHashMap() throws UnsupportedOperationException {
+        try {
+            Class<?> clazz = Class.forName("net.azisaba.azisabaachievements.libs." + new String(new char[]{'i', 't', '.', 'u', 'n', 'i', 'm', 'i'}) + ".dsi.fastutil.ints.Int2ObjectOpenHashMap");
+            return (Map<@NotNull Integer, T>) clazz.getConstructor().newInstance();
+        } catch (ReflectiveOperationException ex) {
+            throw new UnsupportedOperationException("fastutil library is not found", ex);
+        }
+    }
 }

@@ -9,19 +9,20 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * This packet is sent from proxy to server to return all achievement data from the proxy.
  * @see PacketProxyRequestData
  */
 public class PacketServerDataResult extends Packet<ServerPacketListener> {
-    private final Collection<AchievementData> achievements;
-    private final Collection<AchievementTranslationData> achievementTranslations;
+    private final List<AchievementData> achievements;
+    private final List<AchievementTranslationData> achievementTranslations;
 
     public PacketServerDataResult(@NotNull PacketByteBuf buf) {
         super(buf);
-        this.achievements = buf.readCollection(ArrayList::new, PacketByteBuf::readAchievementData);
-        this.achievementTranslations = buf.readCollection(ArrayList::new, PacketByteBuf::readAchievementTranslationData);
+        this.achievements = buf.readWithCodec(AchievementData.NETWORK_CODEC.list());
+        this.achievementTranslations = buf.readWithCodec(AchievementTranslationData.NETWORK_CODEC.list());
     }
 
     public PacketServerDataResult(
@@ -29,14 +30,14 @@ public class PacketServerDataResult extends Packet<ServerPacketListener> {
             @NotNull Collection<AchievementTranslationData> achievementTranslations
     ) {
         super(PacketByteBuf.EMPTY);
-        this.achievements = achievements;
-        this.achievementTranslations = achievementTranslations;
+        this.achievements = new ArrayList<>(achievements);
+        this.achievementTranslations = new ArrayList<>(achievementTranslations);
     }
 
     @Override
     public void write(@NotNull PacketByteBuf buf) {
-        buf.writeCollection(this.achievements, (data, b) -> b.writeAchievementData(data));
-        buf.writeCollection(this.achievementTranslations, (data, b) -> b.writeAchievementTranslationData(data));
+        buf.writeWithCodec(this.achievements, AchievementData.NETWORK_CODEC.list());
+        buf.writeWithCodec(this.achievementTranslations, AchievementTranslationData.NETWORK_CODEC.list());
     }
 
     @Override

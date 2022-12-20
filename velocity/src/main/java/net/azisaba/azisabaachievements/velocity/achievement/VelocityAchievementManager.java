@@ -2,8 +2,11 @@ package net.azisaba.azisabaachievements.velocity.achievement;
 
 import net.azisaba.azisabaachievements.api.Key;
 import net.azisaba.azisabaachievements.api.achievement.AchievementData;
+import net.azisaba.azisabaachievements.api.achievement.AchievementFlags;
+import net.azisaba.azisabaachievements.api.achievement.AchievementHideFlags;
 import net.azisaba.azisabaachievements.api.achievement.AchievementManager;
 import net.azisaba.azisabaachievements.api.scheduler.TaskScheduler;
+import net.azisaba.azisabaachievements.api.util.MagicConstantBitField;
 import net.azisaba.azisabaachievements.common.sql.DataProvider;
 import net.azisaba.azisabaachievements.common.util.QueryExecutor;
 import org.jetbrains.annotations.NotNull;
@@ -35,7 +38,7 @@ public class VelocityAchievementManager implements AchievementManager {
                     try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                         if (generatedKeys.next()) {
                             long id = generatedKeys.getLong(1);
-                            future.complete(new AchievementData(id, key, count, point));
+                            future.complete(new AchievementData(id, key, count, point, AchievementHideFlags.NEVER, MagicConstantBitField.of(AchievementFlags.class, 0)));
                         } else {
                             future.completeExceptionally(new IllegalStateException("Failed to create achievement"));
                         }
@@ -53,18 +56,7 @@ public class VelocityAchievementManager implements AchievementManager {
         CompletableFuture<Optional<AchievementData>> future = new CompletableFuture<>();
         scheduler.builder(() -> {
             try {
-                queryExecutor.queryVoid("SELECT `count`, `point` FROM `achievements` WHERE `key` = ?", ps -> {
-                    ps.setString(1, key.toString());
-                    try (ResultSet rs = ps.executeQuery()) {
-                        if (rs.next()) {
-                            long count = rs.getLong("count");
-                            int point = rs.getInt("point");
-                            future.complete(Optional.of(new AchievementData(-1, key, count, point)));
-                        } else {
-                            future.complete(Optional.empty());
-                        }
-                    }
-                });
+                future.complete(Optional.ofNullable(DataProvider.getAchievementByKey(queryExecutor, key)));
             } catch (Throwable t) {
                 future.completeExceptionally(t);
             }
@@ -83,6 +75,10 @@ public class VelocityAchievementManager implements AchievementManager {
                 AchievementData data = DataProvider.getAchievementByKey(queryExecutor, key);
                 if (data == null) {
                     future.completeExceptionally(new IllegalStateException("Achievement does not exist"));
+                    return;
+                }
+                if (data.getFlags().contains(AchievementFlags.CATEGORY) || data.getFlags().contains(AchievementFlags.UNOBTAINABLE)) {
+                    future.completeExceptionally(new IllegalStateException("Achievement is unobtainable"));
                     return;
                 }
                 long achievementId = data.getId();

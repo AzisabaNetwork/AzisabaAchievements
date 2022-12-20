@@ -21,7 +21,7 @@ public class PacketServerFetchAchievementCallback extends Packet<ServerPacketLis
     public PacketServerFetchAchievementCallback(@NotNull PacketByteBuf buf) {
         super(buf);
         this.seq = buf.readUUID();
-        this.result = buf.readEither(PacketByteBuf::readString, b -> b.readOptional(PacketByteBuf::readAchievementData));
+        this.result = buf.readEither(PacketByteBuf::readString, b -> b.readOptional(bb -> bb.readWithCodec(AchievementData.NETWORK_CODEC)));
     }
 
     public PacketServerFetchAchievementCallback(@NotNull UUID seq, @NotNull Either<@NotNull String, @NotNull Optional<AchievementData>> result) {
@@ -36,7 +36,7 @@ public class PacketServerFetchAchievementCallback extends Packet<ServerPacketLis
         buf.writeEither(
                 result,
                 (s, b) -> b.writeString(s),
-                (data, b) -> b.writeOptional(data, (d, bb) -> bb.writeAchievementData(d))
+                (data, b) -> b.writeOptional(data, (d, bb) -> bb.writeWithCodec(d, AchievementData.NETWORK_CODEC))
         );
     }
 

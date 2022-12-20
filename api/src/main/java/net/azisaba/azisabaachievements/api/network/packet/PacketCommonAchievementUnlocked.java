@@ -18,7 +18,7 @@ public class PacketCommonAchievementUnlocked extends Packet<PacketListener> {
     public PacketCommonAchievementUnlocked(@NotNull PacketByteBuf buf) {
         super(buf);
         this.uuid = buf.readUUID();
-        this.achievement = buf.readAchievementData();
+        this.achievement = buf.readWithCodec(AchievementData.NETWORK_CODEC);
     }
 
     public PacketCommonAchievementUnlocked(@NotNull UUID uuid, @NotNull AchievementData achievement) {
@@ -30,7 +30,7 @@ public class PacketCommonAchievementUnlocked extends Packet<PacketListener> {
     @Override
     public void write(@NotNull PacketByteBuf buf) {
         buf.writeUUID(uuid);
-        buf.writeAchievementData(achievement);
+        buf.writeWithCodec(achievement, AchievementData.NETWORK_CODEC);
     }
 
     @Override

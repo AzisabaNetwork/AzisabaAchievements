@@ -16,7 +16,7 @@ public class PacketProxyAddAchievementTranslation extends Packet<ProxyPacketList
 
     public PacketProxyAddAchievementTranslation(@NotNull PacketByteBuf buf) {
         super(buf);
-        data = buf.readAchievementTranslationData();
+        data = buf.readWithCodec(AchievementTranslationData.NETWORK_CODEC);
     }
 
     public PacketProxyAddAchievementTranslation(
@@ -31,7 +31,7 @@ public class PacketProxyAddAchievementTranslation extends Packet<ProxyPacketList
 
     @Override
     public void write(@NotNull PacketByteBuf buf) {
-        buf.writeAchievementTranslationData(data);
+        buf.writeWithCodec(data, AchievementTranslationData.NETWORK_CODEC);
     }
 
     @Override

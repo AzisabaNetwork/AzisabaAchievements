@@ -3,11 +3,22 @@ package net.azisaba.azisabaachievements.api.achievement;
 import net.azisaba.azisabaachievements.api.Key;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import xyz.acrylicstyle.util.serialization.codec.Codec;
 
 import java.util.Objects;
 import java.util.UUID;
 
 public final class PlayerAchievementData {
+    public static final Codec<PlayerAchievementData> CODEC =
+            Codec.<PlayerAchievementData>builder()
+                    .group(
+                            Codec.UUID.fieldOf("player_id").getter(PlayerAchievementData::getPlayerId),
+                            Key.CODEC.fieldOf("key").getter(PlayerAchievementData::getAchievementKey),
+                            Codec.LONG.fieldOf("count").getter(PlayerAchievementData::getCount)
+                    )
+                    .build(PlayerAchievementData::new)
+                    .named("PlayerAchievementData");
+
     private final UUID playerId;
     private final Key achievementKey;
     private final long count;

@@ -26,6 +26,7 @@ allprojects {
 
     repositories {
         mavenCentral()
+        maven { url = uri("https://repo.acrylicstyle.xyz/repository/maven-public/") }
     }
 
     dependencies {
@@ -92,6 +93,7 @@ allprojects {
             relocate("it.unimi.dsi", "net.azisaba.azisabaachievements.libs.it.unimi.dsi")
             relocate("org.mariadb.jdbc", "net.azisaba.azisabaachievements.libs.org.mariadb.jdbc")
             relocate("com.zaxxer.hikari", "net.azisaba.azisabaachievements.libs.com.zaxxer.hikari")
+            relocate("xyz.acrylicstyle.util", "net.azisaba.azisabaachievements.libs.xyz.acrylicstyle.util")
         }
     }
 }

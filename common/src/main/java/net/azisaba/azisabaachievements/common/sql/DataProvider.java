@@ -6,7 +6,6 @@ import net.azisaba.azisabaachievements.api.achievement.AchievementFlags;
 import net.azisaba.azisabaachievements.api.achievement.AchievementHideFlags;
 import net.azisaba.azisabaachievements.api.achievement.AchievementTranslationData;
 import net.azisaba.azisabaachievements.api.achievement.PlayerAchievementData;
-import net.azisaba.azisabaachievements.api.serialization.ResultSetValueDecoder;
 import net.azisaba.azisabaachievements.api.util.MagicConstantBitField;
 import net.azisaba.azisabaachievements.common.data.PlayerData;
 import net.azisaba.azisabaachievements.common.util.QueryExecutor;
@@ -141,7 +140,14 @@ public class DataProvider {
                 try (ResultSet rs = ps.executeQuery()) {
                     Set<AchievementTranslationData> set = new HashSet<>();
                     while (rs.next()) {
-                        set.add(AchievementTranslationData.FLAT_CODEC.decode(new ResultSetValueDecoder(rs)));
+                        AchievementTranslationData data = new AchievementTranslationData(
+                                rs.getLong("id"),
+                                Key.key(rs.getString("key")),
+                                rs.getString("lang"),
+                                rs.getString("name"),
+                                rs.getString("description")
+                        );
+                        set.add(data);
                     }
                     return set;
                 }

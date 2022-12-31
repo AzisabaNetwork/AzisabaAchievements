@@ -13,3 +13,15 @@ dependencies {
     implementation("org.spongepowered:configurate-yaml:4.1.2")
     implementation("org.slf4j:slf4j-nop:2.0.5")
 }
+
+tasks {
+    shadowJar {
+        manifest {
+            attributes(
+                mapOf(
+                    "Main-Class" to "net.azisaba.azisabaachievements.cli.CLIMain",
+                )
+            )
+        }
+    }
+}

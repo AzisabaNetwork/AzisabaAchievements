@@ -24,7 +24,7 @@ public class DataProvider {
     @Nullable
     public static AchievementData getAchievementById(@NotNull QueryExecutor queryExecutor, long id) {
         try {
-            return queryExecutor.query("SELECT `id`, `key`, `count`, `point`, `hidden`, `flags` FROM `achievements` WHERE `id` = ?", ps -> {
+            return queryExecutor.query("SELECT `id`, `key`, `count`, `point`, `hidden`, `flags`, `parent_id` FROM `achievements` WHERE `id` = ?", ps -> {
                 ps.setLong(1, id);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -34,7 +34,8 @@ public class DataProvider {
                                 rs.getLong("count"),
                                 rs.getInt("point"),
                                 AchievementHideFlags.values()[rs.getInt("hidden")],
-                                MagicConstantBitField.of(AchievementFlags.class, rs.getInt("flags"))
+                                MagicConstantBitField.of(AchievementFlags.class, rs.getInt("flags")),
+                                rs.getLong("parent_id")
                         );
                     } else {
                         return null;
@@ -50,7 +51,7 @@ public class DataProvider {
     @Nullable
     public static AchievementData getAchievementByKey(@NotNull QueryExecutor queryExecutor, @NotNull Key key) {
         try {
-            return queryExecutor.query("SELECT `id`, `key`, `count`, `point`, `hidden`, `flags` FROM `achievements` WHERE `key` = ?", ps -> {
+            return queryExecutor.query("SELECT `id`, `key`, `count`, `point`, `hidden`, `flags`, `parent_id` FROM `achievements` WHERE `key` = ?", ps -> {
                 ps.setString(1, key.toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -60,7 +61,8 @@ public class DataProvider {
                                 rs.getLong("count"),
                                 rs.getInt("point"),
                                 AchievementHideFlags.values()[rs.getInt("hidden")],
-                                MagicConstantBitField.of(AchievementFlags.class, rs.getInt("flags"))
+                                MagicConstantBitField.of(AchievementFlags.class, rs.getInt("flags")),
+                                rs.getLong("parent_id")
                         );
                     } else {
                         return null;
@@ -128,7 +130,7 @@ public class DataProvider {
     @NotNull
     public static Set<AchievementData> getAllAchievements(@NotNull QueryExecutor queryExecutor) {
         try {
-            return queryExecutor.query("SELECT `id`, `key`, `count`, `point`, `hidden`, `flags` FROM `achievements`", ps -> {
+            return queryExecutor.query("SELECT `id`, `key`, `count`, `point`, `hidden`, `flags`, `parent_id` FROM `achievements`", ps -> {
                 try (ResultSet rs = ps.executeQuery()) {
                     Set<AchievementData> set = new HashSet<>();
                     while (rs.next()) {
@@ -138,7 +140,8 @@ public class DataProvider {
                                 rs.getLong("count"),
                                 rs.getInt("point"),
                                 AchievementHideFlags.values()[rs.getInt("hidden")],
-                                MagicConstantBitField.of(AchievementFlags.class, rs.getInt("flags"))
+                                MagicConstantBitField.of(AchievementFlags.class, rs.getInt("flags")),
+                                rs.getLong("parent_id")
                         ));
                     }
                     return set;

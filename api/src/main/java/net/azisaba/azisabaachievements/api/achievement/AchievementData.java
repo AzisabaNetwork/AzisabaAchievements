@@ -17,7 +17,8 @@ public final class AchievementData {
                             Codec.LONG.fieldOf("count").getter(AchievementData::getCount),
                             Codec.INT.fieldOf("point").getter(AchievementData::getPoint),
                             AchievementHideFlags.CODEC.fieldOf("hidden").getter(AchievementData::getHidden),
-                            MagicConstantBitField.codec(AchievementFlags.class).fieldOf("flags").getter(AchievementData::getFlags)
+                            MagicConstantBitField.codec(AchievementFlags.class).fieldOf("flags").getter(AchievementData::getFlags),
+                            Codec.LONG.fieldOf("parentId").getter(AchievementData::getParentId)
                     )
                     .build(AchievementData::new)
                     .named("AchievementData");
@@ -28,9 +29,10 @@ public final class AchievementData {
                             Codec.LONG.fieldOf("count").getter(AchievementData::getCount),
                             Codec.INT.fieldOf("point").getter(AchievementData::getPoint),
                             AchievementHideFlags.CODEC.fieldOf("hidden").getter(AchievementData::getHidden),
-                            MagicConstantBitField.codec(AchievementFlags.class).fieldOf("flags").getter(AchievementData::getFlags)
+                            MagicConstantBitField.codec(AchievementFlags.class).fieldOf("flags").getter(AchievementData::getFlags),
+                            Codec.LONG.fieldOf("parentId").getter(AchievementData::getParentId)
                     )
-                    .build((key, count, point, hidden, flags) -> new AchievementData(-1, key, count, point, hidden, flags))
+                    .build((key, count, point, hidden, flags, parentId) -> new AchievementData(-1, key, count, point, hidden, flags, parentId))
                     .named("AchievementData[Network]");
 
     private final long id;
@@ -39,6 +41,7 @@ public final class AchievementData {
     private final int point;
     private final AchievementHideFlags hidden;
     private final MagicConstantBitField<AchievementFlags> flags;
+    private final long parentId;
 
     @Contract(pure = true)
     public AchievementData(
@@ -47,7 +50,8 @@ public final class AchievementData {
             long count,
             int point,
             @NotNull AchievementHideFlags hidden,
-            @NotNull MagicConstantBitField<AchievementFlags> flags
+            @NotNull MagicConstantBitField<AchievementFlags> flags,
+            long parentId
     ) {
         this.id = id;
         this.key = Objects.requireNonNull(key, "key");
@@ -55,6 +59,7 @@ public final class AchievementData {
         this.point = point;
         this.hidden = Objects.requireNonNull(hidden, "hidden");
         this.flags = Objects.requireNonNull(flags, "flags");
+        this.parentId = parentId;
     }
 
     @Contract(pure = true)
@@ -88,21 +93,27 @@ public final class AchievementData {
         return flags;
     }
 
+    @Contract(pure = true)
+    public long getParentId() {
+        return parentId;
+    }
+
     @Contract(value = "null -> false", pure = true)
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof AchievementData)) return false;
         AchievementData that = (AchievementData) o;
-        return id == that.id && count == that.count && point == that.point && key.equals(that.key);
+        return getId() == that.getId() && getCount() == that.getCount() && getPoint() == that.getPoint() &&
+                getParentId() == that.getParentId() && getKey().equals(that.getKey()) &&
+                getHidden() == that.getHidden() && getFlags().equals(that.getFlags());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, key, count, point);
+        return Objects.hash(getId(), getKey(), getCount(), getPoint(), getHidden(), getFlags(), getParentId());
     }
 
-    @Contract(pure = true)
     @Override
     public @NotNull String toString() {
         return "AchievementData{" +
@@ -110,6 +121,9 @@ public final class AchievementData {
                 ", key=" + key +
                 ", count=" + count +
                 ", point=" + point +
+                ", hidden=" + hidden +
+                ", flags=[" + String.join(",", flags) + "]" +
+                ", parentId=" + parentId +
                 '}';
     }
 }

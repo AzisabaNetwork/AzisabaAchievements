@@ -38,7 +38,7 @@ public class VelocityAchievementManager implements AchievementManager {
                     try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                         if (generatedKeys.next()) {
                             long id = generatedKeys.getLong(1);
-                            future.complete(new AchievementData(id, key, count, point, AchievementHideFlags.NEVER, MagicConstantBitField.of(AchievementFlags.class, 0)));
+                            future.complete(new AchievementData(id, key, count, point, AchievementHideFlags.NEVER, MagicConstantBitField.of(AchievementFlags.class, 0), 0));
                         } else {
                             future.completeExceptionally(new IllegalStateException("Failed to create achievement"));
                         }

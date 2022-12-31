@@ -108,6 +108,24 @@ public class DataProvider {
 
     @Contract(pure = true)
     @NotNull
+    public static Set<PlayerData> getAllPlayers(@NotNull QueryExecutor queryExecutor) {
+        try {
+            return queryExecutor.query("SELECT `id`, `name` FROM `players`", ps -> {
+                try (ResultSet rs = ps.executeQuery()) {
+                    Set<PlayerData> set = new HashSet<>();
+                    while (rs.next()) {
+                        set.add(new PlayerData(UUID.fromString(rs.getString("id")), rs.getString("name")));
+                    }
+                    return set;
+                }
+            });
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Contract(pure = true)
+    @NotNull
     public static Set<AchievementData> getAllAchievements(@NotNull QueryExecutor queryExecutor) {
         try {
             return queryExecutor.query("SELECT `id`, `key`, `count`, `point`, `hidden`, `flags` FROM `achievements`", ps -> {

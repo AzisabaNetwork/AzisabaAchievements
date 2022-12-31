@@ -1,5 +1,4 @@
 name: AzisabaAchievements
-api-version: 1.13
 version: @version@
 main: net.azisaba.azisabaachievements.spigot.plugin.SpigotPlugin
 commands:

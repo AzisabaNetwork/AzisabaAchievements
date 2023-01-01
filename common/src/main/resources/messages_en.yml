@@ -20,6 +20,8 @@ gui.achievementMainScreen.legacy.description: |
   %%YELLOW%%These achievements are no longer obtainable
   %%YELLOW%%but are still displayed here for your reference.
 gui.achievementListScreen.hidden: "%%RED%%(Hidden achievement)"
+gui.achievementListScreen.locked: "%%RED%%✖ Locked"
+gui.achievementListScreen.unlocked: "%%GREEN%%✔ Unlocked"
 gui.achievementListScreen.entry.points: "%%GOLD%%Achievement Points: %%GREEN%%%,d"
 gui.achievementListScreen.entry.progress: "%%GOLD%%Progress: %s%,d%%GRAY%%/%%GREEN%%%,d"
 gui.achievementListScreen.category.points: "%%GRAY%%Points: %%YELLOW%%%,d%%GRAY%%/%%YELLOW%%%,d %%GRAY%%(%.1f%%)"

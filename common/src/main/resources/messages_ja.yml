@@ -17,6 +17,8 @@ gui.achievementMainScreen.legacy.title: "%%GREEN%%古い実績"
 gui.achievementMainScreen.legacy.description: |
   %%YELLOW%%これらの実績は現在は解除できません。
 gui.achievementListScreen.hidden: "%%RED%%(隠し実績)"
+gui.achievementListScreen.locked: "%%RED%%✖ 未解除"
+gui.achievementListScreen.unlocked: "%%GREEN%%✔ 解除済み"
 gui.achievementListScreen.entry.points: "%%GOLD%%実績ポイント: %%GREEN%%%,d"
 gui.achievementListScreen.entry.progress: "%%GOLD%%進行度: %s%,d%%GRAY%%/%%GREEN%%%,d"
 gui.achievementListScreen.category.points: "%%GRAY%%ポイント: %%YELLOW%%%,d%%GRAY%%/%%YELLOW%%%,d %%GRAY%%(%.1f%%)"

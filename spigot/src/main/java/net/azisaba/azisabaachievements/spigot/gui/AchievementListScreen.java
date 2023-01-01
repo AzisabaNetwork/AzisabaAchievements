@@ -104,23 +104,30 @@ public class AchievementListScreen extends Screen {
                     player.openInventory(new AchievementListScreen(inventory, player, children, progress, title).getInventory());
                 });
             } else if (current == 0) {
-                type = Material.IRON_INGOT;
+                type = Material.BONE;
             } else if (current >= achievement.getData().getCount()) {
                 type = Material.DIAMOND;
             } else {
                 type = Material.GOLD_INGOT;
             }
             ItemStack item = new ItemStack(type);
+            item.setAmount(Math.max(1, Math.min(64, achievement.getData().getPoint())));
             ItemMeta meta = item.getItemMeta();
             AchievementTranslationData translationData = achievement.getTranslationForLocale(player.getLocale());
             List<String> lore;
+            ChatColor color;
+            if (current >= achievement.getData().getCount()) {
+                color = ChatColor.GREEN;
+            } else {
+                color = ChatColor.RED;
+            }
             if (translationData != null) {
-                meta.setDisplayName(ChatColor.GREEN + ChatColor.translateAlternateColorCodes('&', translationData.getName()));
+                meta.setDisplayName(color + ChatColor.translateAlternateColorCodes('&', translationData.getName()));
                 lore = new ArrayList<>(Arrays.asList(
                         ChatColor.translateAlternateColorCodes('&', translationData.getDescription()).split("\n")
                 ));
             } else {
-                meta.setDisplayName(ChatColor.GREEN + achievement.getData().getKey().toString());
+                meta.setDisplayName(color + achievement.getData().getKey().toString());
                 lore = new ArrayList<>(Collections.singletonList(ChatColor.GRAY + "No description defined."));
             }
             lore.add("");
@@ -142,12 +149,6 @@ public class AchievementListScreen extends Screen {
                 lore.add(SMessages.getFormattedMessage(player, "gui.achievementListScreen.category.unlocked",
                         unlocked.size(), children.size(), unlockedPercentage));
             } else {
-                ChatColor color;
-                if (current >= achievement.getData().getCount()) {
-                    color = ChatColor.GREEN;
-                } else {
-                    color = ChatColor.RED;
-                }
                 lore.add(SMessages.getFormattedMessage(player, "gui.achievementListScreen.entry.points",
                         achievement.getData().getPoint()));
                 if (achievement.getData().getCount() > 1) {
@@ -157,6 +158,12 @@ public class AchievementListScreen extends Screen {
             }
             if (achievement.getData().getHidden() != AchievementHideFlags.NEVER) {
                 lore.add(SMessages.getFormattedMessage(player, "gui.achievementListScreen.hidden"));
+            }
+            lore.add("");
+            if (current >= achievement.getData().getCount()) {
+                lore.add(SMessages.getFormattedMessage(player, "gui.achievementListScreen.unlocked"));
+            } else {
+                lore.add(SMessages.getFormattedMessage(player, "gui.achievementListScreen.locked"));
             }
             meta.setLore(lore);
             item.setItemMeta(meta);

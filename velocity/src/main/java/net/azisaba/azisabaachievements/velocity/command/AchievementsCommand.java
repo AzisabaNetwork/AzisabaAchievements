@@ -30,6 +30,7 @@ public class AchievementsCommand extends AbstractCommand {
     @Override
     protected @NotNull LiteralArgumentBuilder<CommandSource> createBuilder() {
         return literal('v' + "achievements")
+                .requires(source -> source.hasPermission("azisabaachievements.command.vachievements"))
                 .then(literal("achievement")
                         .then(argument("key", StringArgumentType.string())
                                 .suggests(suggestAllAchievementKey(queryExecutor))

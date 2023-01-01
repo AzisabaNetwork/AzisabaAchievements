@@ -125,6 +125,10 @@ public class AchievementsMainScreen extends Screen {
                 counts.getOrDefault(b.getKey(), 0L) >= b.getCount()) {
             return 1;
         }
+        int diffProgress = Long.compare(counts.getOrDefault(b.getKey(), 0L), counts.getOrDefault(a.getKey(), 0L));
+        if (diffProgress != 0) {
+            return diffProgress;
+        }
         return a.getKey().toString().compareTo(b.getKey().toString());
     }
 
@@ -157,7 +161,7 @@ public class AchievementsMainScreen extends Screen {
                                 .stream()
                                 .filter(achievement -> !achievement.getData().getFlags().contains(AchievementFlags.SEASONAL) &&
                                         !achievement.getData().getFlags().contains(AchievementFlags.UNOBTAINABLE) &&
-                                        ("azisaba:" + what).equals(achievement.getData().getKey().parent().toString()) &&
+                                        achievement.getData().getKey().toString().startsWith("azisaba:" + what + '/') &&
                                         filterHiddenAchievements(achievement.getData(), screen.counts)
                                 )
                                 .sorted((a, b) -> compareAchievementData(screen.counts, a.getData(), b.getData()))

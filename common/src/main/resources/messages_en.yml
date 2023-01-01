@@ -1,3 +1,5 @@
+general.player-not-found: "Player not found: %s"
+general.achievement-not-found: "Achievement not found: %s"
 gui.back: "%%GRAY%%Back"
 gui.achievementMainScreen.title: "Achievements Menu"
 gui.achievementMainScreen.player.title: "%%GREEN%%%s" # player display name

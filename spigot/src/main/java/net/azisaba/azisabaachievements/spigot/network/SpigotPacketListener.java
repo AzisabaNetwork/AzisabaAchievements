@@ -39,9 +39,11 @@ public class SpigotPacketListener implements ServerPacketListener {
     @Override
     public void handle(@NotNull PacketServerDataResult packet) {
         AchievementDataCache cache = plugin.getAchievementDataCache();
+        /*
         if (!cache.isPending()) {
             return;
         }
+        */
         cache.load(packet);
     }
 

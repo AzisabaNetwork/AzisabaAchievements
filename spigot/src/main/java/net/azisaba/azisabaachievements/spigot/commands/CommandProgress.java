@@ -4,11 +4,11 @@ import net.azisaba.azisabaachievements.api.AzisabaAchievementsProvider;
 import net.azisaba.azisabaachievements.api.Key;
 import net.azisaba.azisabaachievements.spigot.command.Command;
 import net.azisaba.azisabaachievements.spigot.data.AchievementDataCache;
-import net.azisaba.azisabaachievements.spigot.plugin.SpigotPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class CommandProgress implements Command {
     }
 
     @Override
-    public void execute(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
+    public void execute(@NotNull CommandSender sender, @Subst("minecraft") @NotNull String @NotNull [] args) {
         if (args.length < 3) {
             sender.sendMessage(ChatColor.RED + "Usage: " + getFullUsage());
             return;
@@ -57,7 +57,7 @@ public class CommandProgress implements Command {
             return Command.suggestPlayer(args[0]);
         }
         if (args.length == 2) {
-            return Command.suggestAchievementKey(achievementDataCache, args[1]);
+            return Command.suggestNonCategoryAchievementKey(achievementDataCache, args[1]);
         }
         return Command.super.getSuggestions(sender, args);
     }

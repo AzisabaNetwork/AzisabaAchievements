@@ -1,10 +1,14 @@
 package net.azisaba.azisabaachievements.velocity.achievement;
 
+import net.azisaba.azisabaachievements.api.AzisabaAchievementsProvider;
 import net.azisaba.azisabaachievements.api.Key;
+import net.azisaba.azisabaachievements.api.Logger;
 import net.azisaba.azisabaachievements.api.achievement.AchievementData;
 import net.azisaba.azisabaachievements.api.achievement.AchievementFlags;
 import net.azisaba.azisabaachievements.api.achievement.AchievementHideFlags;
 import net.azisaba.azisabaachievements.api.achievement.AchievementManager;
+import net.azisaba.azisabaachievements.api.achievement.AchievementTranslationData;
+import net.azisaba.azisabaachievements.api.network.packet.PacketServerDataResult;
 import net.azisaba.azisabaachievements.api.scheduler.TaskScheduler;
 import net.azisaba.azisabaachievements.api.util.MagicConstantBitField;
 import net.azisaba.azisabaachievements.common.sql.DataProvider;
@@ -12,12 +16,23 @@ import net.azisaba.azisabaachievements.common.util.QueryExecutor;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class VelocityAchievementManager implements AchievementManager {
+    public static void sendServerData(@NotNull QueryExecutor queryExecutor) {
+        AzisabaAchievementsProvider.get()
+                .getScheduler()
+                .builder(() -> {
+                    Set<AchievementData> achievements = DataProvider.getAllAchievements(queryExecutor);
+                    Set<AchievementTranslationData> translations = DataProvider.getAllTranslations(queryExecutor);
+                    AzisabaAchievementsProvider.get().getPacketSender().sendPacket(new PacketServerDataResult(achievements, translations));
+                }).async().schedule();
+    }
+
     private final QueryExecutor queryExecutor;
     private final TaskScheduler scheduler;
 
@@ -119,5 +134,31 @@ public class VelocityAchievementManager implements AchievementManager {
             }
         }).async().schedule();
         return future;
+    }
+
+    @Override
+    public void deleteAchievementBlocking(@NotNull Key key) {
+        try {
+            queryExecutor.queryVoid("DELETE FROM `achievements` WHERE `key` = ?", ps -> {
+                ps.setString(1, key.toString());
+                ps.executeUpdate();
+            });
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void deleteAchievementAsync(@NotNull Key key) {
+        scheduler.builder(() -> {
+            try {
+                queryExecutor.queryVoid("DELETE FROM `achievements` WHERE `key` = ?", ps -> {
+                    ps.setString(1, key.toString());
+                    ps.executeUpdate();
+                });
+            } catch (Exception e) {
+                Logger.getCurrentLogger().warn("", e);
+            }
+        }).async().schedule();
     }
 }

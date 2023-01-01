@@ -34,6 +34,7 @@ public class AchievementListScreen extends Screen {
     private final Player player;
     private final List<TranslatedAchievement> achievements;
     private final Map<Key, Long> progress;
+    private final List<TranslatedAchievement> filteredAchievements;
     private final Map<Integer, Consumer<InventoryClickEvent>> eventHandlers = new HashMap<>();
     private int page = 1;
 
@@ -42,7 +43,36 @@ public class AchievementListScreen extends Screen {
         this.player = player;
         this.achievements = achievements;
         this.progress = progress;
+        Key parentKey = findParent();
+        if (parentKey == null) {
+            filteredAchievements = Collections.emptyList();
+        } else {
+            filteredAchievements = achievements.stream()
+                    .filter(data -> data.getData().getKey().parent().equals(parentKey))
+                    .sorted((a, b) -> AchievementsMainScreen.compareAchievementData(progress, a.getData(), b.getData()))
+                    .collect(Collectors.toList());
+        }
         refresh();
+    }
+
+    private @Nullable Key findParent() {
+        if (achievements == null) {
+            return null;
+        }
+        Key key = null;
+        int slashes = Integer.MAX_VALUE;
+        for (TranslatedAchievement achievement : achievements) {
+            Key k = achievement.getData().getKey().parent();
+            int s = k.path().split("/").length;
+            if (s == 1) {
+                return k;
+            }
+            if (s < slashes) {
+                key = k;
+                slashes = s;
+            }
+        }
+        return key;
     }
 
     private void refresh() {
@@ -55,9 +85,9 @@ public class AchievementListScreen extends Screen {
         }
         setItem(49, Material.ARROW, 0, SMessages.getFormattedMessage(player, "gui.back"), null);
         int start = (page - 1) * 45;
-        int end = Math.min(start + 45, achievements.size());
+        int end = Math.min(start + 45, filteredAchievements.size());
         for (int i = start; i < end; i++) {
-            TranslatedAchievement achievement = achievements.get(i);
+            TranslatedAchievement achievement = filteredAchievements.get(i);
             long current = progress.getOrDefault(achievement.getData().getKey(), 0L);
             Material type;
             if (achievement.getData().getFlags().contains(AchievementFlags.CATEGORY)) {
@@ -65,7 +95,7 @@ public class AchievementListScreen extends Screen {
                 List<TranslatedAchievement> children =
                         achievements
                                 .stream()
-                                .filter(data -> data.getData().getKey().parent().equals(achievement.getData().getKey()))
+                                .filter(data -> data.getData().getKey().toString().startsWith(achievement.getData().getKey().toString() + '/'))
                                 .sorted((a, b) -> AchievementsMainScreen.compareAchievementData(progress, a.getData(), b.getData()))
                                 .collect(Collectors.toList());
                 eventHandlers.put(i - start, e -> {
@@ -95,7 +125,13 @@ public class AchievementListScreen extends Screen {
             }
             lore.add("");
             if (achievement.getData().getFlags().contains(AchievementFlags.CATEGORY)) {
-                Set<AchievementData> children = achievement.getData().getChildren().join();
+                Set<AchievementData> children =
+                        achievement.getData()
+                                .getChildren()
+                                .join()
+                                .stream()
+                                .filter(data -> !data.getFlags().contains(AchievementFlags.CATEGORY))
+                                .collect(Collectors.toSet());
                 Set<AchievementData> unlocked = children.stream().filter(c -> progress.getOrDefault(c.getKey(), 0L) >= c.getCount()).collect(Collectors.toSet());
                 long allPoints = children.stream().mapToLong(AchievementData::getPoint).sum();
                 long unlockedPoints = unlocked.stream().mapToLong(AchievementData::getPoint).sum();
@@ -137,7 +173,7 @@ public class AchievementListScreen extends Screen {
     }
 
     private boolean hasNextPage() {
-        return page < achievements.size() / 45 + 1;
+        return page < filteredAchievements.size() / 45 + 1;
     }
 
     private boolean hasPreviousPage() {
@@ -167,7 +203,7 @@ public class AchievementListScreen extends Screen {
             if (e.getCurrentItem() == null) {
                 return;
             }
-            if (e.getSlot() > 0 && e.getSlot() < 45 && screen.eventHandlers.containsKey(e.getSlot())) {
+            if (e.getSlot() >= 0 && e.getSlot() < 45 && screen.eventHandlers.containsKey(e.getSlot())) {
                 Objects.requireNonNull(screen.eventHandlers.get(e.getSlot())).accept(e);
             }
             if (e.getSlot() == 49) {

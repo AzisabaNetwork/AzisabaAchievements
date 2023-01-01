@@ -1,5 +1,6 @@
 package net.azisaba.azisabaachievements.spigot.command;
 
+import net.azisaba.azisabaachievements.api.achievement.AchievementFlags;
 import net.azisaba.azisabaachievements.spigot.data.AchievementDataCache;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -24,8 +25,28 @@ public interface Command {
     }
 
     @Contract(pure = true)
-    static @NotNull List<String> suggestAchievementKey(@NotNull AchievementDataCache cache, @NotNull String str) {
+    static @NotNull List<String> suggestAllAchievementKey(@NotNull AchievementDataCache cache, @NotNull String str) {
         return filter(cache.getAchievements().keySet().stream().map(String::valueOf), str).collect(Collectors.toList());
+    }
+
+    @Contract(pure = true)
+    static @NotNull List<String> suggestNonCategoryAchievementKey(@NotNull AchievementDataCache cache, @NotNull String str) {
+        return filter(
+                cache.getAchievements()
+                        .entrySet()
+                        .stream()
+                        .filter(e -> !e.getValue().getData().getFlags().contains(AchievementFlags.CATEGORY))
+                        .map(e -> e.getKey().toString()), str).collect(Collectors.toList());
+    }
+
+    @Contract(pure = true)
+    static @NotNull List<String> suggestCategoryKey(@NotNull AchievementDataCache cache, @NotNull String str) {
+        return filter(
+                cache.getAchievements()
+                        .entrySet()
+                        .stream()
+                        .filter(e -> e.getValue().getData().getFlags().contains(AchievementFlags.CATEGORY))
+                        .map(e -> e.getKey().toString()), str).collect(Collectors.toList());
     }
 
     void execute(@NotNull CommandSender sender, @NotNull String @NotNull [] args) throws Exception;

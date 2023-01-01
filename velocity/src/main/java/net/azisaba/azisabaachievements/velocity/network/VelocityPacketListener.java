@@ -22,6 +22,7 @@ import net.azisaba.azisabaachievements.api.network.packet.PacketServerPlayerData
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerProgressAchievementCallback;
 import net.azisaba.azisabaachievements.api.util.Either;
 import net.azisaba.azisabaachievements.common.sql.DataProvider;
+import net.azisaba.azisabaachievements.velocity.achievement.VelocityAchievementManager;
 import net.azisaba.azisabaachievements.velocity.plugin.VelocityPlugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -57,13 +58,7 @@ public class VelocityPacketListener implements ProxyPacketListener {
         if (!plugin.getRedisConnectionLeader().isLeader()) {
             return;
         }
-        AzisabaAchievementsProvider.get()
-                .getScheduler()
-                .builder(() -> {
-                    Set<AchievementData> achievements = DataProvider.getAllAchievements(plugin.getDatabaseManager());
-                    Set<AchievementTranslationData> translations = DataProvider.getAllTranslations(plugin.getDatabaseManager());
-                    AzisabaAchievementsProvider.get().getPacketSender().sendPacket(new PacketServerDataResult(achievements, translations));
-                }).async().schedule();
+        VelocityAchievementManager.sendServerData(plugin.getDatabaseManager());
     }
 
     @Override

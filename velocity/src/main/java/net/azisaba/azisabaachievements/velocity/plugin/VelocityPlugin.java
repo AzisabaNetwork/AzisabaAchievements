@@ -15,6 +15,7 @@ import net.azisaba.azisabaachievements.api.network.PacketRegistryPair;
 import net.azisaba.azisabaachievements.common.network.PacketRegistryImpl;
 import net.azisaba.azisabaachievements.common.redis.JedisBox;
 import net.azisaba.azisabaachievements.common.sql.DatabaseManager;
+import net.azisaba.azisabaachievements.velocity.command.AchievementsCommand;
 import net.azisaba.azisabaachievements.velocity.listener.PlayerJoinListener;
 import net.azisaba.azisabaachievements.velocity.redis.RedisConnectionLeader;
 import net.azisaba.azisabaachievements.velocity.redis.ServerIdProvider;
@@ -59,6 +60,8 @@ public class VelocityPlugin implements PacketRegistryPair {
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent e) {
+        server.getCommandManager().register(new AchievementsCommand(databaseManager).createCommand());
+
         serverIdProvider.runIdKeeperTask(AzisabaAchievementsProvider.get().getScheduler());
         logger.info("This proxy's ID is " + serverIdProvider.getId());
 

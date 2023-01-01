@@ -45,4 +45,18 @@ public interface AchievementManager {
      */
     @NotNull
     CompletableFuture<Set<AchievementData>> getChildAchievements(@NotNull Key key);
+
+    /**
+     * Deletes an achievement, corresponding progress data, and translation data. Nothing will happen if the achievement
+     * does not exist.
+     * @param key the achievement key
+     */
+    void deleteAchievementBlocking(@NotNull Key key);
+
+    /**
+     * Deletes an achievement, corresponding progress data, and translation data. Nothing will happen if the achievement
+     * does not exist.
+     * @param key the achievement key
+     */
+    void deleteAchievementAsync(@NotNull Key key);
 }

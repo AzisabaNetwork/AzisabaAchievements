@@ -7,6 +7,7 @@ import net.azisaba.azisabaachievements.spigot.command.Command;
 import net.azisaba.azisabaachievements.spigot.data.AchievementDataCache;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 import xyz.acrylicstyle.util.InvalidArgumentException;
 import xyz.acrylicstyle.util.StringReader;
@@ -24,7 +25,7 @@ public class CommandAddTranslation implements Command {
     }
 
     @Override
-    public void execute(@NotNull CommandSender sender, @NotNull String @NotNull [] args) throws InvalidArgumentException {
+    public void execute(@NotNull CommandSender sender, @Subst("minecraft") @NotNull String @NotNull [] args) throws InvalidArgumentException {
         if (args.length < 4) {
             sender.sendMessage(ChatColor.RED + "Usage: " + getFullUsage());
             return;
@@ -42,12 +43,13 @@ public class CommandAddTranslation implements Command {
         String description = reader.readQuotableString(ALLOWED_ESCAPES);
         AzisabaAchievementsProvider.get().getPacketSender()
                 .sendPacket(new PacketProxyAddAchievementTranslation(key, lang, name, description));
+        sender.sendMessage(ChatColor.GREEN + "Sent request to add translation for " + key + " (" + lang + ")");
     }
 
     @Override
     public @NotNull List<String> getSuggestions(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
         if (args.length == 1) {
-            return Command.suggestAchievementKey(achievementDataCache, args[0]);
+            return Command.suggestNonCategoryAchievementKey(achievementDataCache, args[0]);
         }
         return Command.super.getSuggestions(sender, args);
     }

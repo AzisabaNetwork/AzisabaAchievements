@@ -72,4 +72,14 @@ public class SpigotAchievementManager implements AchievementManager {
         }
         return CompletableFuture.completedFuture(achievements);
     }
+
+    @Override
+    public void deleteAchievementBlocking(@NotNull Key key) {
+        throw new UnsupportedOperationException(); // implementing delete request would be too dangerous
+    }
+
+    @Override
+    public void deleteAchievementAsync(@NotNull Key key) {
+        throw new UnsupportedOperationException(); // implementing delete request would be too dangerous
+    }
 }

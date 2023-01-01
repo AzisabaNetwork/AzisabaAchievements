@@ -18,19 +18,20 @@ import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 final class MagicConstantBitFieldImpl<T> extends AbstractSet<String> implements MagicConstantBitField<T> {
-    private static final Map<Class<?>, Map<Integer, String>> CACHE = new ConcurrentHashMap<>();
+    static final Map<Class<?>, Map<Integer, String>> CACHE = new ConcurrentHashMap<>();
     private final Class<T> clazz;
     private final int value;
-    private final LazyInitValue<Set<String>> values = new LazyInitValue<>(this::fetchValue);
+    private final LazyInitValue<Set<String>> values;
 
     @Contract(pure = true)
     MagicConstantBitFieldImpl(@NotNull Class<T> clazz, int value) {
         this.clazz = clazz;
         this.value = value;
-        cacheClass(clazz);
+        this.values = new LazyInitValue<>(() -> fetchValue(clazz, value));
     }
 
     @Contract(pure = true)
@@ -163,6 +164,11 @@ final class MagicConstantBitFieldImpl<T> extends AbstractSet<String> implements 
         values.get().forEach(action);
     }
 
+    @Override
+    public @NotNull Set<String> getNames() {
+        return values.get();
+    }
+
     private static boolean isPowerOfTwo(int n) {
         return (n & (n - 1)) == 0;
     }
@@ -201,7 +207,8 @@ final class MagicConstantBitFieldImpl<T> extends AbstractSet<String> implements 
         CACHE.put(clazz, objects);
     }
 
-    private @NotNull Set<String> fetchValue() {
+    static @NotNull Set<String> fetchValue(@NotNull Class<?> clazz, int value) {
+        cacheClass(clazz);
         Map<Integer, String> map = CACHE.get(clazz);
         if (map == null) {
             throw new IllegalStateException("Class " + clazz.getTypeName() + " is not cached");
@@ -213,5 +220,15 @@ final class MagicConstantBitFieldImpl<T> extends AbstractSet<String> implements 
             }
         }
         return set;
+    }
+
+    @Contract("_ -> new")
+    static @NotNull Set<String> getNames(@NotNull Class<?> clazz) {
+        cacheClass(clazz);
+        Map<Integer, String> map = CACHE.get(clazz);
+        if (map == null) {
+            throw new IllegalStateException("Class " + clazz.getTypeName() + " is not cached");
+        }
+        return new HashSet<>(map.values());
     }
 }

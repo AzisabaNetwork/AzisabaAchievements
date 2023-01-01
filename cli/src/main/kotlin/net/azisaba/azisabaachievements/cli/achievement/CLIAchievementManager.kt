@@ -93,4 +93,19 @@ object CLIAchievementManager : AchievementManager {
             CompletableFuture<Set<AchievementData>>().apply { completeExceptionally(t) }
         }
     }
+
+    override fun deleteAchievementBlocking(key: Key) {
+        try {
+            queryExecutor.queryVoid("DELETE FROM `achievements` WHERE `key` = ?") { ps ->
+                ps.setString(1, key.toString())
+                ps.executeUpdate()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    override fun deleteAchievementAsync(key: Key) {
+        deleteAchievementBlocking(key)
+    }
 }

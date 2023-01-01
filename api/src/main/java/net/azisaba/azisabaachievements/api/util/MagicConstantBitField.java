@@ -17,6 +17,18 @@ public interface MagicConstantBitField<T> extends BitField, Set<String> {
         return new MagicConstantBitFieldImpl<>(clazz, value);
     }
 
+    static @NotNull Set<String> getNames(@NotNull Class<?> clazz, int value) {
+        return MagicConstantBitFieldImpl.fetchValue(clazz, value);
+    }
+
+    @Contract("_ -> new")
+    static @NotNull Set<String> getNames(@NotNull Class<?> clazz) {
+        return MagicConstantBitFieldImpl.getNames(clazz);
+    }
+
     @Contract(pure = true)
     @NotNull Class<T> getClazz();
+
+    @Contract(pure = true)
+    @NotNull Set<String> getNames();
 }

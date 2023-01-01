@@ -39,7 +39,7 @@ public interface Key {
     }
 
     @Contract(value = "_ -> new", pure = true)
-    static @NotNull Key key(@NotNull @Pattern("^[a-z0-9._\\-]+:[a-z0-9/._\\-]+$") String key) {
+    static @NotNull Key key(@NotNull @Pattern("^[a-z0-9._\\-]+:[a-z0-9/._\\-]+$|^[a-z0-9/._\\-]+$") String key) {
         @Subst("minecraft") String[] split = key.split(":");
         if (split.length == 1) {
             return key("minecraft", split[0]);

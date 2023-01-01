@@ -5,11 +5,12 @@ import net.azisaba.azisabaachievements.api.Key;
 import net.azisaba.azisabaachievements.spigot.command.Command;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 
 public class CommandCreate implements Command {
     @Override
-    public void execute(@NotNull CommandSender sender, @NotNull String @NotNull [] args) {
+    public void execute(@NotNull CommandSender sender, @Subst("minecraft") @NotNull String @NotNull [] args) {
         if (args.length < 3) {
             sender.sendMessage(ChatColor.RED + "Usage: " + getFullUsage());
             return;

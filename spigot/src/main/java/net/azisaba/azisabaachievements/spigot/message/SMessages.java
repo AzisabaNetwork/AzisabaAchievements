@@ -44,7 +44,7 @@ public class SMessages {
     public static @NotNull String getFormattedMessage(@Nullable CommandSender sender, @NotNull String key, Object @NotNull ... args) {
         Locale locale = Locale.ENGLISH;
         if (sender instanceof Player) {
-            locale = Locale.forLanguageTag(((Player) sender).getLocale());
+            locale = Locale.forLanguageTag(((Player) sender).getLocale().replaceAll("_.*", ""));
         }
         String rawMessage = Messages.getInstance(locale).get(key);
         return format(rawMessage, args);

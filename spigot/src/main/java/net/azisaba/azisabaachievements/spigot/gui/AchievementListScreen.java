@@ -209,6 +209,9 @@ public class AchievementListScreen extends Screen {
                 return;
             }
             e.setCancelled(true);
+            if (!(e.getClickedInventory().getHolder() instanceof AchievementListScreen)) {
+                return;
+            }
             AchievementListScreen screen = (AchievementListScreen) e.getInventory().getHolder();
             if (!e.getWhoClicked().equals(screen.player)) {
                 // wrong player

@@ -123,14 +123,20 @@ public class AchievementListScreen extends Screen {
             }
             if (translationData != null) {
                 meta.setDisplayName(color + ChatColor.translateAlternateColorCodes('&', translationData.getName()));
-                lore = new ArrayList<>(Arrays.asList(
-                        ChatColor.translateAlternateColorCodes('&', translationData.getDescription()).split("\n")
-                ));
+                if (translationData.getDescription().isEmpty()) {
+                    lore = new ArrayList<>();
+                } else {
+                    lore = new ArrayList<>(Arrays.asList(
+                            ChatColor.translateAlternateColorCodes('&', translationData.getDescription()).split("\n")
+                    ));
+                }
             } else {
                 meta.setDisplayName(color + achievement.getData().getKey().toString());
                 lore = new ArrayList<>(Collections.singletonList(ChatColor.GRAY + "No description defined."));
             }
-            lore.add("");
+            if (!lore.isEmpty()) {
+                lore.add("");
+            }
             if (achievement.getData().getFlags().contains(AchievementFlags.CATEGORY)) {
                 Set<AchievementData> children =
                         achievement.getData()

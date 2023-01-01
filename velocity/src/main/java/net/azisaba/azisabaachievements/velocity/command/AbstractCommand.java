@@ -77,7 +77,7 @@ public abstract class AbstractCommand {
     private static Set<AchievementData> achievements = null;
 
     private static Set<AchievementData> getAchievements(@NotNull QueryExecutor queryExecutor) {
-        if (achievements == null || System.currentTimeMillis() - achievementsLastUpdated > 1000 * 60 * 5) {
+        if (achievements == null || System.currentTimeMillis() - achievementsLastUpdated > 1000 * 30) {
             achievements = DataProvider.getAllAchievements(queryExecutor);
             achievementsLastUpdated = System.currentTimeMillis();
         }

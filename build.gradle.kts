@@ -47,9 +47,9 @@ allprojects {
                 credentials(PasswordCredentials::class)
                 url = uri(
                     if (project.version.toString().endsWith("SNAPSHOT"))
-                        project.findProperty("deploySnapshotURL") ?: System.getProperty("deploySnapshotURL", "")
+                        project.findProperty("deploySnapshotURL") ?: System.getProperty("deploySnapshotURL", "https://repo.azisaba.net/repository/maven-snapshots/")
                     else
-                        project.findProperty("deployReleasesURL") ?: System.getProperty("deployReleasesURL", "")
+                        project.findProperty("deployReleasesURL") ?: System.getProperty("deployReleasesURL", "https://repo.azisaba.net/repository/maven-releases/")
                 )
             }
         }

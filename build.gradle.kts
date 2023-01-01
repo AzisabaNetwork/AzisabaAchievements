@@ -26,6 +26,7 @@ allprojects {
 
     repositories {
         mavenCentral()
+        maven { url = uri("https://repo.azisaba.net/repository/maven-public/") }
         maven { url = uri("https://repo.acrylicstyle.xyz/repository/maven-public/") }
     }
 
@@ -94,6 +95,7 @@ allprojects {
             relocate("org.mariadb.jdbc", "net.azisaba.azisabaachievements.libs.org.mariadb.jdbc")
             relocate("com.zaxxer.hikari", "net.azisaba.azisabaachievements.libs.com.zaxxer.hikari")
             relocate("xyz.acrylicstyle.util", "net.azisaba.azisabaachievements.libs.xyz.acrylicstyle.util")
+            relocate("org.yaml", "net.azisaba.azisabaachievements.libs.org.yaml")
         }
     }
 }

@@ -36,7 +36,6 @@ public final class DatabaseManager implements QueryExecutor {
                     "  `point` INT NOT NULL," + // achievement point
                     "  `hidden` TINYINT(1) NOT NULL DEFAULT 0," + // see AchievementHideFlags
                     "  `flags` INT NOT NULL DEFAULT 0," + // see AchievementFlags
-                    "  `parent_id` BIGINT NOT NULL DEFAULT 0," +
                     "  PRIMARY KEY (`id`)" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS `achievement_translations` (" +

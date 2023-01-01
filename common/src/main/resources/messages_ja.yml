@@ -1,0 +1,23 @@
+gui.back: "%%GRAY%%戻る"
+gui.achievementMainScreen.title: "実績メニュー"
+gui.achievementMainScreen.player.title: "%%GREEN%%%s" # player display name
+gui.achievementMainScreen.player.description: |
+  %%GRAY%%実績ポイント: %%YELLOW%%%,d%%GRAY%%/%%YELLOW%%%,d %%GRAY%%(%.1f%%)
+  %%GRAY%%解除した実績: %%AQUA%%%,d%%GRAY%%/%%AQUA%%%,d %%GRAY%%(%.1f%%)
+gui.achievementMainScreen.general.title: "%%GREEN%%全般"
+gui.achievementMainScreen.life.title: "%%GOLD%%Life"
+gui.achievementMainScreen.lgw.title: "%%GOLD%%Leon Gun War"
+gui.achievementMainScreen.diverse.title: "%%GOLD%%DIVERSE"
+gui.achievementMainScreen.sclat.title: "%%GOLD%%Sclat"
+gui.achievementMainScreen.vanilife.title: "%%GOLD%%ばにらいふ！"
+gui.achievementMainScreen.despawn.title: "%%GOLD%%Despawn"
+gui.achievementMainScreen.seasonal.title: "%%GREEN%%シーズン実績"
+gui.achievementMainScreen.seasonal.description: "%%YELLOW%%これらの実績は期間限定で解除が可能です。"
+gui.achievementMainScreen.legacy.title: "%%GREEN%%古い実績"
+gui.achievementMainScreen.legacy.description: |
+  %%YELLOW%%これらの実績は現在は解除できません。
+gui.achievementListScreen.hidden: "%%RED%%(隠し実績)"
+gui.achievementListScreen.entry.points: "%%GOLD%%実績ポイント: %%GREEN%%%,d"
+gui.achievementListScreen.entry.progress: "%%GOLD%%進行度: %s%,d%%GRAY%%/%%GREEN%%%,d"
+gui.achievementListScreen.category.points: "%%GRAY%%ポイント: %%YELLOW%%%,d%%GRAY%%/%%YELLOW%%%,d %%GRAY%%(%.1f%%)"
+gui.achievementListScreen.category.unlocked: "%%GRAY%%解除済み: %%AQUA%%%,d%%GRAY%%/%%AQUA%%%,d %%GRAY%%(%.1f%%)"

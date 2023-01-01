@@ -19,12 +19,30 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+@SuppressWarnings("PatternValidation") // Adding @Subst at every method is annoying
 public class DataProvider {
+    @Contract(pure = true)
+    public static @Nullable Key getAchievementKeyById(@NotNull QueryExecutor queryExecutor, long id) {
+        try {
+            return queryExecutor.query("SELECT `key` FROM `achievements` WHERE `id` = ?", ps -> {
+                ps.setLong(1, id);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return Key.key(rs.getString("key"));
+                    }
+                    return null;
+                }
+            });
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Contract(pure = true)
     @Nullable
     public static AchievementData getAchievementById(@NotNull QueryExecutor queryExecutor, long id) {
         try {
-            return queryExecutor.query("SELECT `id`, `key`, `count`, `point`, `hidden`, `flags`, `parent_id` FROM `achievements` WHERE `id` = ?", ps -> {
+            return queryExecutor.query("SELECT `id`, `key`, `count`, `point`, `hidden`, `flags` FROM `achievements` WHERE `id` = ?", ps -> {
                 ps.setLong(1, id);
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -34,8 +52,7 @@ public class DataProvider {
                                 rs.getLong("count"),
                                 rs.getInt("point"),
                                 AchievementHideFlags.values()[rs.getInt("hidden")],
-                                MagicConstantBitField.of(AchievementFlags.class, rs.getInt("flags")),
-                                rs.getLong("parent_id")
+                                MagicConstantBitField.of(AchievementFlags.class, rs.getInt("flags"))
                         );
                     } else {
                         return null;
@@ -51,7 +68,7 @@ public class DataProvider {
     @Nullable
     public static AchievementData getAchievementByKey(@NotNull QueryExecutor queryExecutor, @NotNull Key key) {
         try {
-            return queryExecutor.query("SELECT `id`, `key`, `count`, `point`, `hidden`, `flags`, `parent_id` FROM `achievements` WHERE `key` = ?", ps -> {
+            return queryExecutor.query("SELECT `id`, `key`, `count`, `point`, `hidden`, `flags` FROM `achievements` WHERE `key` = ?", ps -> {
                 ps.setString(1, key.toString());
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -61,8 +78,7 @@ public class DataProvider {
                                 rs.getLong("count"),
                                 rs.getInt("point"),
                                 AchievementHideFlags.values()[rs.getInt("hidden")],
-                                MagicConstantBitField.of(AchievementFlags.class, rs.getInt("flags")),
-                                rs.getLong("parent_id")
+                                MagicConstantBitField.of(AchievementFlags.class, rs.getInt("flags"))
                         );
                     } else {
                         return null;
@@ -130,7 +146,7 @@ public class DataProvider {
     @NotNull
     public static Set<AchievementData> getAllAchievements(@NotNull QueryExecutor queryExecutor) {
         try {
-            return queryExecutor.query("SELECT `id`, `key`, `count`, `point`, `hidden`, `flags`, `parent_id` FROM `achievements`", ps -> {
+            return queryExecutor.query("SELECT `id`, `key`, `count`, `point`, `hidden`, `flags` FROM `achievements`", ps -> {
                 try (ResultSet rs = ps.executeQuery()) {
                     Set<AchievementData> set = new HashSet<>();
                     while (rs.next()) {
@@ -140,8 +156,7 @@ public class DataProvider {
                                 rs.getLong("count"),
                                 rs.getInt("point"),
                                 AchievementHideFlags.values()[rs.getInt("hidden")],
-                                MagicConstantBitField.of(AchievementFlags.class, rs.getInt("flags")),
-                                rs.getLong("parent_id")
+                                MagicConstantBitField.of(AchievementFlags.class, rs.getInt("flags"))
                         ));
                     }
                     return set;
@@ -218,6 +233,31 @@ public class DataProvider {
                     } else {
                         return null;
                     }
+                }
+            });
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Contract(pure = true)
+    public static @NotNull Set<@NotNull AchievementData> getChildAchievements(@NotNull QueryExecutor queryExecutor, @NotNull Key key) {
+        try {
+            return queryExecutor.query("SELECT * FROM `achievements` WHERE `key` LIKE ?", ps -> {
+                ps.setString(1, key + "/%%");
+                try (ResultSet rs = ps.executeQuery()) {
+                    Set<AchievementData> set = new HashSet<>();
+                    while (rs.next()) {
+                        set.add(new AchievementData(
+                                rs.getLong("id"),
+                                Key.key(rs.getString("key")),
+                                rs.getLong("count"),
+                                rs.getInt("point"),
+                                AchievementHideFlags.values()[rs.getInt("hidden")],
+                                MagicConstantBitField.of(AchievementFlags.class, rs.getInt("flags"))
+                        ));
+                    }
+                    return set;
                 }
             });
         } catch (SQLException e) {

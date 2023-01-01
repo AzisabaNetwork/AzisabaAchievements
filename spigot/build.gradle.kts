@@ -8,4 +8,5 @@ dependencies {
     api(project(":common"))
     api("xyz.acrylicstyle.java-util:common:1.0.0-SNAPSHOT")
     compileOnly("org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT")
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
 }

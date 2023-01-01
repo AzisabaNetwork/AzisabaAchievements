@@ -1,5 +1,6 @@
 package net.azisaba.azisabaachievements.api.achievement;
 
+import net.azisaba.azisabaachievements.api.AzisabaAchievementsProvider;
 import net.azisaba.azisabaachievements.api.Key;
 import net.azisaba.azisabaachievements.api.util.MagicConstantBitField;
 import org.jetbrains.annotations.Contract;
@@ -7,6 +8,8 @@ import org.jetbrains.annotations.NotNull;
 import xyz.acrylicstyle.util.serialization.codec.Codec;
 
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 public final class AchievementData {
     public static final Codec<AchievementData> CODEC =
@@ -17,8 +20,7 @@ public final class AchievementData {
                             Codec.LONG.fieldOf("count").getter(AchievementData::getCount),
                             Codec.INT.fieldOf("point").getter(AchievementData::getPoint),
                             AchievementHideFlags.CODEC.fieldOf("hidden").getter(AchievementData::getHidden),
-                            MagicConstantBitField.codec(AchievementFlags.class).fieldOf("flags").getter(AchievementData::getFlags),
-                            Codec.LONG.fieldOf("parentId").getter(AchievementData::getParentId)
+                            MagicConstantBitField.codec(AchievementFlags.class).fieldOf("flags").getter(AchievementData::getFlags)
                     )
                     .build(AchievementData::new)
                     .named("AchievementData");
@@ -29,10 +31,9 @@ public final class AchievementData {
                             Codec.LONG.fieldOf("count").getter(AchievementData::getCount),
                             Codec.INT.fieldOf("point").getter(AchievementData::getPoint),
                             AchievementHideFlags.CODEC.fieldOf("hidden").getter(AchievementData::getHidden),
-                            MagicConstantBitField.codec(AchievementFlags.class).fieldOf("flags").getter(AchievementData::getFlags),
-                            Codec.LONG.fieldOf("parentId").getter(AchievementData::getParentId)
+                            MagicConstantBitField.codec(AchievementFlags.class).fieldOf("flags").getter(AchievementData::getFlags)
                     )
-                    .build((key, count, point, hidden, flags, parentId) -> new AchievementData(-1, key, count, point, hidden, flags, parentId))
+                    .build((key, count, point, hidden, flags) -> new AchievementData(-1, key, count, point, hidden, flags))
                     .named("AchievementData[Network]");
 
     private final long id;
@@ -41,7 +42,6 @@ public final class AchievementData {
     private final int point;
     private final AchievementHideFlags hidden;
     private final MagicConstantBitField<AchievementFlags> flags;
-    private final long parentId;
 
     @Contract(pure = true)
     public AchievementData(
@@ -50,8 +50,7 @@ public final class AchievementData {
             long count,
             int point,
             @NotNull AchievementHideFlags hidden,
-            @NotNull MagicConstantBitField<AchievementFlags> flags,
-            long parentId
+            @NotNull MagicConstantBitField<AchievementFlags> flags
     ) {
         this.id = id;
         this.key = Objects.requireNonNull(key, "key");
@@ -59,7 +58,6 @@ public final class AchievementData {
         this.point = point;
         this.hidden = Objects.requireNonNull(hidden, "hidden");
         this.flags = Objects.requireNonNull(flags, "flags");
-        this.parentId = parentId;
     }
 
     @Contract(pure = true)
@@ -94,8 +92,8 @@ public final class AchievementData {
     }
 
     @Contract(pure = true)
-    public long getParentId() {
-        return parentId;
+    public @NotNull CompletableFuture<Set<AchievementData>> getChildren() {
+        return AzisabaAchievementsProvider.get().getAchievementManager().getChildAchievements(key);
     }
 
     @Contract(value = "null -> false", pure = true)
@@ -105,13 +103,12 @@ public final class AchievementData {
         if (!(o instanceof AchievementData)) return false;
         AchievementData that = (AchievementData) o;
         return getId() == that.getId() && getCount() == that.getCount() && getPoint() == that.getPoint() &&
-                getParentId() == that.getParentId() && getKey().equals(that.getKey()) &&
-                getHidden() == that.getHidden() && getFlags().equals(that.getFlags());
+                getKey().equals(that.getKey()) && getHidden() == that.getHidden() && getFlags().equals(that.getFlags());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getKey(), getCount(), getPoint(), getHidden(), getFlags(), getParentId());
+        return Objects.hash(getId(), getKey(), getCount(), getPoint(), getHidden(), getFlags());
     }
 
     @Override
@@ -123,7 +120,6 @@ public final class AchievementData {
                 ", point=" + point +
                 ", hidden=" + hidden +
                 ", flags=[" + String.join(",", flags) + "]" +
-                ", parentId=" + parentId +
                 '}';
     }
 }

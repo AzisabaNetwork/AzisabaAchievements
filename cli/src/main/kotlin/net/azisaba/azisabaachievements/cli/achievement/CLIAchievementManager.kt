@@ -32,7 +32,7 @@ object CLIAchievementManager : AchievementManager {
                             count,
                             point,
                             AchievementHideFlags.NEVER,
-                            MagicConstantBitField.of(AchievementFlags::class.java, 0),
+                            MagicConstantBitField.of(AchievementFlags::class.java, 0)
                         )
                     )
                 } else {
@@ -83,6 +83,14 @@ object CLIAchievementManager : AchievementManager {
             }
         } catch (t: Throwable) {
             CompletableFuture<Boolean>().apply { completeExceptionally(t) }
+        }
+    }
+
+    override fun getChildAchievements(key: Key): CompletableFuture<Set<AchievementData>> {
+        return try {
+            CompletableFuture.completedFuture(DataProvider.getChildAchievements(queryExecutor, key))
+        } catch (t: Throwable) {
+            CompletableFuture<Set<AchievementData>>().apply { completeExceptionally(t) }
         }
     }
 }

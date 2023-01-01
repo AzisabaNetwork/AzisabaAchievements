@@ -1,8 +1,12 @@
 package net.azisaba.azisabaachievements.spigot.gui;
 
 import net.azisaba.azisabaachievements.api.Key;
+import net.azisaba.azisabaachievements.api.achievement.AchievementData;
+import net.azisaba.azisabaachievements.api.achievement.AchievementFlags;
+import net.azisaba.azisabaachievements.api.achievement.AchievementHideFlags;
 import net.azisaba.azisabaachievements.api.achievement.AchievementTranslationData;
 import net.azisaba.azisabaachievements.spigot.data.TranslatedAchievement;
+import net.azisaba.azisabaachievements.spigot.message.SMessages;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -18,13 +22,19 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class AchievementListScreen extends Screen {
     private final Player player;
     private final List<TranslatedAchievement> achievements;
     private final Map<Key, Long> progress;
+    private final Map<Integer, Consumer<InventoryClickEvent>> eventHandlers = new HashMap<>();
     private int page = 1;
 
     public AchievementListScreen(@Nullable Inventory parent, @NotNull Player player, @NotNull List<TranslatedAchievement> achievements, @NotNull Map<Key, Long> progress, @NotNull String title) {
@@ -36,19 +46,34 @@ public class AchievementListScreen extends Screen {
     }
 
     private void refresh() {
+        eventHandlers.clear();
         for (int i = 0; i < 45; i++) {
-            setItem(i, GRAY_PANE);
+            setItem(i, LIGHT_GRAY_PANE);
         }
         for (int i = 45; i < 54; i++) {
             setItem(i, BLACK_PANE);
         }
+        setItem(49, Material.ARROW, 0, SMessages.getFormattedMessage(player, "gui.back"), null);
         int start = (page - 1) * 45;
         int end = Math.min(start + 45, achievements.size());
         for (int i = start; i < end; i++) {
             TranslatedAchievement achievement = achievements.get(i);
             long current = progress.getOrDefault(achievement.getData().getKey(), 0L);
             Material type;
-            if (current == 0) {
+            if (achievement.getData().getFlags().contains(AchievementFlags.CATEGORY)) {
+                type = Material.CHEST;
+                List<TranslatedAchievement> children =
+                        achievements
+                                .stream()
+                                .filter(data -> data.getData().getKey().parent().equals(achievement.getData().getKey()))
+                                .sorted((a, b) -> AchievementsMainScreen.compareAchievementData(progress, a.getData(), b.getData()))
+                                .collect(Collectors.toList());
+                eventHandlers.put(i - start, e -> {
+                    AchievementTranslationData translationData = achievement.getTranslationForLocale(player.getLocale());
+                    String title = translationData == null ? "?" : translationData.getName();
+                    player.openInventory(new AchievementListScreen(inventory, player, children, progress, title).getInventory());
+                });
+            } else if (current == 0) {
                 type = Material.IRON_INGOT;
             } else if (current >= achievement.getData().getCount()) {
                 type = Material.DIAMOND;
@@ -69,13 +94,34 @@ public class AchievementListScreen extends Screen {
                 lore = new ArrayList<>(Collections.singletonList(ChatColor.GRAY + "No description defined."));
             }
             lore.add("");
-            ChatColor color;
-            if (current >= achievement.getData().getCount()) {
-                color = ChatColor.GREEN;
+            if (achievement.getData().getFlags().contains(AchievementFlags.CATEGORY)) {
+                Set<AchievementData> children = achievement.getData().getChildren().join();
+                Set<AchievementData> unlocked = children.stream().filter(c -> progress.getOrDefault(c.getKey(), 0L) >= c.getCount()).collect(Collectors.toSet());
+                long allPoints = children.stream().mapToLong(AchievementData::getPoint).sum();
+                long unlockedPoints = unlocked.stream().mapToLong(AchievementData::getPoint).sum();
+                double unlockedPointsPercentage = (double) unlockedPoints / allPoints * 100;
+                double unlockedPercentage = (double) unlocked.size() / children.size() * 100;
+                lore.add(SMessages.getFormattedMessage(player, "gui.achievementListScreen.category.points",
+                        unlockedPoints, allPoints, unlockedPointsPercentage));
+                lore.add(SMessages.getFormattedMessage(player, "gui.achievementListScreen.category.unlocked",
+                        unlocked.size(), children.size(), unlockedPercentage));
             } else {
-                color = ChatColor.RED;
+                ChatColor color;
+                if (current >= achievement.getData().getCount()) {
+                    color = ChatColor.GREEN;
+                } else {
+                    color = ChatColor.RED;
+                }
+                lore.add(SMessages.getFormattedMessage(player, "gui.achievementListScreen.entry.points",
+                        achievement.getData().getPoint()));
+                if (achievement.getData().getCount() > 1) {
+                    lore.add(SMessages.getFormattedMessage(player, "gui.achievementListScreen.entry.progress",
+                            color, current, achievement.getData().getCount()));
+                }
             }
-            lore.add(ChatColor.GOLD + "進行度: " + color + current + ChatColor.GRAY + "/" + ChatColor.GREEN + achievement.getData().getCount());
+            if (achievement.getData().getHidden() != AchievementHideFlags.NEVER) {
+                lore.add(SMessages.getFormattedMessage(player, "gui.achievementListScreen.hidden"));
+            }
             meta.setLore(lore);
             item.setItemMeta(meta);
             setItem(i - start, item);
@@ -120,6 +166,16 @@ public class AchievementListScreen extends Screen {
             }
             if (e.getCurrentItem() == null) {
                 return;
+            }
+            if (e.getSlot() > 0 && e.getSlot() < 45 && screen.eventHandlers.containsKey(e.getSlot())) {
+                Objects.requireNonNull(screen.eventHandlers.get(e.getSlot())).accept(e);
+            }
+            if (e.getSlot() == 49) {
+                if (screen.getParent() != null) {
+                    e.getWhoClicked().openInventory(screen.getParent());
+                } else {
+                    e.getWhoClicked().closeInventory();
+                }
             }
             if (e.getSlot() == 45 && screen.hasPreviousPage()) {
                 screen.page--;

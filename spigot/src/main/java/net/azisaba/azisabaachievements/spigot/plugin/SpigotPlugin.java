@@ -5,6 +5,7 @@ import net.azisaba.azisabaachievements.api.Side;
 import net.azisaba.azisabaachievements.api.network.PacketListener;
 import net.azisaba.azisabaachievements.api.network.PacketRegistry;
 import net.azisaba.azisabaachievements.api.network.PacketRegistryPair;
+import net.azisaba.azisabaachievements.common.message.Messages;
 import net.azisaba.azisabaachievements.common.network.PacketRegistryImpl;
 import net.azisaba.azisabaachievements.common.redis.JedisBox;
 import net.azisaba.azisabaachievements.spigot.SpigotAzisabaAchievements;
@@ -12,6 +13,7 @@ import net.azisaba.azisabaachievements.spigot.command.AzisabaAchievementsCommand
 import net.azisaba.azisabaachievements.spigot.data.AchievementDataCache;
 import net.azisaba.azisabaachievements.spigot.gui.AchievementListScreen;
 import net.azisaba.azisabaachievements.spigot.gui.AchievementsMainScreen;
+import net.azisaba.azisabaachievements.spigot.gui.Screen;
 import net.azisaba.azisabaachievements.spigot.listener.AchievementUnlockedListener;
 import net.azisaba.azisabaachievements.spigot.listener.PlayerJoinListener;
 import net.azisaba.azisabaachievements.spigot.network.SpigotPacketListener;
@@ -20,6 +22,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -42,6 +45,11 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
 
     @Override
     public void onLoad() {
+        try {
+            Messages.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         saveDefaultConfig();
         pluginConfig = new PluginConfig(getConfig());
         jedisBox = createJedisBox();

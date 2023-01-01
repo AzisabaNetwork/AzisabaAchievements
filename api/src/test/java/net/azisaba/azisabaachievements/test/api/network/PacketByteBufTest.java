@@ -24,8 +24,9 @@ public class PacketByteBufTest {
     @Test
     public void testKey() {
         PacketByteBuf buf = create();
-        buf.writeKey(Key.key("minecraft", "example"));
+        buf.writeKey(Key.key("minecraft", "example/b"));
         Key read = buf.readKey();
-        assert read.equals(Key.key("minecraft", "example")) : read;
+        assert read.equals(Key.key("minecraft", "example/b")) : read;
+        assert read.parent().equals(Key.key("minecraft", "example")) : read.parent();
     }
 }

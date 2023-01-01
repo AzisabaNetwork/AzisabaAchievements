@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -38,7 +39,7 @@ public class VelocityAchievementManager implements AchievementManager {
                     try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
                         if (generatedKeys.next()) {
                             long id = generatedKeys.getLong(1);
-                            future.complete(new AchievementData(id, key, count, point, AchievementHideFlags.NEVER, MagicConstantBitField.of(AchievementFlags.class, 0), 0));
+                            future.complete(new AchievementData(id, key, count, point, AchievementHideFlags.NEVER, MagicConstantBitField.of(AchievementFlags.class, 0)));
                         } else {
                             future.completeExceptionally(new IllegalStateException("Failed to create achievement"));
                         }
@@ -100,6 +101,19 @@ public class VelocityAchievementManager implements AchievementManager {
                     ps.executeUpdate();
                     future.complete(currentCount < data.getCount() && currentCount + count >= data.getCount());
                 });
+            } catch (Throwable t) {
+                future.completeExceptionally(t);
+            }
+        }).async().schedule();
+        return future;
+    }
+
+    @Override
+    public @NotNull CompletableFuture<Set<AchievementData>> getChildAchievements(@NotNull Key key) {
+        CompletableFuture<Set<AchievementData>> future = new CompletableFuture<>();
+        scheduler.builder(() -> {
+            try {
+                future.complete(DataProvider.getChildAchievements(queryExecutor, key));
             } catch (Throwable t) {
                 future.completeExceptionally(t);
             }

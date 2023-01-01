@@ -1,0 +1,24 @@
+gui.back: "%%GRAY%%Back"
+gui.achievementMainScreen.title: "Achievements Menu"
+gui.achievementMainScreen.player.title: "%%GREEN%%%s" # player display name
+gui.achievementMainScreen.player.description: |
+  %%GRAY%%Achievement points: %%YELLOW%%%,d%%GRAY%%/%%YELLOW%%%,d %%GRAY%%(%.1f%%)
+  %%GRAY%%Unlocked achievements: %%AQUA%%%,d%%GRAY%%/%%AQUA%%%,d %%GRAY%%(%.1f%%)
+gui.achievementMainScreen.general.title: "%%GREEN%%General"
+gui.achievementMainScreen.life.title: "%%GOLD%%Life"
+gui.achievementMainScreen.lgw.title: "%%GOLD%%Leon Gun War"
+gui.achievementMainScreen.diverse.title: "%%GOLD%%DIVERSE"
+gui.achievementMainScreen.sclat.title: "%%GOLD%%Sclat"
+gui.achievementMainScreen.vanilife.title: "%%GOLD%%Vanilife" # Not an official English translation
+gui.achievementMainScreen.despawn.title: "%%GOLD%%Despawn"
+gui.achievementMainScreen.seasonal.title: "%%GREEN%%Seasonal Achievements"
+gui.achievementMainScreen.seasonal.description: "%%YELLOW%%These achievements are only available for a limited time."
+gui.achievementMainScreen.legacy.title: "%%GREEN%%Legacy Achievements"
+gui.achievementMainScreen.legacy.description: |
+  %%YELLOW%%These achievements are no longer obtainable
+  %%YELLOW%%but are still displayed here for your reference.
+gui.achievementListScreen.hidden: "%%RED%%(Hidden achievement)"
+gui.achievementListScreen.entry.points: "%%GOLD%%Achievement Points: %%GREEN%%%,d"
+gui.achievementListScreen.entry.progress: "%%GOLD%%Progress: %s%,d%%GRAY%%/%%GREEN%%%,d"
+gui.achievementListScreen.category.points: "%%GRAY%%Points: %%YELLOW%%%,d%%GRAY%%/%%YELLOW%%%,d %%GRAY%%(%.1f%%)"
+gui.achievementListScreen.category.unlocked: "%%GRAY%%Unlocked: %%AQUA%%%,d%%GRAY%%/%%AQUA%%%,d %%GRAY%%(%.1f%%)"

@@ -2,7 +2,6 @@ package net.azisaba.azisabaachievements.api.achievement;
 
 import xyz.acrylicstyle.util.serialization.codec.Codec;
 
-// TODO: actual feature is not implemented yet
 public enum AchievementHideFlags {
     NEVER, // 0; never hidden
     UNLESS_PROGRESS, // 1; hidden unless a player has progress on the achievement at least once

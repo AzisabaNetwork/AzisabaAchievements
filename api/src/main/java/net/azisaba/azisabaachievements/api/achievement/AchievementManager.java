@@ -4,6 +4,7 @@ import net.azisaba.azisabaachievements.api.Key;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -35,4 +36,13 @@ public interface AchievementManager {
      */
     @NotNull
     CompletableFuture<Boolean> progressAchievement(@NotNull UUID uuid, @NotNull Key key, long count);
+
+    /**
+     * Fetches the children of the achievement. If the achievement does not exist, the future will be completed with
+     * an empty set.
+     * @param key the achievement key
+     * @return the list of achievements
+     */
+    @NotNull
+    CompletableFuture<Set<AchievementData>> getChildAchievements(@NotNull Key key);
 }

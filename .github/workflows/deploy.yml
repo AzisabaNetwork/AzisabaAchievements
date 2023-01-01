@@ -21,6 +21,7 @@ jobs:
           distribution: 'temurin'
       - name: Prepare gradle.properties
         run: |
+          mkdir -p $HOME/.gradle
           echo "repoUsername=${{ secrets.REPO_USERNAME }}" >> $HOME/.gradle/gradle.properties
           echo "repoPassword=${{ secrets.REPO_PASSWORD }}" >> $HOME/.gradle/gradle.properties
       - name: Deploy

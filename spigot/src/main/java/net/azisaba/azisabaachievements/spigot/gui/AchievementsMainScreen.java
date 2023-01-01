@@ -53,6 +53,7 @@ public class AchievementsMainScreen extends Screen {
         return achievements
                 .stream()
                 .map(TranslatedAchievement::getData)
+                .filter(data -> !data.getFlags().contains(AchievementFlags.CATEGORY))
                 .filter(data -> counts.getOrDefault(data.getKey(), 0L) >= data.getCount())
                 .collect(Collectors.toSet());
     }

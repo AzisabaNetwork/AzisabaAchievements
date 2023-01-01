@@ -159,11 +159,13 @@ public class AchievementListScreen extends Screen {
             if (achievement.getData().getHidden() != AchievementHideFlags.NEVER) {
                 lore.add(SMessages.getFormattedMessage(player, "gui.achievementListScreen.hidden"));
             }
-            lore.add("");
-            if (current >= achievement.getData().getCount()) {
-                lore.add(SMessages.getFormattedMessage(player, "gui.achievementListScreen.unlocked"));
-            } else {
-                lore.add(SMessages.getFormattedMessage(player, "gui.achievementListScreen.locked"));
+            if (!achievement.getData().getFlags().contains(AchievementFlags.CATEGORY)) {
+                lore.add("");
+                if (current >= achievement.getData().getCount()) {
+                    lore.add(SMessages.getFormattedMessage(player, "gui.achievementListScreen.unlocked"));
+                } else {
+                    lore.add(SMessages.getFormattedMessage(player, "gui.achievementListScreen.locked"));
+                }
             }
             meta.setLore(lore);
             item.setItemMeta(meta);

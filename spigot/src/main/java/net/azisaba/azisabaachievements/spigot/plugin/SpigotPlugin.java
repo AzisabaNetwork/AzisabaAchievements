@@ -13,7 +13,6 @@ import net.azisaba.azisabaachievements.spigot.command.AzisabaAchievementsCommand
 import net.azisaba.azisabaachievements.spigot.data.AchievementDataCache;
 import net.azisaba.azisabaachievements.spigot.gui.AchievementListScreen;
 import net.azisaba.azisabaachievements.spigot.gui.AchievementsMainScreen;
-import net.azisaba.azisabaachievements.spigot.gui.Screen;
 import net.azisaba.azisabaachievements.spigot.listener.AchievementUnlockedListener;
 import net.azisaba.azisabaachievements.spigot.listener.PlayerJoinListener;
 import net.azisaba.azisabaachievements.spigot.network.SpigotPacketListener;

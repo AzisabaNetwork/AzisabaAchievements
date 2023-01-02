@@ -264,4 +264,21 @@ public class DataProvider {
             throw new RuntimeException(e);
         }
     }
+
+    @Contract(pure = true)
+    public static int getPlayerCount(@NotNull QueryExecutor queryExecutor) {
+        try {
+            return queryExecutor.query("SELECT COUNT(*) FROM `players`", ps -> {
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getInt(1);
+                    } else {
+                        return 0;
+                    }
+                }
+            });
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

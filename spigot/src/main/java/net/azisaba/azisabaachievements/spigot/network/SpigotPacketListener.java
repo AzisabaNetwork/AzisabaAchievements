@@ -122,6 +122,7 @@ public class SpigotPacketListener implements ServerPacketListener {
     public void handle(@NotNull PacketServerPlayerData packet) {
         AsyncEvent.call(new PlayerDataUpdatedEvent(packet.getData()));
         AchievementDataCache cache = plugin.getAchievementDataCache();
+        cache.setPlayerCount(packet.getPlayerCount());
         for (PlayerAchievementData data : packet.getData()) {
             cache.add(data);
         }

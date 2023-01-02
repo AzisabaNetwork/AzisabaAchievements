@@ -5,8 +5,10 @@ import net.azisaba.azisabaachievements.api.achievement.AchievementData;
 import net.azisaba.azisabaachievements.api.achievement.AchievementFlags;
 import net.azisaba.azisabaachievements.api.achievement.AchievementHideFlags;
 import net.azisaba.azisabaachievements.api.achievement.AchievementTranslationData;
+import net.azisaba.azisabaachievements.spigot.data.AchievementDataCache;
 import net.azisaba.azisabaachievements.spigot.data.TranslatedAchievement;
 import net.azisaba.azisabaachievements.spigot.message.SMessages;
+import net.azisaba.azisabaachievements.spigot.plugin.SpigotPlugin;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -155,6 +157,12 @@ public class AchievementListScreen extends Screen {
                 lore.add(SMessages.getFormattedMessage(player, "gui.achievementListScreen.category.unlocked",
                         unlocked.size(), children.size(), unlockedPercentage));
             } else {
+                AchievementDataCache cache = SpigotPlugin.getPlugin(SpigotPlugin.class).getAchievementDataCache();
+                int unlockedPlayers = cache.getUnlockedPlayers(achievement.getData().getKey());
+                double unlockedPercentage = (double) unlockedPlayers / cache.getPlayerCount() * 100;
+                lore.add(SMessages.getFormattedMessage(player, "gui.achievementListScreen.entry.unlocked_by",
+                        unlockedPercentage));
+                lore.add("");
                 lore.add(SMessages.getFormattedMessage(player, "gui.achievementListScreen.entry.points",
                         achievement.getData().getPoint()));
                 if (achievement.getData().getCount() > 1) {

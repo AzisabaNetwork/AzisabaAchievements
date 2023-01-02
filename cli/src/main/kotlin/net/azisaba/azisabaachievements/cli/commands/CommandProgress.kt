@@ -36,7 +36,8 @@ object CommandProgress : Subcommand("progress", "Updates the progress of an achi
                 Log.info("Successfully progressed achievement: ${Colors.YELLOW}$key${Colors.RESET} (Unlocked: ${result.toColored()})")
                 val playerAchievementData = DataProvider.getPlayerAchievement(CLIAchievementManager.queryExecutor, uniqueId, keyKey)
                 if (playerAchievementData != null) {
-                    AzisabaAchievementsProvider.get().packetSender.sendPacket(PacketServerPlayerData(setOf(playerAchievementData)))
+                    val playerCount = DataProvider.getPlayerCount(CLIAchievementManager.queryExecutor)
+                    AzisabaAchievementsProvider.get().packetSender.sendPacket(PacketServerPlayerData(playerCount, setOf(playerAchievementData)))
                 }
                 if (result) {
                     val achievement = DataProvider.getAchievementByKey(CLIAchievementManager.queryExecutor, keyKey)

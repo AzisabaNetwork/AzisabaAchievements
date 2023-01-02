@@ -22,6 +22,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -31,6 +32,7 @@ public final class AchievementDataCache {
     private final AtomicReference<CompletableFuture<Void>> callback = new AtomicReference<>(null);
     private final Map<Key, TranslatedAchievement> achievements = new ConcurrentHashMap<>();
     private final Map<UUID, Set<PlayerAchievementData>> playerAchievements = new ConcurrentHashMap<>();
+    private final AtomicInteger playerCount = new AtomicInteger();
     private final PacketSender packetSender;
 
     /**
@@ -154,5 +156,23 @@ public final class AchievementDataCache {
     @Contract(pure = true)
     public @NotNull TranslatedAchievement getAchievement(@NotNull Key key) {
         return Objects.requireNonNull(achievements.get(key), "Achievement for key " + key + " is missing");
+    }
+
+    @Contract(pure = true)
+    public int getPlayerCount() {
+        return playerCount.get();
+    }
+
+    public void setPlayerCount(int playerCount) {
+        this.playerCount.set(playerCount);
+    }
+
+    public int getUnlockedPlayers(@NotNull Key key) {
+        TranslatedAchievement achievement = getAchievement(key);
+        return (int) playerAchievements.values()
+                .stream()
+                .flatMap(set -> set.stream().filter(data -> data.getAchievementKey().equals(achievement.getData().getKey())))
+                .filter(data -> data.getCount() >= achievement.getData().getCount())
+                .count();
     }
 }

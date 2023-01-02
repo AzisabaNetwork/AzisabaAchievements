@@ -43,7 +43,7 @@ object CommandProgressAll : Subcommand("progressAll", "Updates the progress of a
                             DataProvider.getPlayerAchievement(CLIAchievementManager.queryExecutor, pd.id, keyKey)
                         if (playerAchievementData != null) {
                             AzisabaAchievementsProvider.get().packetSender
-                                .sendPacket(PacketServerPlayerData(setOf(playerAchievementData)))
+                                .sendPacket(PacketServerPlayerData(DataProvider.getPlayerCount(CLIAchievementManager.queryExecutor), setOf(playerAchievementData)))
                         }
                         if (result) {
                             val achievement =

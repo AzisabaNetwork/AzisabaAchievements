@@ -15,26 +15,38 @@ import java.util.List;
  * @see PacketProxyRequestPlayerData
  */
 public class PacketServerPlayerData extends Packet<ServerPacketListener> {
+    private final int playerCount;
     private final List<PlayerAchievementData> data;
 
     public PacketServerPlayerData(@NotNull PacketByteBuf buf) {
         super(buf);
+        this.playerCount = buf.readVarInt();
         this.data = buf.readWithCodec(PlayerAchievementData.CODEC.list());
     }
 
-    public PacketServerPlayerData(@NotNull Collection<PlayerAchievementData> data) {
+    public PacketServerPlayerData(int playerCount, @NotNull Collection<PlayerAchievementData> data) {
         super(PacketByteBuf.EMPTY);
+        this.playerCount = playerCount;
         this.data = new ArrayList<>(data);
     }
 
     @Override
     public void write(@NotNull PacketByteBuf buf) {
+        buf.writeVarInt(playerCount);
         buf.writeWithCodec(data, PlayerAchievementData.CODEC.list());
     }
 
     @Override
     public void handle(@NotNull ServerPacketListener packetListener) {
         packetListener.handle(this);
+    }
+
+    /**
+     * Returns the number of players that have the player data in the database.
+     * @return the player count
+     */
+    public int getPlayerCount() {
+        return playerCount;
     }
 
     /**

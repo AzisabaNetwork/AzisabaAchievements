@@ -223,7 +223,7 @@ public class AchievementListScreen extends Screen {
                 return;
             }
             e.setCancelled(true);
-            if (!(e.getClickedInventory().getHolder() instanceof AchievementListScreen)) {
+            if (e.getClickedInventory() == null || !(e.getClickedInventory().getHolder() instanceof AchievementListScreen)) {
                 return;
             }
             AchievementListScreen screen = (AchievementListScreen) e.getInventory().getHolder();

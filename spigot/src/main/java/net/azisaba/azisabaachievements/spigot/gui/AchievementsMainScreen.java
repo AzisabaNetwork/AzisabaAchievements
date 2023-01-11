@@ -147,7 +147,7 @@ public class AchievementsMainScreen extends Screen {
                 return;
             }
             e.setCancelled(true);
-            if (!(e.getClickedInventory().getHolder() instanceof AchievementsMainScreen)) {
+            if (e.getClickedInventory() == null || !(e.getClickedInventory().getHolder() instanceof AchievementsMainScreen)) {
                 return;
             }
             AchievementsMainScreen screen = (AchievementsMainScreen) e.getInventory().getHolder();

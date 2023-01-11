@@ -141,9 +141,18 @@ public class VelocityAchievementManager implements AchievementManager {
 
     @Override
     public void deleteAchievementBlocking(@NotNull Key key) {
+        long id = DataProvider.getAchievementIdByKey(queryExecutor, key);
         try {
-            queryExecutor.queryVoid("DELETE FROM `achievements` WHERE `key` = ?", ps -> {
-                ps.setString(1, key.toString());
+            queryExecutor.queryVoid("DELETE FROM `player_achievements` WHERE `achievement_id` = ?", ps -> {
+                ps.setLong(1, id);
+                ps.executeUpdate();
+            });
+            queryExecutor.queryVoid("DELETE FROM `achievement_translations` WHERE `id` = ?", ps -> {
+                ps.setLong(1, id);
+                ps.executeUpdate();
+            });
+            queryExecutor.queryVoid("DELETE FROM `achievements` WHERE `id` = ?", ps -> {
+                ps.setLong(1, id);
                 ps.executeUpdate();
             });
         } catch (SQLException e) {

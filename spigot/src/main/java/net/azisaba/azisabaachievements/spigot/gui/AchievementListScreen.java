@@ -236,7 +236,7 @@ public class AchievementListScreen extends Screen {
             if (item == null) item = e.getCursor();
             if (item == null) return;
             TranslatedAchievement achievement = screen.slotAchievements.get(e.getSlot());
-            if (achievement != null && new AchievementListScreenClickEvent(screen.player, achievement, item).callEvent()) {
+            if (achievement != null && new AchievementListScreenClickEvent(screen.player, achievement, item, e.getClick()).callEvent()) {
                 return;
             }
             if (e.getSlot() >= 0 && e.getSlot() < 45 && screen.eventHandlers.containsKey(e.getSlot())) {

@@ -3,6 +3,7 @@ package net.azisaba.azisabaachievements.spigot.event;
 import net.azisaba.azisabaachievements.spigot.data.TranslatedAchievement;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -14,11 +15,18 @@ public final class AchievementListScreenClickEvent extends AbstractCancellableEv
     private final Player player;
     private final TranslatedAchievement achievement;
     private final ItemStack itemStack;
+    private final ClickType clickType;
 
-    public AchievementListScreenClickEvent(@NotNull Player player, @NotNull TranslatedAchievement achievement, @NotNull ItemStack itemStack) {
+    public AchievementListScreenClickEvent(
+            @NotNull Player player,
+            @NotNull TranslatedAchievement achievement,
+            @NotNull ItemStack itemStack,
+            @NotNull ClickType clickType
+    ) {
         this.player = Objects.requireNonNull(player, "player");
         this.achievement = Objects.requireNonNull(achievement, "achievement");
         this.itemStack = Objects.requireNonNull(itemStack, "itemStack");
+        this.clickType = Objects.requireNonNull(clickType, "clickType");
     }
 
     @Contract(pure = true)
@@ -34,6 +42,11 @@ public final class AchievementListScreenClickEvent extends AbstractCancellableEv
     @Contract(pure = true)
     public @NotNull ItemStack getItemStack() {
         return itemStack;
+    }
+
+    @Contract(pure = true)
+    public @NotNull ClickType getClickType() {
+        return clickType;
     }
 
     @Contract(pure = true)

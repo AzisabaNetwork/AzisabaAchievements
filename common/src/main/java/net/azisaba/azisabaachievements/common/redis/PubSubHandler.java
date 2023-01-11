@@ -105,6 +105,7 @@ public class PubSubHandler implements Closeable, PacketSender {
     @Override
     public void sendPacket(@NotNull Packet<?> packet) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        buf.writeVarInt(PacketRegistry.PROTOCOL_ID);
         int packetId = serverRegistry.getId(packet.getClass());
         if (packetId == -1) {
             throw new IllegalArgumentException("Packet " + packet.getClass().getTypeName() + " is not registered");
@@ -124,16 +125,25 @@ public class PubSubHandler implements Closeable, PacketSender {
 
     private void processRawMessage(byte[] message) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.wrappedBuffer(message));
-        int sideByte = buf.readByte();
-        if (sideByte == side.ordinal()) {
-            // ignore packets from same side
-            return;
-        }
-        int packetId = buf.readVarInt();
         try {
-            handlePacket(packetId, buf.slice());
+            int protocolId = buf.readVarInt();
+            if (protocolId != PacketRegistry.PROTOCOL_ID) {
+                // ignore packets with different protocol id
+                return;
+            }
+            int sideByte = buf.readByte();
+            if (sideByte == side.ordinal()) {
+                // ignore packets from same side
+                return;
+            }
+            int packetId = buf.readVarInt();
+            try {
+                handlePacket(packetId, buf.slice());
+            } catch (Exception e) {
+                logger.error("Failed to process packet " + packetId, e);
+            }
         } catch (Exception e) {
-            logger.error("Failed to process packet " + packetId, e);
+            logger.error("Failed to process message", e);
         } finally {
             if (buf.refCnt() > 0) {
                 buf.release();

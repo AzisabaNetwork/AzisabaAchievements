@@ -1,6 +1,7 @@
 package net.azisaba.azisabaachievements.api.network;
 
 import io.netty.buffer.ByteBuf;
+import net.azisaba.azisabaachievements.api.Logger;
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonAchievementUnlocked;
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonProxyLeaderChanged;
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonProxyLeaderLeave;
@@ -22,7 +23,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 
 public interface PacketRegistry {
+    int PROTOCOL_ID = 0;
+
     default void registerCommonPackets() {
+        Logger.getCurrentLogger().info("Protocol ID is " + PROTOCOL_ID);
         registerPacket(PacketCommonAchievementUnlocked.class, PacketCommonAchievementUnlocked::new);
         registerPacket(PacketCommonProxyLeaderLeave.class, PacketCommonProxyLeaderLeave::new);
         registerPacket(PacketCommonProxyLeaderChanged.class, PacketCommonProxyLeaderChanged::new);

@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 
-public abstract class AsyncEvent extends Event {
+public abstract class AsyncEvent extends AbstractEvent {
     private static final AtomicLong nextId = new AtomicLong(0);
 
     public AsyncEvent() {

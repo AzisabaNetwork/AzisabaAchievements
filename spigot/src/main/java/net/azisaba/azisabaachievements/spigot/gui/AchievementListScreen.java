@@ -7,6 +7,8 @@ import net.azisaba.azisabaachievements.api.achievement.AchievementHideFlags;
 import net.azisaba.azisabaachievements.api.achievement.AchievementTranslationData;
 import net.azisaba.azisabaachievements.spigot.data.AchievementDataCache;
 import net.azisaba.azisabaachievements.spigot.data.TranslatedAchievement;
+import net.azisaba.azisabaachievements.spigot.event.AchievementListScreenClickEvent;
+import net.azisaba.azisabaachievements.spigot.event.AchievementListScreenSetItemEvent;
 import net.azisaba.azisabaachievements.spigot.message.SMessages;
 import net.azisaba.azisabaachievements.spigot.plugin.SpigotPlugin;
 import org.bukkit.ChatColor;
@@ -38,6 +40,7 @@ public class AchievementListScreen extends Screen {
     private final Map<Key, Long> progress;
     private final List<TranslatedAchievement> filteredAchievements;
     private final Map<Integer, Consumer<InventoryClickEvent>> eventHandlers = new HashMap<>();
+    private final Map<Integer, TranslatedAchievement> slotAchievements = new HashMap<>();
     private int page = 1;
 
     public AchievementListScreen(@Nullable Inventory parent, @NotNull Player player, @NotNull List<TranslatedAchievement> achievements, @NotNull Map<Key, Long> progress, @NotNull String title) {
@@ -79,6 +82,7 @@ public class AchievementListScreen extends Screen {
 
     private void refresh() {
         eventHandlers.clear();
+        slotAchievements.clear();
         for (int i = 0; i < 45; i++) {
             setItem(i, LIGHT_GRAY_PANE);
         }
@@ -183,6 +187,8 @@ public class AchievementListScreen extends Screen {
             }
             meta.setLore(lore);
             item.setItemMeta(meta);
+            slotAchievements.put(i - start, achievement);
+            new AchievementListScreenSetItemEvent(player, achievement, item).callEvent();
             setItem(i - start, item);
         }
         if (hasPreviousPage()) {
@@ -226,7 +232,11 @@ public class AchievementListScreen extends Screen {
                 e.getWhoClicked().closeInventory();
                 return;
             }
-            if (e.getCurrentItem() == null) {
+            ItemStack item = e.getCurrentItem();
+            if (item == null) item = e.getCursor();
+            if (item == null) return;
+            TranslatedAchievement achievement = screen.slotAchievements.get(e.getSlot());
+            if (achievement != null && new AchievementListScreenClickEvent(screen.player, achievement, item).callEvent()) {
                 return;
             }
             if (e.getSlot() >= 0 && e.getSlot() < 45 && screen.eventHandlers.containsKey(e.getSlot())) {

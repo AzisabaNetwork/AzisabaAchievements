@@ -85,7 +85,14 @@ public final class AchievementDataCache {
             translations.computeIfAbsent(translation.getAchievementKey(), k -> new HashMap<>()).put(translation.getLanguage(), translation);
         }
         for (AchievementData achievement : packet.getAchievements()) {
-            map.put(achievement.getKey(), new TranslatedAchievement(achievement, translations.getOrDefault(achievement.getKey(), Collections.emptyMap())));
+            long unlockedCount =
+                    packet.getUnlockedPlayers()
+                            .stream()
+                            .filter(e -> e.getKey().equals(achievement.getKey()))
+                            .findAny()
+                            .map(Map.Entry::getValue)
+                            .orElse(0L);
+            map.put(achievement.getKey(), new TranslatedAchievement(achievement, translations.getOrDefault(achievement.getKey(), Collections.emptyMap()), unlockedCount));
         }
         achievements.putAll(map);
         achievements.forEach((key, value) -> {
@@ -165,14 +172,5 @@ public final class AchievementDataCache {
 
     public void setPlayerCount(int playerCount) {
         this.playerCount.set(playerCount);
-    }
-
-    public int getUnlockedPlayers(@NotNull Key key) {
-        TranslatedAchievement achievement = getAchievement(key);
-        return (int) playerAchievements.values()
-                .stream()
-                .flatMap(set -> set.stream().filter(data -> data.getAchievementKey().equals(achievement.getData().getKey())))
-                .filter(data -> data.getCount() >= achievement.getData().getCount())
-                .count();
     }
 }

@@ -96,6 +96,7 @@ allprojects {
             relocate("com.zaxxer.hikari", "net.azisaba.azisabaachievements.libs.com.zaxxer.hikari")
             relocate("xyz.acrylicstyle.util", "net.azisaba.azisabaachievements.libs.xyz.acrylicstyle.util")
             relocate("org.yaml", "net.azisaba.azisabaachievements.libs.org.yaml")
+            relocate("io.netty", "net.azisaba.azisabaachievements.libs.io.netty")
         }
     }
 }

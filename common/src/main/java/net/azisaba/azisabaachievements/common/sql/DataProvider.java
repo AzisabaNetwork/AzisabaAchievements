@@ -12,10 +12,15 @@ import net.azisaba.azisabaachievements.common.util.QueryExecutor;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,6 +36,22 @@ public class DataProvider {
                         return Key.key(rs.getString("key"));
                     }
                     return null;
+                }
+            });
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @Contract(pure = true)
+    public static long getAchievementIdByKey(@NotNull QueryExecutor queryExecutor, @NotNull Key key) {
+        try {
+            return queryExecutor.query("SELECT `id` FROM `achievements` WHERE `key` = ?", ps -> {
+                ps.setString(1, key.toString());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getLong("id");
+                    }
+                    return -1L;
                 }
             });
         } catch (SQLException e) {
@@ -280,5 +301,43 @@ public class DataProvider {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Contract(pure = true)
+    public static int getUnlockedPlayerCount(@NotNull QueryExecutor queryExecutor, long achievementId) {
+        try {
+            return queryExecutor.query("SELECT COUNT(*) FROM `player_achievements` WHERE `achievement_id` = ? AND `count` >= (SELECT `count` FROM `achievements` WHERE `id` = ?)", ps -> {
+                ps.setLong(1, achievementId);
+                ps.setLong(2, achievementId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getInt(1);
+                    } else {
+                        return 0;
+                    }
+                }
+            });
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Contract(pure = true)
+    public static @NotNull List<Map.Entry<Key, Long>> getUnlockedPlayerCounts(@NotNull QueryExecutor queryExecutor) {
+        List<Map.Entry<Key, Long>> list = new ArrayList<>();
+        try {
+            queryExecutor.queryVoid("SELECT achievements.key, COUNT(*) FROM player_achievements " +
+                    "LEFT JOIN achievements ON achievements.id = player_achievements.achievement_id " +
+                    "WHERE player_achievements.count >= achievements.count GROUP BY achievement_id", ps -> {
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        list.add(new AbstractMap.SimpleImmutableEntry<>(Key.key(rs.getString(1)), rs.getLong(2)));
+                    }
+                }
+            });
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return list;
     }
 }

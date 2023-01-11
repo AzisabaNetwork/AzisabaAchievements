@@ -52,7 +52,7 @@ public class SpigotPacketListener implements ServerPacketListener {
         // add to cache
         if (packet.getResult().isRight()) {
             AchievementDataCache cache = plugin.getAchievementDataCache();
-            cache.add(new TranslatedAchievement(packet.getResult().getRight(), new HashMap<>()));
+            cache.add(new TranslatedAchievement(packet.getResult().getRight(), new HashMap<>(), 0));
         }
 
         // process callback
@@ -77,7 +77,7 @@ public class SpigotPacketListener implements ServerPacketListener {
             Optional<AchievementData> opt = packet.getResult().getRight();
             opt.ifPresent(data ->
                     cache.getAchievements()
-                            .computeIfAbsent(data.getKey(), k -> new TranslatedAchievement(data, new HashMap<>()))
+                            .computeIfAbsent(data.getKey(), k -> new TranslatedAchievement(data, new HashMap<>(), 0))
                             .replaceData(data)
             );
         }

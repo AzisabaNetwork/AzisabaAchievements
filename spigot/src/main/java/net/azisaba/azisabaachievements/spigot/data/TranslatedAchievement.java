@@ -2,6 +2,7 @@ package net.azisaba.azisabaachievements.spigot.data;
 
 import net.azisaba.azisabaachievements.api.achievement.AchievementData;
 import net.azisaba.azisabaachievements.api.achievement.AchievementTranslationData;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,10 +13,12 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class TranslatedAchievement {
     private final AtomicReference<AchievementData> data = new AtomicReference<>();
     private final Map<String, AchievementTranslationData> translation;
+    private final long unlockedPlayers;
 
-    public TranslatedAchievement(@NotNull AchievementData data, @NotNull Map<String, AchievementTranslationData> translation) {
+    public TranslatedAchievement(@NotNull AchievementData data, @NotNull Map<String, AchievementTranslationData> translation, long unlockedPlayers) {
         this.data.set(data);
         this.translation = new HashMap<>(translation); // make it mutable if it isn't already
+        this.unlockedPlayers = unlockedPlayers;
     }
 
     @NotNull
@@ -33,6 +36,11 @@ public final class TranslatedAchievement {
     @NotNull
     public Map<String, AchievementTranslationData> getTranslation() {
         return translation;
+    }
+
+    @Contract(pure = true)
+    public long getUnlockedPlayers() {
+        return unlockedPlayers;
     }
 
     public void addTranslation(@NotNull AchievementTranslationData data) {

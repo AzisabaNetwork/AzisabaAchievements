@@ -162,8 +162,7 @@ public class AchievementListScreen extends Screen {
                         unlocked.size(), children.size(), unlockedPercentage));
             } else {
                 AchievementDataCache cache = SpigotPlugin.getPlugin(SpigotPlugin.class).getAchievementDataCache();
-                int unlockedPlayers = cache.getUnlockedPlayers(achievement.getData().getKey());
-                double unlockedPercentage = (double) unlockedPlayers / cache.getPlayerCount() * 100;
+                double unlockedPercentage = (double) achievement.getUnlockedPlayers() / cache.getPlayerCount() * 100;
                 lore.add(SMessages.getFormattedMessage(player, "gui.achievementListScreen.entry.unlocked_by",
                         unlockedPercentage));
                 lore.add("");

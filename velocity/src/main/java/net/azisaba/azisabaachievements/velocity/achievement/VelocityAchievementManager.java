@@ -17,6 +17,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -29,7 +31,8 @@ public class VelocityAchievementManager implements AchievementManager {
                 .builder(() -> {
                     Set<AchievementData> achievements = DataProvider.getAllAchievements(queryExecutor);
                     Set<AchievementTranslationData> translations = DataProvider.getAllTranslations(queryExecutor);
-                    AzisabaAchievementsProvider.get().getPacketSender().sendPacket(new PacketServerDataResult(achievements, translations));
+                    List<Map.Entry<Key, Long>> unlockedCounts = DataProvider.getUnlockedPlayerCounts(queryExecutor);
+                    AzisabaAchievementsProvider.get().getPacketSender().sendPacket(new PacketServerDataResult(achievements, translations, unlockedCounts));
                 }).async().schedule();
     }
 

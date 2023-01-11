@@ -164,10 +164,7 @@ public class VelocityAchievementManager implements AchievementManager {
     public void deleteAchievementAsync(@NotNull Key key) {
         scheduler.builder(() -> {
             try {
-                queryExecutor.queryVoid("DELETE FROM `achievements` WHERE `key` = ?", ps -> {
-                    ps.setString(1, key.toString());
-                    ps.executeUpdate();
-                });
+                deleteAchievementBlocking(key);
             } catch (Exception e) {
                 Logger.getCurrentLogger().warn("", e);
             }

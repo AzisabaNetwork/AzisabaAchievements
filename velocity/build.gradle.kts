@@ -2,8 +2,6 @@ repositories {
     maven { url = uri("https://repo.papermc.io/repository/maven-public/") }
 }
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
-
 dependencies {
     api(project(":common"))
     compileOnly("com.velocitypowered:velocity-api:3.1.1")
@@ -23,10 +21,10 @@ tasks {
 
             filter<org.apache.tools.ant.filters.ReplaceTokens>("tokens" to tokenReplacementMap)
         }
-        into("$buildDir/src")
+        into(layout.buildDirectory.dir("src"))
     }
 
-    withType<JavaCompile> {
+    named<JavaCompile>("compileJava") {
         source = named<Sync>("processSources").get().outputs.files.asFileTree
     }
 }

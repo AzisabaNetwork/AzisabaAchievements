@@ -1,10 +1,10 @@
-import org.gradle.configurationcache.extensions.capitalized
+import org.gradle.internal.extensions.stdlib.capitalized
 
 plugins {
     java
     `java-library`
     `maven-publish`
-    id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("com.gradleup.shadow") version "9.4.2"
 }
 
 allprojects {
@@ -15,11 +15,11 @@ allprojects {
         plugin("java")
         plugin("java-library")
         plugin("maven-publish")
-        plugin("com.github.johnrengelman.shadow")
+        plugin("com.gradleup.shadow")
     }
 
     java {
-        toolchain.languageVersion.set(JavaLanguageVersion.of(8))
+        toolchain.languageVersion.set(JavaLanguageVersion.of(21))
         withJavadocJar()
         withSourcesJar()
     }
@@ -27,12 +27,13 @@ allprojects {
     repositories {
         mavenCentral()
         maven { url = uri("https://repo.azisaba.net/repository/maven-public/") }
-        maven { url = uri("https://repo.acrylicstyle.xyz/repository/maven-public/") }
+        maven { url = uri("https://repo.papermc.io/repository/maven-public/") }
     }
 
     dependencies {
         testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
+        testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     }
 
     val javaComponent = components["java"] as AdhocComponentWithVariants

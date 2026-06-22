@@ -18,6 +18,7 @@ public class PacketProxyProgressAchievement extends Packet<ProxyPacketListener> 
     private final UUID uuid;
     private final Key key;
     private final long count;
+    private final String originServerId;
 
     public PacketProxyProgressAchievement(@NotNull PacketByteBuf buf) {
         super(buf);
@@ -25,14 +26,16 @@ public class PacketProxyProgressAchievement extends Packet<ProxyPacketListener> 
         this.uuid = buf.readUUID();
         this.key = buf.readKey();
         this.count = buf.readLong();
+        this.originServerId = buf.readString();
     }
 
-    public PacketProxyProgressAchievement(@NotNull UUID uuid, @NotNull Key key, long count) {
+    public PacketProxyProgressAchievement(@NotNull UUID uuid, @NotNull Key key, long count, @NotNull String originServerId) {
         super(PacketByteBuf.EMPTY);
         this.seq = UUID.randomUUID();
         this.uuid = uuid;
         this.key = key;
         this.count = count;
+        this.originServerId = originServerId;
     }
 
     @Override
@@ -41,6 +44,7 @@ public class PacketProxyProgressAchievement extends Packet<ProxyPacketListener> 
         buf.writeUUID(uuid);
         buf.writeKey(key);
         buf.writeLong(count);
+        buf.writeString(originServerId);
     }
 
     @Override
@@ -77,5 +81,9 @@ public class PacketProxyProgressAchievement extends Packet<ProxyPacketListener> 
      */
     public long getCount() {
         return count;
+    }
+
+    public @NotNull String getOriginServerId() {
+        return originServerId;
     }
 }

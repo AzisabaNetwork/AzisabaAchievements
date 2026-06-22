@@ -16,6 +16,7 @@ import net.azisaba.azisabaachievements.spigot.gui.AchievementsMainScreen;
 import net.azisaba.azisabaachievements.spigot.listener.AchievementUnlockedListener;
 import net.azisaba.azisabaachievements.spigot.listener.PlayerJoinListener;
 import net.azisaba.azisabaachievements.spigot.network.SpigotPacketListener;
+import net.azisaba.azisabaachievements.spigot.reward.RewardDeliveryExecutor;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
@@ -34,6 +35,7 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
     private PluginConfig pluginConfig;
     private JedisBox jedisBox;
     private AchievementDataCache achievementDataCache;
+    private RewardDeliveryExecutor rewardDeliveryExecutor;
 
     public SpigotPlugin() {
         clientRegistry.registerCommonPackets();
@@ -51,8 +53,12 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
         }
         saveDefaultConfig();
         pluginConfig = new PluginConfig(getConfig());
+        if ("default".equals(pluginConfig.rewardServerId)) {
+            getLogger().warning("rewards.server-id is using the default value; configure a logical server id before enabling rewards.");
+        }
         jedisBox = createJedisBox();
         achievementDataCache = new AchievementDataCache(jedisBox.getPubSubHandler());
+        rewardDeliveryExecutor = new RewardDeliveryExecutor(this);
         AzisabaAchievementsProviderSetter.setInstance(new SpigotAzisabaAchievements(this));
     }
 
@@ -101,6 +107,11 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
     @NotNull
     public AchievementDataCache getAchievementDataCache() {
         return Objects.requireNonNull(achievementDataCache, "AchievementDataCache is not initialized");
+    }
+
+    @NotNull
+    public RewardDeliveryExecutor getRewardDeliveryExecutor() {
+        return Objects.requireNonNull(rewardDeliveryExecutor, "RewardDeliveryExecutor is not initialized");
     }
 
     @NotNull

@@ -15,7 +15,10 @@ public class SpigotAzisabaAchievements extends AbstractAzisabaAchievements {
     public SpigotAzisabaAchievements(@NotNull SpigotPlugin plugin) {
         super(Logger.createFromJavaLogger(plugin.getLogger()), plugin, plugin.getJedisBox().getPubSubHandler());
         this.scheduler = new SpigotTaskScheduler(plugin);
-        this.achievementManager = new SpigotAchievementManager(getPacketSender(), plugin.getAchievementDataCache());
+        this.achievementManager = new SpigotAchievementManager(
+                getPacketSender(),
+                plugin.getAchievementDataCache(),
+                plugin.getPluginConfig().rewardServerId);
     }
 
     @NotNull

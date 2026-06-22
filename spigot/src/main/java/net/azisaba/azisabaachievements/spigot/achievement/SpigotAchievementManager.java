@@ -26,10 +26,16 @@ public class SpigotAchievementManager implements AchievementManager {
     public final Map<UUID, CompletableFuture<Boolean>> progressAchievementCallback = new Object2ObjectOpenHashMap<>();
     private final PacketSender packetSender;
     private final AchievementDataCache cache;
+    private final String serverId;
 
-    public SpigotAchievementManager(@NotNull PacketSender packetSender, @NotNull AchievementDataCache cache) {
+    public SpigotAchievementManager(
+            @NotNull PacketSender packetSender,
+            @NotNull AchievementDataCache cache,
+            @NotNull String serverId
+    ) {
         this.packetSender = packetSender;
         this.cache = cache;
+        this.serverId = serverId;
     }
 
     @Override
@@ -52,7 +58,7 @@ public class SpigotAchievementManager implements AchievementManager {
 
     @Override
     public @NotNull CompletableFuture<Boolean> progressAchievement(@NotNull UUID uuid, @NotNull Key key, long count) {
-        PacketProxyProgressAchievement packet = new PacketProxyProgressAchievement(uuid, key, count);
+        PacketProxyProgressAchievement packet = new PacketProxyProgressAchievement(uuid, key, count, serverId);
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         progressAchievementCallback.put(packet.getSeq(), future);
         packetSender.sendPacket(packet);

@@ -35,6 +35,7 @@ public class PlayerJoinListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         preloadPlayerSkin(e.getPlayer());
+        plugin.getRewardDeliveryExecutor().request(e.getPlayer().getUniqueId());
     }
 
     private void preloadPlayerData(@NotNull UUID uuid) {
@@ -43,7 +44,7 @@ public class PlayerJoinListener implements Listener {
 
     private void preloadPlayerSkin(@NotNull Player player) {
         SKIN_FETCHER.execute(() -> {
-            ItemStack skull = new ItemStack(Material.SKULL_ITEM);
+            ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta = (SkullMeta) skull.getItemMeta();
             meta.setOwningPlayer(player);
             skull.setItemMeta(meta);

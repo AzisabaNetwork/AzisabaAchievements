@@ -54,6 +54,38 @@ public final class DatabaseManager implements QueryExecutor {
                     "  FOREIGN KEY (`player_id`) REFERENCES `players` (`id`)," +
                     "  FOREIGN KEY (`achievement_id`) REFERENCES `achievements` (`id`)" +
                     ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS `achievement_rewards` (" +
+                    "  `id` BIGINT NOT NULL AUTO_INCREMENT," +
+                    "  `achievement_id` BIGINT NOT NULL," +
+                    "  `command` TEXT NOT NULL," +
+                    "  `execution_order` INT NOT NULL DEFAULT 0," +
+                    "  `enabled` TINYINT(1) NOT NULL DEFAULT 1," +
+                    "  PRIMARY KEY (`id`)," +
+                    "  INDEX `achievement_rewards_achievement_idx` (`achievement_id`)," +
+                    "  FOREIGN KEY (`achievement_id`) REFERENCES `achievements` (`id`) ON DELETE CASCADE" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS `achievement_reward_targets` (" +
+                    "  `reward_id` BIGINT NOT NULL," +
+                    "  `server_id` VARCHAR(64) NOT NULL," +
+                    "  PRIMARY KEY (`reward_id`, `server_id`)," +
+                    "  FOREIGN KEY (`reward_id`) REFERENCES `achievement_rewards` (`id`) ON DELETE CASCADE" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS `achievement_reward_deliveries` (" +
+                    "  `id` BIGINT NOT NULL AUTO_INCREMENT," +
+                    "  `reward_id` BIGINT NOT NULL," +
+                    "  `player_id` VARCHAR(36) NOT NULL," +
+                    "  `achievement_key` VARCHAR(255) NOT NULL," +
+                    "  `target_server` VARCHAR(64) NOT NULL," +
+                    "  `command` TEXT NOT NULL," +
+                    "  `status` ENUM('PENDING', 'CLAIMED', 'SUCCEEDED', 'FAILED') NOT NULL DEFAULT 'PENDING'," +
+                    "  `error` VARCHAR(1024) NULL," +
+                    "  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP," +
+                    "  `claimed_at` TIMESTAMP NULL," +
+                    "  `completed_at` TIMESTAMP NULL," +
+                    "  PRIMARY KEY (`id`)," +
+                    "  UNIQUE KEY `achievement_reward_delivery_unique` (`reward_id`, `player_id`, `target_server`)," +
+                    "  INDEX `achievement_reward_delivery_pending` (`player_id`, `target_server`, `status`)" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
         });
     }
 

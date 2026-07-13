@@ -3,3 +3,7 @@ redis:
   port: 6379
   username: null
   password: null
+
+rewards:
+  # Logical server/series id. Servers sharing rewards for the same series use the same id.
+  server-id: default

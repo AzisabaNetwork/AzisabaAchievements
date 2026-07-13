@@ -11,6 +11,8 @@ import net.azisaba.azisabaachievements.api.network.packet.PacketServerDataResult
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerFetchAchievementCallback;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerPlayerData;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerProgressAchievementCallback;
+import net.azisaba.azisabaachievements.api.network.packet.PacketServerRewardAvailable;
+import net.azisaba.azisabaachievements.api.network.packet.PacketServerRewardDeliveries;
 import net.azisaba.azisabaachievements.spigot.achievement.SpigotAchievementManager;
 import net.azisaba.azisabaachievements.spigot.data.AchievementDataCache;
 import net.azisaba.azisabaachievements.spigot.data.TranslatedAchievement;
@@ -19,6 +21,7 @@ import net.azisaba.azisabaachievements.spigot.event.AsyncEvent;
 import net.azisaba.azisabaachievements.spigot.event.PlayerDataUpdatedEvent;
 import net.azisaba.azisabaachievements.spigot.plugin.SpigotPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.bukkit.Bukkit;
 
 import java.util.HashMap;
 import java.util.Optional;
@@ -126,5 +129,25 @@ public class SpigotPacketListener implements ServerPacketListener {
         for (PlayerAchievementData data : packet.getData()) {
             cache.add(data);
         }
+    }
+
+    @Override
+    public void handle(@NotNull PacketServerRewardAvailable packet) {
+        if (!plugin.getPluginConfig().rewardServerId.equals(packet.getServerId())) {
+            return;
+        }
+        plugin.getRewardDeliveryExecutor().request(packet.getPlayerId());
+    }
+
+    @Override
+    public void handle(@NotNull PacketServerRewardDeliveries packet) {
+        if (!plugin.getPluginConfig().rewardServerId.equals(packet.getServerId())) {
+            return;
+        }
+        if (Bukkit.getPlayer(packet.getPlayerId()) == null) {
+            return;
+        }
+        packet.getDeliveries().forEach(delivery ->
+                plugin.getRewardDeliveryExecutor().execute(packet.getPlayerId(), delivery));
     }
 }

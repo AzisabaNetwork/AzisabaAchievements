@@ -78,19 +78,19 @@ public class AchievementsMainScreen extends Screen {
         long unlockedPoints = unlocked.stream().mapToLong(AchievementData::getPoint).sum();
         double unlockedPointsPercentage = (double) unlockedPoints / allPoints * 100;
         double unlockedPercentage = (double) unlocked.size() / all.size() * 100;
-        setItem(10, Material.GRASS, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.general.title"), null);
+        setItem(10, Material.GRASS_BLOCK, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.general.title"), null);
         setItem(11, Material.WHEAT, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.life.title"), null);
         setItem(12, Material.BOW, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.lgw.title"), null);
-        setItem(13, Material.RED_ROSE, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.diverse.title"), null);
+        setItem(13, Material.POPPY, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.diverse.title"), null);
         setItem(14, Material.WATER_BUCKET, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.sclat.title"), null);
         setItem(15, Material.CHEST, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.vanilife.title"), null);
-        setItem(16, Material.MONSTER_EGG, 58, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.despawn.title"), null);
+        setItem(16, Material.ENDERMAN_SPAWN_EGG, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.despawn.title"), null);
         setItem(21, Material.APPLE, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.seasonal.title"),
                 Arrays.asList(SMessages.getFormattedMessage(player, "gui.achievementMainScreen.seasonal.description").split("\n")));
         setItem(23, Material.DIAMOND_BLOCK, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.legacy.title"),
                 Arrays.asList(SMessages.getFormattedMessage(player, "gui.achievementMainScreen.legacy.description").split("\n")));
 
-        ItemStack stack = createItem(Material.SKULL_ITEM, 3, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.player.title", PlayerUtil.getFullDisplayName(player)),
+        ItemStack stack = createItem(Material.PLAYER_HEAD, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.player.title", PlayerUtil.getFullDisplayName(player)),
                 Arrays.asList(SMessages.getFormattedMessage(player, "gui.achievementMainScreen.player.description",
                         unlockedPoints, allPoints, unlockedPointsPercentage, unlocked.size(), all.size(), unlockedPercentage).split("\n")));
         SkullMeta meta = (SkullMeta) stack.getItemMeta();

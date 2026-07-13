@@ -7,6 +7,8 @@ import net.azisaba.azisabaachievements.api.network.packet.PacketCommonProxyLeade
 import net.azisaba.azisabaachievements.api.network.packet.PacketCommonProxyLeaderLeave;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyAddAchievementTranslation;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyCreateAchievement;
+import net.azisaba.azisabaachievements.api.network.packet.PacketProxyClaimRewards;
+import net.azisaba.azisabaachievements.api.network.packet.PacketProxyCompleteRewardDelivery;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyFetchAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyProgressAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyRequestData;
@@ -17,13 +19,15 @@ import net.azisaba.azisabaachievements.api.network.packet.PacketServerDataResult
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerFetchAchievementCallback;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerPlayerData;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerProgressAchievementCallback;
+import net.azisaba.azisabaachievements.api.network.packet.PacketServerRewardAvailable;
+import net.azisaba.azisabaachievements.api.network.packet.PacketServerRewardDeliveries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
 public interface PacketRegistry {
-    int PROTOCOL_ID = 0;
+    int PROTOCOL_ID = 1;
 
     default void registerCommonPackets() {
         Logger.getCurrentLogger().info("Protocol ID is " + PROTOCOL_ID);
@@ -39,6 +43,8 @@ public interface PacketRegistry {
         registerPacket(PacketProxyProgressAchievement.class, PacketProxyProgressAchievement::new);
         registerPacket(PacketProxyRequestPlayerData.class, PacketProxyRequestPlayerData::new);
         registerPacket(PacketProxyAddAchievementTranslation.class, PacketProxyAddAchievementTranslation::new);
+        registerPacket(PacketProxyClaimRewards.class, PacketProxyClaimRewards::new);
+        registerPacket(PacketProxyCompleteRewardDelivery.class, PacketProxyCompleteRewardDelivery::new);
     }
 
     default void registerServerBoundPackets() {
@@ -48,6 +54,8 @@ public interface PacketRegistry {
         registerPacket(PacketServerProgressAchievementCallback.class, PacketServerProgressAchievementCallback::new);
         registerPacket(PacketServerPlayerData.class, PacketServerPlayerData::new);
         registerPacket(PacketServerAddAchievementTranslation.class, PacketServerAddAchievementTranslation::new);
+        registerPacket(PacketServerRewardAvailable.class, PacketServerRewardAvailable::new);
+        registerPacket(PacketServerRewardDeliveries.class, PacketServerRewardDeliveries::new);
     }
 
     /**

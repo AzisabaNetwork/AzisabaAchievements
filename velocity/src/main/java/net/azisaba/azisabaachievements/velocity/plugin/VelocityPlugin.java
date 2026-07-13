@@ -19,6 +19,7 @@ import net.azisaba.azisabaachievements.velocity.command.AchievementsCommand;
 import net.azisaba.azisabaachievements.velocity.listener.PlayerJoinListener;
 import net.azisaba.azisabaachievements.velocity.redis.RedisConnectionLeader;
 import net.azisaba.azisabaachievements.velocity.redis.ServerIdProvider;
+import net.azisaba.azisabaachievements.velocity.reward.RewardService;
 import net.azisaba.azisabaachievements.velocity.VelocityAzisabaAchievements;
 import net.azisaba.azisabaachievements.velocity.network.VelocityPacketListener;
 import org.jetbrains.annotations.Contract;
@@ -43,6 +44,7 @@ public class VelocityPlugin implements PacketRegistryPair {
     private final ServerIdProvider serverIdProvider;
     private final RedisConnectionLeader redisConnectionLeader;
     private final DatabaseManager databaseManager;
+    private final RewardService rewardService;
 
     @Inject
     public VelocityPlugin(@NotNull ProxyServer server, @NotNull Logger logger, @NotNull @DataDirectory Path dataDirectory) throws SQLException {
@@ -55,12 +57,13 @@ public class VelocityPlugin implements PacketRegistryPair {
         serverIdProvider = new ServerIdProvider(jedisBox.getJedisPool());
         redisConnectionLeader = new RedisConnectionLeader(jedisBox.getJedisPool(), serverIdProvider);
         databaseManager = new DatabaseManager(config.databaseConfig.createDataSource());
+        rewardService = new RewardService(databaseManager);
         AzisabaAchievementsProviderSetter.setInstance(new VelocityAzisabaAchievements(this));
     }
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent e) {
-        server.getCommandManager().register(new AchievementsCommand(databaseManager).createCommand());
+        server.getCommandManager().register(new AchievementsCommand(databaseManager, rewardService).createCommand());
 
         serverIdProvider.runIdKeeperTask(AzisabaAchievementsProvider.get().getScheduler());
         logger.info("This proxy's ID is " + serverIdProvider.getId());
@@ -143,6 +146,11 @@ public class VelocityPlugin implements PacketRegistryPair {
     @NotNull
     public DatabaseManager getDatabaseManager() {
         return databaseManager;
+    }
+
+    @NotNull
+    public RewardService getRewardService() {
+        return rewardService;
     }
 
     private void registerPackets() {

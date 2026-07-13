@@ -1,6 +1,8 @@
 package net.azisaba.azisabaachievements.api.network;
 
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyAddAchievementTranslation;
+import net.azisaba.azisabaachievements.api.network.packet.PacketProxyClaimRewards;
+import net.azisaba.azisabaachievements.api.network.packet.PacketProxyCompleteRewardDelivery;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyCreateAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyFetchAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyProgressAchievement;
@@ -15,4 +17,6 @@ public interface ProxyPacketListener extends PacketListener {
     void handle(@NotNull PacketProxyProgressAchievement packet);
     void handle(@NotNull PacketProxyAddAchievementTranslation packet);
     void handle(@NotNull PacketProxyRequestPlayerData packet);
+    void handle(@NotNull PacketProxyClaimRewards packet);
+    void handle(@NotNull PacketProxyCompleteRewardDelivery packet);
 }

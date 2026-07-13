@@ -1,8 +1,6 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.8.0"
+    id("org.jetbrains.kotlin.jvm") version "2.2.21"
 }
-
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 
 dependencies {
     api(kotlin("stdlib"))

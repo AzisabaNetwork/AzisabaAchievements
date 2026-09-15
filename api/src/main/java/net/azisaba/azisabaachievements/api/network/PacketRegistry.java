@@ -13,6 +13,7 @@ import net.azisaba.azisabaachievements.api.network.packet.PacketProxyFetchAchiev
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyProgressAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyRequestData;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyRequestPlayerData;
+import net.azisaba.azisabaachievements.api.network.packet.PacketProxyUnlockAchievements;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerAddAchievementTranslation;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerCreateAchievementCallback;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerDataResult;
@@ -27,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 
 public interface PacketRegistry {
-    int PROTOCOL_ID = 1;
+    int PROTOCOL_ID = 2;
 
     default void registerCommonPackets() {
         Logger.getCurrentLogger().info("Protocol ID is " + PROTOCOL_ID);
@@ -45,6 +46,7 @@ public interface PacketRegistry {
         registerPacket(PacketProxyAddAchievementTranslation.class, PacketProxyAddAchievementTranslation::new);
         registerPacket(PacketProxyClaimRewards.class, PacketProxyClaimRewards::new);
         registerPacket(PacketProxyCompleteRewardDelivery.class, PacketProxyCompleteRewardDelivery::new);
+        registerPacket(PacketProxyUnlockAchievements.class, PacketProxyUnlockAchievements::new);
     }
 
     default void registerServerBoundPackets() {

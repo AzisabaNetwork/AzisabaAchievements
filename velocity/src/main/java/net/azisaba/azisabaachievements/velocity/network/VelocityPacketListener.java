@@ -15,6 +15,7 @@ import net.azisaba.azisabaachievements.api.network.packet.PacketProxyFetchAchiev
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyProgressAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyRequestData;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyRequestPlayerData;
+import net.azisaba.azisabaachievements.api.network.packet.PacketProxyUnlockAchievements;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerAddAchievementTranslation;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerCreateAchievementCallback;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerFetchAchievementCallback;
@@ -31,7 +32,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
@@ -107,43 +107,36 @@ public class VelocityPacketListener implements ProxyPacketListener {
         if (!plugin.getRedisConnectionLeader().isLeader()) {
             return;
         }
-        if (packet.getCount() == 0) {
-            AzisabaAchievementsProvider.get().getPacketSender()
-                    .sendPacket(new PacketServerProgressAchievementCallback(packet.getSeq(), Either.right(false)));
+        AzisabaAchievementsProvider.get().getPacketSender().sendPacket(
+                new PacketServerProgressAchievementCallback(
+                        packet.getSeq(),
+                        Either.left("Progress is managed by an external ProgressProvider")));
+    }
+
+    @Override
+    public void handle(@NotNull PacketProxyUnlockAchievements packet) {
+        if (!plugin.getRedisConnectionLeader().isLeader()) {
+            return;
+        }
+        if (packet.getKeys().isEmpty()) {
             return;
         }
         AzisabaAchievementsProvider.get().getScheduler().builder(() -> {
             try {
-                RewardService.ProgressResult result = plugin.getRewardService().progress(
-                        packet.getUniqueId(),
-                        packet.getKey(),
-                        packet.getCount(),
+                for (RewardService.ProgressResult result : plugin.getRewardService().unlock(
+                        packet.getPlayerId(),
+                        packet.getKeys(),
                         packet.getOriginServerId()
-                );
-                AzisabaAchievementsProvider.get().getPacketSender().sendPacket(
-                        new PacketServerProgressAchievementCallback(packet.getSeq(), Either.right(result.isUnlocked())));
-                PlayerAchievementData playerAchievementData =
-                        DataProvider.getPlayerAchievement(plugin.getDatabaseManager(), packet.getUniqueId(), packet.getKey());
-                if (playerAchievementData != null) {
+                )) {
                     AzisabaAchievementsProvider.get().getPacketSender().sendPacket(
-                            new PacketServerPlayerData(
-                                    DataProvider.getPlayerCount(plugin.getDatabaseManager()),
-                                    Collections.singleton(playerAchievementData)));
-                }
-                if (result.isUnlocked()) {
-                    AzisabaAchievementsProvider.get().getPacketSender().sendPacket(
-                            new PacketCommonAchievementUnlocked(packet.getUniqueId(), result.getAchievement()));
+                            new PacketCommonAchievementUnlocked(packet.getPlayerId(), result.getAchievement()));
                     for (String serverId : result.getNotifiedServers()) {
                         AzisabaAchievementsProvider.get().getPacketSender().sendPacket(
-                                new PacketServerRewardAvailable(packet.getUniqueId(), serverId));
+                                new PacketServerRewardAvailable(packet.getPlayerId(), serverId));
                     }
                 }
-            } catch (Throwable throwable) {
-                String message = throwable.getMessage() == null
-                        ? throwable.getClass().getSimpleName()
-                        : throwable.getMessage();
-                AzisabaAchievementsProvider.get().getPacketSender().sendPacket(
-                        new PacketServerProgressAchievementCallback(packet.getSeq(), Either.left(message)));
+            } catch (Exception e) {
+                plugin.getLogger().error("Failed to unlock achievements", e);
             }
         }).async().schedule();
     }

@@ -1,6 +1,7 @@
 package net.azisaba.azisabaachievements.spigot.listener;
 
-import net.azisaba.azisabaachievements.api.network.packet.PacketProxyRequestPlayerData;
+import net.azisaba.azisabaachievements.api.achievement.ProgressProvider;
+import net.azisaba.azisabaachievements.spigot.event.ProgressUpdatedEvent;
 import net.azisaba.azisabaachievements.spigot.plugin.SpigotPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -9,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.server.ServiceRegisterEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -29,7 +31,7 @@ public class PlayerJoinListener implements Listener {
 
     @EventHandler
     public void onPreLogin(AsyncPlayerPreLoginEvent e) {
-        preloadPlayerData(e.getUniqueId());
+        plugin.getProgressSynchronizer().sync(e.getUniqueId());
     }
 
     @EventHandler
@@ -38,8 +40,19 @@ public class PlayerJoinListener implements Listener {
         plugin.getRewardDeliveryExecutor().request(e.getPlayer().getUniqueId());
     }
 
-    private void preloadPlayerData(@NotNull UUID uuid) {
-        plugin.getJedisBox().getPubSubHandler().sendPacket(new PacketProxyRequestPlayerData(uuid));
+    @EventHandler
+    public void onProgressUpdated(@NotNull ProgressUpdatedEvent e) {
+        plugin.getProgressSynchronizer().syncAsync(e.getPlayerId());
+    }
+
+    @EventHandler
+    public void onServiceRegister(@NotNull ServiceRegisterEvent e) {
+        if (e.getProvider().getService() != ProgressProvider.class) {
+            return;
+        }
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            plugin.getProgressSynchronizer().syncAsync(player.getUniqueId());
+        }
     }
 
     private void preloadPlayerSkin(@NotNull Player player) {

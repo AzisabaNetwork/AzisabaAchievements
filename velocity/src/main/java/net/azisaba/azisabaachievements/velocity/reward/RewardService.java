@@ -32,34 +32,37 @@ public final class RewardService {
         this.databaseManager = databaseManager;
     }
 
-    public @NotNull ProgressResult progress(
+    public @NotNull List<ProgressResult> unlock(
             @NotNull UUID playerId,
-            @NotNull Key key,
-            long increment,
+            @NotNull Collection<Key> keys,
             @NotNull String originServerId
     ) throws SQLException {
+        if (keys.isEmpty()) {
+            return Collections.emptyList();
+        }
         return databaseManager.use(connection -> {
             connection.setAutoCommit(false);
             try {
-                AchievementData achievement = getAchievementForUpdate(connection, key);
-                if (achievement == null) {
-                    throw new IllegalStateException("Achievement does not exist");
+                List<ProgressResult> results = new ArrayList<>();
+                for (Key key : keys) {
+                    AchievementData achievement = getAchievementForUpdate(connection, key);
+                    if (achievement == null) {
+                        continue;
+                    }
+                    if (achievement.getFlags().contains(AchievementFlags.CATEGORY)
+                            || achievement.getFlags().contains(AchievementFlags.UNOBTAINABLE)) {
+                        continue;
+                    }
+                    long currentCount = getUnlockCountForUpdate(connection, playerId, achievement.getId());
+                    if (currentCount >= achievement.getCount()) {
+                        continue;
+                    }
+                    saveProgress(connection, playerId, achievement.getId(), achievement.getCount());
+                    Set<String> notifiedServers = createDeliveries(connection, playerId, achievement, originServerId);
+                    results.add(new ProgressResult(achievement, true, notifiedServers));
                 }
-                if (achievement.getFlags().contains(AchievementFlags.CATEGORY)
-                        || achievement.getFlags().contains(AchievementFlags.UNOBTAINABLE)) {
-                    throw new IllegalStateException("Achievement is unobtainable");
-                }
-
-                long currentCount = getProgressForUpdate(connection, playerId, achievement.getId());
-                long newCount = Math.min(achievement.getCount(), currentCount + increment);
-                saveProgress(connection, playerId, achievement.getId(), newCount);
-                boolean unlocked = currentCount < achievement.getCount()
-                        && currentCount + increment >= achievement.getCount();
-                Set<String> notifiedServers = unlocked
-                        ? createDeliveries(connection, playerId, achievement, originServerId)
-                        : Collections.emptySet();
                 connection.commit();
-                return new ProgressResult(achievement, unlocked, notifiedServers);
+                return results;
             } catch (SQLException | RuntimeException throwable) {
                 connection.rollback();
                 throw throwable;
@@ -89,17 +92,11 @@ public final class RewardService {
         }
     }
 
-    private long getProgressForUpdate(
+    private long getUnlockCountForUpdate(
             @NotNull Connection connection,
             @NotNull UUID playerId,
             long achievementId
     ) throws SQLException {
-        try (PreparedStatement insert = connection.prepareStatement(
-                "INSERT IGNORE INTO `player_achievements` (`player_id`, `achievement_id`, `count`) VALUES (?, ?, 0)")) {
-            insert.setString(1, playerId.toString());
-            insert.setLong(2, achievementId);
-            insert.executeUpdate();
-        }
         try (PreparedStatement statement = connection.prepareStatement(
                 "SELECT `count` FROM `player_achievements` WHERE `player_id` = ? AND `achievement_id` = ? FOR UPDATE")) {
             statement.setString(1, playerId.toString());

@@ -23,23 +23,27 @@ public class PacketServerDataResult extends Packet<ServerPacketListener> {
     private final List<AchievementData> achievements;
     private final List<AchievementTranslationData> achievementTranslations;
     private final List<Map.Entry<Key, Long>> unlockedPlayers;
+    private final int playerCount;
 
     public PacketServerDataResult(@NotNull PacketByteBuf buf) {
         super(buf);
         this.achievements = buf.readWithCodec(AchievementData.NETWORK_CODEC.list());
         this.achievementTranslations = buf.readWithCodec(AchievementTranslationData.NETWORK_CODEC.list());
         this.unlockedPlayers = buf.readWithCodec(ExtraCodecs.entry(Key.CODEC, Codec.LONG).list());
+        this.playerCount = buf.readInt();
     }
 
     public PacketServerDataResult(
             @NotNull Collection<AchievementData> achievements,
             @NotNull Collection<AchievementTranslationData> achievementTranslations,
-            @NotNull List<Map.Entry<Key, Long>> unlockedPlayers
+            @NotNull List<Map.Entry<Key, Long>> unlockedPlayers,
+            int playerCount
     ) {
         super(PacketByteBuf.EMPTY);
         this.achievements = new ArrayList<>(achievements);
         this.achievementTranslations = new ArrayList<>(achievementTranslations);
         this.unlockedPlayers = unlockedPlayers;
+        this.playerCount = playerCount;
     }
 
     @Override
@@ -47,6 +51,7 @@ public class PacketServerDataResult extends Packet<ServerPacketListener> {
         buf.writeWithCodec(this.achievements, AchievementData.NETWORK_CODEC.list());
         buf.writeWithCodec(this.achievementTranslations, AchievementTranslationData.NETWORK_CODEC.list());
         buf.writeWithCodec(this.unlockedPlayers, ExtraCodecs.entry(Key.CODEC, Codec.LONG).list());
+        buf.writeInt(playerCount);
     }
 
     @Override
@@ -66,5 +71,9 @@ public class PacketServerDataResult extends Packet<ServerPacketListener> {
 
     public @NotNull List<Map.Entry<Key, Long>> getUnlockedPlayers() {
         return unlockedPlayers;
+    }
+
+    public int getPlayerCount() {
+        return playerCount;
     }
 }

@@ -4,10 +4,12 @@ import io.netty.buffer.Unpooled;
 import net.azisaba.azisabaachievements.api.Key;
 import net.azisaba.azisabaachievements.api.network.PacketByteBuf;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyProgressAchievement;
+import net.azisaba.azisabaachievements.api.network.packet.PacketProxyUnlockAchievements;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerRewardDeliveries;
 import net.azisaba.azisabaachievements.api.reward.RewardDelivery;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -27,6 +29,25 @@ public class RewardPacketTest {
         assertEquals(Key.key("event:test"), decoded.getKey());
         assertEquals(3, decoded.getCount());
         assertEquals("server-a", decoded.getOriginServerId());
+    }
+
+    @Test
+    public void unlockPacketPreservesKeys() {
+        UUID playerId = UUID.randomUUID();
+        PacketProxyUnlockAchievements original = new PacketProxyUnlockAchievements(
+                playerId,
+                "server-a",
+                Arrays.asList(Key.key("azisaba:general/kill"), Key.key("azisaba:general/play"))
+        );
+        PacketByteBuf buffer = new PacketByteBuf(Unpooled.buffer());
+        original.write(buffer);
+
+        PacketProxyUnlockAchievements decoded = new PacketProxyUnlockAchievements(buffer);
+        assertEquals(playerId, decoded.getPlayerId());
+        assertEquals("server-a", decoded.getOriginServerId());
+        assertEquals(2, decoded.getKeys().size());
+        assertEquals(Key.key("azisaba:general/kill"), decoded.getKeys().get(0));
+        assertEquals(Key.key("azisaba:general/play"), decoded.getKeys().get(1));
     }
 
     @Test

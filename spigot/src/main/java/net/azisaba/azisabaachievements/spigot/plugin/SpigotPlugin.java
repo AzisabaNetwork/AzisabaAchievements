@@ -9,6 +9,7 @@ import net.azisaba.azisabaachievements.common.message.Messages;
 import net.azisaba.azisabaachievements.common.network.PacketRegistryImpl;
 import net.azisaba.azisabaachievements.common.redis.JedisBox;
 import net.azisaba.azisabaachievements.spigot.SpigotAzisabaAchievements;
+import net.azisaba.azisabaachievements.spigot.achievement.ProgressSynchronizer;
 import net.azisaba.azisabaachievements.spigot.command.AzisabaAchievementsCommand;
 import net.azisaba.azisabaachievements.spigot.data.AchievementDataCache;
 import net.azisaba.azisabaachievements.spigot.gui.AchievementListScreen;
@@ -35,6 +36,7 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
     private PluginConfig pluginConfig;
     private JedisBox jedisBox;
     private AchievementDataCache achievementDataCache;
+    private ProgressSynchronizer progressSynchronizer;
     private RewardDeliveryExecutor rewardDeliveryExecutor;
 
     public SpigotPlugin() {
@@ -58,6 +60,7 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
         }
         jedisBox = createJedisBox();
         achievementDataCache = new AchievementDataCache(jedisBox.getPubSubHandler());
+        progressSynchronizer = new ProgressSynchronizer(this);
         rewardDeliveryExecutor = new RewardDeliveryExecutor(this);
         AzisabaAchievementsProviderSetter.setInstance(new SpigotAzisabaAchievements(this));
     }
@@ -107,6 +110,11 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
     @NotNull
     public AchievementDataCache getAchievementDataCache() {
         return Objects.requireNonNull(achievementDataCache, "AchievementDataCache is not initialized");
+    }
+
+    @NotNull
+    public ProgressSynchronizer getProgressSynchronizer() {
+        return Objects.requireNonNull(progressSynchronizer, "ProgressSynchronizer is not initialized");
     }
 
     @NotNull

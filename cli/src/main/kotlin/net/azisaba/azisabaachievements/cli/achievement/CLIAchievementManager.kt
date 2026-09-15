@@ -11,7 +11,6 @@ import net.azisaba.azisabaachievements.common.util.QueryExecutor
 import java.util.Optional
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
-import kotlin.math.min
 
 object CLIAchievementManager : AchievementManager {
     lateinit var queryExecutor: QueryExecutor
@@ -48,43 +47,10 @@ object CLIAchievementManager : AchievementManager {
             CompletableFuture<Optional<AchievementData>>().apply { completeExceptionally(t) }
         }
 
-    override fun progressAchievement(uuid: UUID, key: Key, count: Long): CompletableFuture<Boolean> {
-        if (count == 0L) {
-            return CompletableFuture.completedFuture(false)
-        }
-        return try {
-            val data = DataProvider.getAchievementByKey(queryExecutor, key)
-                ?: return CompletableFuture<Boolean>().apply { completeExceptionally(IllegalStateException("Achievement does not exist")) }
-            if (data.flags.contains(AchievementFlags.CATEGORY) || data.flags.contains(AchievementFlags.UNOBTAINABLE)) {
-                return CompletableFuture<Boolean>().apply { completeExceptionally(IllegalStateException("Achievement is unobtainable")) }
-            }
-            val achievementId = data.id
-            val currentCount = queryExecutor.query(
-                "SELECT `count` FROM `player_achievements` WHERE `player_id` = ? AND `achievement_id` = ?"
-            ) { ps ->
-                ps.setString(1, uuid.toString())
-                ps.setLong(2, achievementId)
-                ps.executeQuery().use { rs ->
-                    if (rs.next()) {
-                        return@query rs.getLong("count")
-                    } else {
-                        return@query 0L
-                    }
-                }
-            }
-            queryExecutor.query(
-                "INSERT INTO `player_achievements` (`player_id`, `achievement_id`, `count`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `count` = VALUES(`count`)"
-            ) { ps ->
-                ps.setString(1, uuid.toString())
-                ps.setLong(2, achievementId)
-                ps.setLong(3, min(data.count, currentCount + count))
-                ps.executeUpdate()
-                CompletableFuture.completedFuture(currentCount < data.count && currentCount + count >= data.count)
-            }
-        } catch (t: Throwable) {
-            CompletableFuture<Boolean>().apply { completeExceptionally(t) }
-        }
-    }
+    override fun progressAchievement(uuid: UUID, key: Key, count: Long): CompletableFuture<Boolean> =
+        CompletableFuture.failedFuture(
+            UnsupportedOperationException("Progress is managed by an external ProgressProvider")
+        )
 
     override fun getChildAchievements(key: Key): CompletableFuture<Set<AchievementData>> {
         return try {

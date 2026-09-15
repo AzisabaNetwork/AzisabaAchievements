@@ -28,7 +28,7 @@ public interface AchievementManager {
     CompletableFuture<@NotNull Optional<AchievementData>> getAchievement(@NotNull Key key);
 
     /**
-     * Progresses the achievement. If the achievement does not exist, the future will be completed exceptionally.
+     * Progress is owned by an external {@link ProgressProvider}. This method always completes exceptionally.
      * @param uuid the player uuid
      * @param key the achievement key
      * @param count the progress count

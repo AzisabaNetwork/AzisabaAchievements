@@ -1,5 +1,24 @@
 # AzisabaAchievements
 
+## Player progress
+
+Achievement definitions (criteria, names, rewards) live in this plugin. Live progress counts do not.
+A Spigot plugin must register a `ProgressProvider` with Bukkit Services:
+
+```java
+Bukkit.getServicesManager().register(
+        ProgressProvider.class, impl, plugin, ServicePriority.Normal);
+```
+
+`getProgress(uuid)` must be keyed by this plugin's achievement keys (for example `azisaba:general/foo`).
+Missing keys are treated as 0.
+
+After progress changes, fire `ProgressUpdatedEvent` so unlocks and the GUI can refresh without a rejoin:
+
+```java
+new ProgressUpdatedEvent(player.getUniqueId()).callEvent();
+```
+
 ## Achievement rewards
 
 Achievement rewards are stored in MariaDB and executed by the Spigot server where the player is online.

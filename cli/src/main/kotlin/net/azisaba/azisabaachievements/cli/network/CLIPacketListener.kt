@@ -9,6 +9,7 @@ import net.azisaba.azisabaachievements.api.network.packet.PacketProxyFetchAchiev
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyProgressAchievement
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyRequestData
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyRequestPlayerData
+import net.azisaba.azisabaachievements.api.network.packet.PacketProxyUnlockAchievements
 
 object CLIPacketListener : ProxyPacketListener {
     override fun handle(packet: PacketProxyRequestData) {}
@@ -19,4 +20,5 @@ object CLIPacketListener : ProxyPacketListener {
     override fun handle(packet: PacketProxyRequestPlayerData) {}
     override fun handle(packet: PacketProxyClaimRewards) {}
     override fun handle(packet: PacketProxyCompleteRewardDelivery) {}
+    override fun handle(packet: PacketProxyUnlockAchievements) {}
 }

@@ -100,10 +100,22 @@ public final class AchievementDataCache {
                 achievements.remove(key);
             }
         });
+        playerCount.set(packet.getPlayerCount());
         CompletableFuture<Void> future = callback.getAndSet(null);
         if (future != null) {
             future.complete(null);
         }
+    }
+
+    public void replacePlayerProgress(@NotNull UUID uuid, @NotNull Map<Key, Long> progress) {
+        Set<PlayerAchievementData> set = Collections.synchronizedSet(new HashSet<>());
+        for (Map.Entry<Key, Long> entry : progress.entrySet()) {
+            if (entry.getValue() == 0L) {
+                continue;
+            }
+            set.add(new PlayerAchievementData(uuid, entry.getKey(), entry.getValue()));
+        }
+        playerAchievements.put(uuid, set);
     }
 
     /**

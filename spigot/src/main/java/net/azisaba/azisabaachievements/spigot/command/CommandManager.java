@@ -5,6 +5,7 @@ import net.azisaba.azisabaachievements.spigot.commands.CommandCreate;
 import net.azisaba.azisabaachievements.spigot.commands.CommandDumpProtocol;
 import net.azisaba.azisabaachievements.spigot.commands.CommandHelp;
 import net.azisaba.azisabaachievements.spigot.commands.CommandProgress;
+import net.azisaba.azisabaachievements.spigot.commands.CommandSetProgress;
 import net.azisaba.azisabaachievements.spigot.commands.CommandSync;
 import net.azisaba.azisabaachievements.spigot.plugin.SpigotPlugin;
 import org.jetbrains.annotations.Contract;
@@ -43,6 +44,7 @@ public final class CommandManager {
         registerCommand(new CommandCreate());
         registerCommand(new CommandAddTranslation(plugin.getAchievementDataCache()));
         registerCommand(new CommandProgress(plugin.getAchievementDataCache()));
+        registerCommand(new CommandSetProgress(plugin.getAchievementDataCache()));
         registerCommand(new CommandSync(plugin.getAchievementDataCache()));
     }
 }

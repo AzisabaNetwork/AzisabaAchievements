@@ -19,6 +19,15 @@ After progress changes, fire `ProgressUpdatedEvent` so unlocks and the GUI can r
 new ProgressUpdatedEvent(player.getUniqueId()).callEvent();
 ```
 
+Providers may optionally override `addProgress(uuid, key, amount)` and `setProgress(uuid, key, count)` to accept
+writes. When they do, `AchievementManager#progressAchievement` / `AchievementManager#setAchievementProgress` and the
+following Spigot commands write through the provider, then refresh the cache and send unlocks:
+
+```text
+/achievements progress <player> <key> <amount>
+/achievements setprogress <player> <key> <count>
+```
+
 ## Achievement rewards
 
 Achievement rewards are stored in MariaDB and executed by the Spigot server where the player is online.

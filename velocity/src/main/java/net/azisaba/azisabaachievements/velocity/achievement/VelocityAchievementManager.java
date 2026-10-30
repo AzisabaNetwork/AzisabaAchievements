@@ -92,6 +92,12 @@ public class VelocityAchievementManager implements AchievementManager {
     }
 
     @Override
+    public @NotNull CompletableFuture<Boolean> setAchievementProgress(@NotNull UUID uuid, @NotNull Key key, long count) {
+        return CompletableFuture.failedFuture(
+                new UnsupportedOperationException("Progress is managed by an external ProgressProvider"));
+    }
+
+    @Override
     public @NotNull CompletableFuture<Set<AchievementData>> getChildAchievements(@NotNull Key key) {
         CompletableFuture<Set<AchievementData>> future = new CompletableFuture<>();
         scheduler.builder(() -> {

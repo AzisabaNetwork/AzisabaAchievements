@@ -28,7 +28,9 @@ public interface AchievementManager {
     CompletableFuture<@NotNull Optional<AchievementData>> getAchievement(@NotNull Key key);
 
     /**
-     * Progress is owned by an external {@link ProgressProvider}. This method always completes exceptionally.
+     * Adds to the progress of an achievement via {@link ProgressProvider#addProgress(UUID, Key, long)}. Only supported
+     * on the server side, and only if the registered provider supports writes; otherwise the future will be completed
+     * exceptionally. The future will also be completed exceptionally if the achievement does not exist.
      * @param uuid the player uuid
      * @param key the achievement key
      * @param count the progress count
@@ -36,6 +38,19 @@ public interface AchievementManager {
      */
     @NotNull
     CompletableFuture<Boolean> progressAchievement(@NotNull UUID uuid, @NotNull Key key, long count);
+
+    /**
+     * Sets the progress of an achievement via {@link ProgressProvider#setProgress(UUID, Key, long)}. Only supported
+     * on the server side, and only if the registered provider supports writes; otherwise the future will be completed
+     * exceptionally. The future will also be completed exceptionally if the achievement does not exist or the count
+     * is negative.
+     * @param uuid the player uuid
+     * @param key the achievement key
+     * @param count the new progress count
+     * @return boolean - true if the achievement is unlocked (count &gt;= required count) by this change
+     */
+    @NotNull
+    CompletableFuture<Boolean> setAchievementProgress(@NotNull UUID uuid, @NotNull Key key, long count);
 
     /**
      * Fetches the children of the achievement. If the achievement does not exist, the future will be completed with

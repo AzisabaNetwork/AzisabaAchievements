@@ -8,6 +8,8 @@ import net.azisaba.azisabaachievements.api.network.packet.PacketProxyFetchAchiev
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyProgressAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyRequestData;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyRequestPlayerData;
+import net.azisaba.azisabaachievements.api.network.packet.PacketProxyRequestProgress;
+import net.azisaba.azisabaachievements.api.network.packet.PacketProxySetAchievementProgress;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyUnlockAchievements;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,4 +23,6 @@ public interface ProxyPacketListener extends PacketListener {
     void handle(@NotNull PacketProxyClaimRewards packet);
     void handle(@NotNull PacketProxyCompleteRewardDelivery packet);
     void handle(@NotNull PacketProxyUnlockAchievements packet);
+    void handle(@NotNull PacketProxyRequestProgress packet);
+    void handle(@NotNull PacketProxySetAchievementProgress packet);
 }

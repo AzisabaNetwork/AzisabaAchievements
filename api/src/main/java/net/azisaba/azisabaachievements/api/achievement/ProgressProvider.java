@@ -13,4 +13,30 @@ import java.util.UUID;
  */
 public interface ProgressProvider {
     @NotNull Map<Key, Long> getProgress(@NotNull UUID playerId);
+
+    /**
+     * Adds to the progress of an achievement. Called from
+     * {@link AchievementManager#progressAchievement(UUID, Key, long)}. The default implementation does not support
+     * writes.
+     * @param playerId the player uuid
+     * @param key the achievement key
+     * @param amount the amount to add
+     * @throws UnsupportedOperationException if this provider does not support writes
+     */
+    default void addProgress(@NotNull UUID playerId, @NotNull Key key, long amount) {
+        throw new UnsupportedOperationException("This ProgressProvider does not support adding progress");
+    }
+
+    /**
+     * Sets the progress of an achievement. Called from
+     * {@link AchievementManager#setAchievementProgress(UUID, Key, long)}. The default implementation does not support
+     * writes.
+     * @param playerId the player uuid
+     * @param key the achievement key
+     * @param count the new progress count (never negative)
+     * @throws UnsupportedOperationException if this provider does not support writes
+     */
+    default void setProgress(@NotNull UUID playerId, @NotNull Key key, long count) {
+        throw new UnsupportedOperationException("This ProgressProvider does not support setting progress");
+    }
 }

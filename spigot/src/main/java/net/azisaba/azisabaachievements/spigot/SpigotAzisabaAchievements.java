@@ -17,7 +17,9 @@ public class SpigotAzisabaAchievements extends AbstractAzisabaAchievements {
         this.scheduler = new SpigotTaskScheduler(plugin);
         this.achievementManager = new SpigotAchievementManager(
                 getPacketSender(),
-                plugin.getAchievementDataCache());
+                plugin.getAchievementDataCache(),
+                plugin.getProgressSynchronizer(),
+                scheduler);
     }
 
     @NotNull

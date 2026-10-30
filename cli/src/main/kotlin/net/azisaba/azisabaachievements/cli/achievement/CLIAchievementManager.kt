@@ -52,6 +52,11 @@ object CLIAchievementManager : AchievementManager {
             UnsupportedOperationException("Progress is managed by an external ProgressProvider")
         )
 
+    override fun setAchievementProgress(uuid: UUID, key: Key, count: Long): CompletableFuture<Boolean> =
+        CompletableFuture.failedFuture(
+            UnsupportedOperationException("Progress is managed by an external ProgressProvider")
+        )
+
     override fun getChildAchievements(key: Key): CompletableFuture<Set<AchievementData>> {
         return try {
             CompletableFuture.completedFuture(DataProvider.getChildAchievements(queryExecutor, key))

@@ -2,6 +2,7 @@ package net.azisaba.azisabaachievements.spigot.plugin;
 
 import net.azisaba.azisabaachievements.api.AzisabaAchievementsProviderSetter;
 import net.azisaba.azisabaachievements.api.Side;
+import net.azisaba.azisabaachievements.api.achievement.ProgressProvider;
 import net.azisaba.azisabaachievements.api.network.PacketListener;
 import net.azisaba.azisabaachievements.api.network.PacketRegistry;
 import net.azisaba.azisabaachievements.api.network.PacketRegistryPair;
@@ -9,6 +10,7 @@ import net.azisaba.azisabaachievements.common.message.Messages;
 import net.azisaba.azisabaachievements.common.network.PacketRegistryImpl;
 import net.azisaba.azisabaachievements.common.redis.JedisBox;
 import net.azisaba.azisabaachievements.spigot.SpigotAzisabaAchievements;
+import net.azisaba.azisabaachievements.spigot.achievement.DatabaseProgressProvider;
 import net.azisaba.azisabaachievements.spigot.achievement.ProgressSynchronizer;
 import net.azisaba.azisabaachievements.spigot.command.AzisabaAchievementsCommand;
 import net.azisaba.azisabaachievements.spigot.data.AchievementDataCache;
@@ -19,6 +21,7 @@ import net.azisaba.azisabaachievements.spigot.listener.PlayerJoinListener;
 import net.azisaba.azisabaachievements.spigot.network.SpigotPacketListener;
 import net.azisaba.azisabaachievements.spigot.reward.RewardDeliveryExecutor;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -37,6 +40,7 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
     private JedisBox jedisBox;
     private AchievementDataCache achievementDataCache;
     private ProgressSynchronizer progressSynchronizer;
+    private DatabaseProgressProvider databaseProgressProvider;
     private RewardDeliveryExecutor rewardDeliveryExecutor;
 
     public SpigotPlugin() {
@@ -61,6 +65,7 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
         jedisBox = createJedisBox();
         achievementDataCache = new AchievementDataCache(jedisBox.getPubSubHandler());
         progressSynchronizer = new ProgressSynchronizer(this);
+        databaseProgressProvider = new DatabaseProgressProvider(jedisBox.getPubSubHandler(), pluginConfig.rewardServerId);
         rewardDeliveryExecutor = new RewardDeliveryExecutor(this);
         AzisabaAchievementsProviderSetter.setInstance(new SpigotAzisabaAchievements(this));
     }
@@ -75,6 +80,8 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
             throw new RuntimeException("Failed to fetch data", e);
         }
         getLogger().info("Initial data load completed in " + (System.currentTimeMillis() - start) + " ms.");
+        // fallback provider; any external provider registered with a higher priority takes precedence
+        Bukkit.getServicesManager().register(ProgressProvider.class, databaseProgressProvider, this, ServicePriority.Lowest);
         Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(this), this);
         Bukkit.getPluginManager().registerEvents(new AchievementUnlockedListener(this), this);
         Bukkit.getPluginManager().registerEvents(new AchievementsMainScreen.EventListener(), this);
@@ -115,6 +122,11 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
     @NotNull
     public ProgressSynchronizer getProgressSynchronizer() {
         return Objects.requireNonNull(progressSynchronizer, "ProgressSynchronizer is not initialized");
+    }
+
+    @NotNull
+    public DatabaseProgressProvider getDatabaseProgressProvider() {
+        return Objects.requireNonNull(databaseProgressProvider, "DatabaseProgressProvider is not initialized");
     }
 
     @NotNull

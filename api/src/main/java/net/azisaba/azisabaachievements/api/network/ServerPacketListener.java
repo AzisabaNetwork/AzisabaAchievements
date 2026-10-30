@@ -6,6 +6,7 @@ import net.azisaba.azisabaachievements.api.network.packet.PacketServerDataResult
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerFetchAchievementCallback;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerPlayerData;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerProgressAchievementCallback;
+import net.azisaba.azisabaachievements.api.network.packet.PacketServerProgressResult;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerRewardAvailable;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerRewardDeliveries;
 import org.jetbrains.annotations.NotNull;
@@ -19,4 +20,5 @@ public interface ServerPacketListener extends PacketListener {
     void handle(@NotNull PacketServerPlayerData packet);
     void handle(@NotNull PacketServerRewardAvailable packet);
     void handle(@NotNull PacketServerRewardDeliveries packet);
+    void handle(@NotNull PacketServerProgressResult packet);
 }

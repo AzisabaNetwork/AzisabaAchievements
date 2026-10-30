@@ -22,6 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.LongUnaryOperator;
 
 public final class RewardService {
     public static final String ORIGIN_TARGET = "@origin";
@@ -63,6 +64,46 @@ public final class RewardService {
                 }
                 connection.commit();
                 return results;
+            } catch (SQLException | RuntimeException throwable) {
+                connection.rollback();
+                throw throwable;
+            } finally {
+                connection.setAutoCommit(true);
+            }
+        });
+    }
+
+    /**
+     * Updates the progress stored in {@code player_achievements}. Used by the built-in progress provider only.
+     * The stored count is clamped to {@code [0, required count]}, and rewards are created in the same transaction when
+     * the update crosses the required count, so a later {@link #unlock} for the same key is a no-op.
+     */
+    public @NotNull ProgressResult updateProgress(
+            @NotNull UUID playerId,
+            @NotNull Key key,
+            @NotNull LongUnaryOperator update,
+            @NotNull String originServerId
+    ) throws SQLException {
+        return databaseManager.use(connection -> {
+            connection.setAutoCommit(false);
+            try {
+                AchievementData achievement = getAchievementForUpdate(connection, key);
+                if (achievement == null) {
+                    throw new IllegalStateException("Achievement does not exist");
+                }
+                if (achievement.getFlags().contains(AchievementFlags.CATEGORY)
+                        || achievement.getFlags().contains(AchievementFlags.UNOBTAINABLE)) {
+                    throw new IllegalStateException("Achievement is unobtainable");
+                }
+                long currentCount = getUnlockCountForUpdate(connection, playerId, achievement.getId());
+                long newCount = Math.max(0L, Math.min(achievement.getCount(), update.applyAsLong(currentCount)));
+                saveProgress(connection, playerId, achievement.getId(), newCount);
+                boolean unlocked = currentCount < achievement.getCount() && newCount >= achievement.getCount();
+                Set<String> notifiedServers = unlocked
+                        ? createDeliveries(connection, playerId, achievement, originServerId)
+                        : Collections.emptySet();
+                connection.commit();
+                return new ProgressResult(achievement, unlocked, notifiedServers);
             } catch (SQLException | RuntimeException throwable) {
                 connection.rollback();
                 throw throwable;

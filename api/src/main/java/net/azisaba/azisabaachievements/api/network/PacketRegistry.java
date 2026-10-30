@@ -13,6 +13,8 @@ import net.azisaba.azisabaachievements.api.network.packet.PacketProxyFetchAchiev
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyProgressAchievement;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyRequestData;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyRequestPlayerData;
+import net.azisaba.azisabaachievements.api.network.packet.PacketProxyRequestProgress;
+import net.azisaba.azisabaachievements.api.network.packet.PacketProxySetAchievementProgress;
 import net.azisaba.azisabaachievements.api.network.packet.PacketProxyUnlockAchievements;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerAddAchievementTranslation;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerCreateAchievementCallback;
@@ -20,6 +22,7 @@ import net.azisaba.azisabaachievements.api.network.packet.PacketServerDataResult
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerFetchAchievementCallback;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerPlayerData;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerProgressAchievementCallback;
+import net.azisaba.azisabaachievements.api.network.packet.PacketServerProgressResult;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerRewardAvailable;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerRewardDeliveries;
 import org.jetbrains.annotations.NotNull;
@@ -47,6 +50,8 @@ public interface PacketRegistry {
         registerPacket(PacketProxyClaimRewards.class, PacketProxyClaimRewards::new);
         registerPacket(PacketProxyCompleteRewardDelivery.class, PacketProxyCompleteRewardDelivery::new);
         registerPacket(PacketProxyUnlockAchievements.class, PacketProxyUnlockAchievements::new);
+        registerPacket(PacketProxyRequestProgress.class, PacketProxyRequestProgress::new);
+        registerPacket(PacketProxySetAchievementProgress.class, PacketProxySetAchievementProgress::new);
     }
 
     default void registerServerBoundPackets() {
@@ -58,6 +63,7 @@ public interface PacketRegistry {
         registerPacket(PacketServerAddAchievementTranslation.class, PacketServerAddAchievementTranslation::new);
         registerPacket(PacketServerRewardAvailable.class, PacketServerRewardAvailable::new);
         registerPacket(PacketServerRewardDeliveries.class, PacketServerRewardDeliveries::new);
+        registerPacket(PacketServerProgressResult.class, PacketServerProgressResult::new);
     }
 
     /**

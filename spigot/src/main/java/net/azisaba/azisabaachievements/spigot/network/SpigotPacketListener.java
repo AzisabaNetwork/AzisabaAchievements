@@ -11,6 +11,7 @@ import net.azisaba.azisabaachievements.api.network.packet.PacketServerDataResult
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerFetchAchievementCallback;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerPlayerData;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerProgressAchievementCallback;
+import net.azisaba.azisabaachievements.api.network.packet.PacketServerProgressResult;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerRewardAvailable;
 import net.azisaba.azisabaachievements.api.network.packet.PacketServerRewardDeliveries;
 import net.azisaba.azisabaachievements.spigot.achievement.SpigotAchievementManager;
@@ -101,17 +102,12 @@ public class SpigotPacketListener implements ServerPacketListener {
 
     @Override
     public void handle(@NotNull PacketServerProgressAchievementCallback packet) {
-        CompletableFuture<Boolean> cb = ((SpigotAchievementManager) AzisabaAchievementsProvider.get().getAchievementManager())
-                .progressAchievementCallback
-                .remove(packet.getSeq());
-        if (cb == null) {
-            return;
-        }
-        if (packet.getResult().isLeft()) {
-            cb.completeExceptionally(new RuntimeException("Proxy returned an error: " + packet.getResult().getLeft()));
-        } else {
-            cb.complete(packet.getResult().getRight());
-        }
+        plugin.getDatabaseProgressProvider().complete(packet);
+    }
+
+    @Override
+    public void handle(@NotNull PacketServerProgressResult packet) {
+        plugin.getDatabaseProgressProvider().complete(packet);
     }
 
     @Override

@@ -2,8 +2,14 @@
 
 ## Player progress
 
-Achievement definitions (criteria, names, rewards) live in this plugin. Live progress counts do not.
-A Spigot plugin must register a `ProgressProvider` with Bukkit Services:
+Achievement definitions (criteria, names, rewards) live in this plugin. Progress counts come from a `ProgressProvider`
+registered with Bukkit Services.
+
+By default, a built-in provider stores progress in the `player_achievements` table (through the proxy). It is
+registered with `ServicePriority.Lowest`, so it is only used when no other provider is registered. It supports
+`addProgress` and `setProgress`; stored counts are clamped to `0..required count`.
+
+To manage progress elsewhere, register your own `ProgressProvider` with a higher priority:
 
 ```java
 Bukkit.getServicesManager().register(

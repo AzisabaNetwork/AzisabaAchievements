@@ -27,7 +27,6 @@ import java.util.function.Consumer;
 public class SpigotAchievementManager implements AchievementManager {
     public final Map<UUID, CompletableFuture<AchievementData>> achievementDataCallback = new Object2ObjectOpenHashMap<>();
     public final Map<UUID, CompletableFuture<Optional<AchievementData>>> optionalAchievementDataCallback = new Object2ObjectOpenHashMap<>();
-    public final Map<UUID, CompletableFuture<Boolean>> progressAchievementCallback = new Object2ObjectOpenHashMap<>();
     private final PacketSender packetSender;
     private final AchievementDataCache cache;
     private final ProgressSynchronizer progressSynchronizer;

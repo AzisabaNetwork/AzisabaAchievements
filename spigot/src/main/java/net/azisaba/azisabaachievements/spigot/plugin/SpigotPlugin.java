@@ -52,6 +52,14 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
 
     @Override
     public void onLoad() {
+        initialize();
+    }
+
+    // Some plugin loaders (e.g. PlugManX on Paper) call onEnable without calling onLoad first.
+    private void initialize() {
+        if (jedisBox != null) {
+            return;
+        }
         try {
             Messages.load();
         } catch (IOException e) {
@@ -72,6 +80,7 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
 
     @Override
     public void onEnable() {
+        initialize();
         getLogger().info("Performing initial data load...");
         long start = System.currentTimeMillis();
         try {
@@ -88,6 +97,14 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
         Bukkit.getPluginManager().registerEvents(new AchievementListScreen.EventListener(), this);
         Objects.requireNonNull(Bukkit.getPluginCommand("azisabaachievements"))
                 .setExecutor(new AzisabaAchievementsCommand(this));
+    }
+
+    @Override
+    public void onDisable() {
+        if (jedisBox != null) {
+            jedisBox.close();
+            jedisBox = null;
+        }
     }
 
     @Contract(" -> new")

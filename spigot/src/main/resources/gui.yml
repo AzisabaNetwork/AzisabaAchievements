@@ -23,7 +23,7 @@ main-menu:
   buttons:
     general:
       slot: 10
-      item: GRASS_BLOCK
+      item: DIRT
       category: general
       name:
         ja: "&a全般"
@@ -38,28 +38,28 @@ main-menu:
       item: BOW
       category: lgw
       name: "&6Leon Gun War"
-    diverse:
+    frontier:
       slot: 13
-      item: POPPY
-      category: diverse
-      name: "&6DIVERSE"
+      item: GRASS_BLOCK
+      category: frontier
+      name: "&6Frontier"
     sclat:
       slot: 14
       item: WATER_BUCKET
       category: sclat
       name: "&6Sclat"
-    vanilife:
+    azicave:
       slot: 15
-      item: CHEST
-      category: vanilife
+      item: DIAMOND_ORE
+      category: azicave
       name:
-        ja: "&6ばにらいふ！"
-        en: "&6Vanilife"
-    despawn:
+        ja: "&6アジどうくつ"
+        en: "&6Azicave"
+    kizmet:
       slot: 16
-      item: ENDERMAN_SPAWN_EGG
-      category: despawn
-      name: "&6Despawn"
+      item: ECHO_SHARD
+      category: kizmet
+      name: "&6Kizmet"
     seasonal:
       slot: 21
       item: APPLE

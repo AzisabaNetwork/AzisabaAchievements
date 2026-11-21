@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,10 +32,16 @@ public class AchievementsMainScreen extends Screen {
     private final Player player;
     private final List<TranslatedAchievement> achievements;
     private final Map<Key, Long> counts = new HashMap<>();
+    private final MainMenuConfig config;
 
     public AchievementsMainScreen(@NotNull Player player, @NotNull List<TranslatedAchievement> achievements, @NotNull Set<PlayerAchievementData> playerAchievements) {
-        super(null, 27, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.title"));
+        this(player, achievements, playerAchievements, MainMenuConfig.get());
+    }
+
+    private AchievementsMainScreen(@NotNull Player player, @NotNull List<TranslatedAchievement> achievements, @NotNull Set<PlayerAchievementData> playerAchievements, @NotNull MainMenuConfig config) {
+        super(null, config.rows * 9, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.title"));
         this.player = player;
+        this.config = config;
         this.achievements = achievements;
         initCounts(playerAchievements);
         initInventory();
@@ -67,8 +73,17 @@ public class AchievementsMainScreen extends Screen {
     }
 
     public void initInventory() {
-        for (int i = 0; i < 27; i++) {
-            setItem(i, BLACK_PANE);
+        if (config.filler != null) {
+            ItemStack filler = createItem(config.filler, 0, " ", null);
+            for (int i = 0; i < inventory.getSize(); i++) {
+                setItem(i, filler);
+            }
+        }
+        for (MainMenuConfig.Button button : config.buttons) {
+            setItem(button.slot, button.item, 0, button.getName(player), button.getLore(player));
+        }
+        if (config.playerHeadSlot < 0) {
+            return;
         }
         Set<AchievementData> obtainable = getObtainableAchievements();
         Set<AchievementData> unlocked = getUnlockedAchievements();
@@ -78,17 +93,6 @@ public class AchievementsMainScreen extends Screen {
         long unlockedPoints = unlocked.stream().mapToLong(AchievementData::getPoint).sum();
         double unlockedPointsPercentage = (double) unlockedPoints / allPoints * 100;
         double unlockedPercentage = (double) unlocked.size() / all.size() * 100;
-        setItem(10, Material.GRASS_BLOCK, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.general.title"), null);
-        setItem(11, Material.WHEAT, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.life.title"), null);
-        setItem(12, Material.BOW, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.lgw.title"), null);
-        setItem(13, Material.POPPY, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.diverse.title"), null);
-        setItem(14, Material.WATER_BUCKET, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.sclat.title"), null);
-        setItem(15, Material.CHEST, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.vanilife.title"), null);
-        setItem(16, Material.ENDERMAN_SPAWN_EGG, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.despawn.title"), null);
-        setItem(21, Material.APPLE, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.seasonal.title"),
-                Arrays.asList(SMessages.getFormattedMessage(player, "gui.achievementMainScreen.seasonal.description").split("\n")));
-        setItem(23, Material.DIAMOND_BLOCK, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.legacy.title"),
-                Arrays.asList(SMessages.getFormattedMessage(player, "gui.achievementMainScreen.legacy.description").split("\n")));
 
         ItemStack stack = createItem(Material.PLAYER_HEAD, 0, SMessages.getFormattedMessage(player, "gui.achievementMainScreen.player.title", PlayerUtil.getFullDisplayName(player)),
                 Arrays.asList(SMessages.getFormattedMessage(player, "gui.achievementMainScreen.player.description",
@@ -97,7 +101,7 @@ public class AchievementsMainScreen extends Screen {
         assert meta != null;
         meta.setOwningPlayer(player);
         stack.setItemMeta(meta);
-        setItem(22, stack);
+        setItem(config.playerHeadSlot, stack);
     }
 
     public static boolean filterHiddenAchievements(@NotNull AchievementData data, @NotNull Map<Key, Long> counts) {
@@ -159,52 +163,35 @@ public class AchievementsMainScreen extends Screen {
             if (e.getCurrentItem() == null) {
                 return;
             }
-            Consumer<String> handle = what -> {
-                List<TranslatedAchievement> list =
-                        screen.achievements
-                                .stream()
-                                .filter(achievement -> !achievement.getData().getFlags().contains(AchievementFlags.SEASONAL) &&
-                                        !achievement.getData().getFlags().contains(AchievementFlags.UNOBTAINABLE) &&
-                                        achievement.getData().getKey().toString().startsWith("azisaba:" + what + '/') &&
-                                        filterHiddenAchievements(achievement.getData(), screen.counts)
-                                )
-                                .sorted((a, b) -> compareAchievementData(screen.counts, a.getData(), b.getData()))
-                                .collect(Collectors.toList());
-                String title = SMessages.getFormattedMessage(screen.player, "gui.achievementMainScreen." + what + ".title");
-                screen.player.openInventory(new AchievementListScreen(screen.inventory, screen.player, list, screen.counts, title).getInventory());
-            };
-            if (e.getSlot() == 10) handle.accept("general");
-            if (e.getSlot() == 11) handle.accept("life");
-            if (e.getSlot() == 12) handle.accept("lgw");
-            if (e.getSlot() == 13) handle.accept("diverse");
-            if (e.getSlot() == 14) handle.accept("sclat");
-            if (e.getSlot() == 15) handle.accept("vanilife");
-            if (e.getSlot() == 16) handle.accept("despawn");
-            if (e.getSlot() == 21) {
-                List<TranslatedAchievement> list =
-                        screen.achievements
-                                .stream()
-                                .filter(achievement -> achievement.getData().getFlags().contains(AchievementFlags.SEASONAL) &&
-                                        !achievement.getData().getFlags().contains(AchievementFlags.UNOBTAINABLE) &&
-                                        filterHiddenAchievements(achievement.getData(), screen.counts)
-                                )
-                                .sorted((a, b) -> compareAchievementData(screen.counts, a.getData(), b.getData()))
-                                .collect(Collectors.toList());
-                String title = SMessages.getFormattedMessage(screen.player, "gui.achievementMainScreen.seasonal.title");
-                screen.player.openInventory(new AchievementListScreen(screen.inventory, screen.player, list, screen.counts, title).getInventory());
+            MainMenuConfig.Button button = screen.config.getButton(e.getSlot());
+            if (button == null) {
+                return;
             }
-            if (e.getSlot() == 23) {
-                List<TranslatedAchievement> list =
-                        screen.achievements
-                                .stream()
-                                .filter(achievement -> achievement.getData().getFlags().contains(AchievementFlags.UNOBTAINABLE) &&
-                                        filterHiddenAchievements(achievement.getData(), screen.counts)
-                                )
-                                .sorted((a, b) -> compareAchievementData(screen.counts, a.getData(), b.getData()))
-                                .collect(Collectors.toList());
-                String title = SMessages.getFormattedMessage(screen.player, "gui.achievementMainScreen.legacy.title");
-                screen.player.openInventory(new AchievementListScreen(screen.inventory, screen.player, list, screen.counts, title).getInventory());
+            Predicate<AchievementData> filter;
+            switch (button.type) {
+                case SEASONAL:
+                    filter = data -> data.getFlags().contains(AchievementFlags.SEASONAL) &&
+                            !data.getFlags().contains(AchievementFlags.UNOBTAINABLE);
+                    break;
+                case LEGACY:
+                    filter = data -> data.getFlags().contains(AchievementFlags.UNOBTAINABLE);
+                    break;
+                case CATEGORY:
+                default:
+                    filter = data -> !data.getFlags().contains(AchievementFlags.SEASONAL) &&
+                            !data.getFlags().contains(AchievementFlags.UNOBTAINABLE) &&
+                            data.getKey().toString().startsWith("azisaba:" + button.category + '/');
+                    break;
             }
+            List<TranslatedAchievement> list =
+                    screen.achievements
+                            .stream()
+                            .filter(achievement -> filter.test(achievement.getData()) &&
+                                    filterHiddenAchievements(achievement.getData(), screen.counts))
+                            .sorted((a, b) -> compareAchievementData(screen.counts, a.getData(), b.getData()))
+                            .collect(Collectors.toList());
+            String title = button.getName(screen.player);
+            screen.player.openInventory(new AchievementListScreen(screen.inventory, screen.player, list, screen.counts, title).getInventory());
         }
     }
 }

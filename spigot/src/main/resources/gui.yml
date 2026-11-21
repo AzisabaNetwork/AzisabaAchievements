@@ -1,0 +1,82 @@
+# メイン実績メニュー(/achievements)のレイアウト設定
+#
+# name / lore には以下のどちらかを指定できます:
+#   - 文字列: 全言語共通
+#   - ロケールごとのマップ (ja, en など)。プレイヤーの言語が無い場合は en → 最初のエントリの順にフォールバック
+# 色は & カラーコードで指定します (例: "&6Life")。lore は改行で複数行になります。
+# name を省略した場合は messages_*.yml の gui.achievementMainScreen.<id>.title が使われます。
+main-menu:
+  # インベントリの行数 (1〜6)
+  rows: 3
+  # 空きスロットを埋めるアイテム (AIR で空欄)
+  filler: BLACK_STAINED_GLASS_PANE
+  # プレイヤーの頭(実績ポイント表示)のスロット。-1 で非表示
+  player-head-slot: 22
+  # ボタン一覧。キー(id)は任意の名前
+  #   slot: スロット番号 (0始まり)
+  #   item: アイテムID (Material名, 例: GRASS_BLOCK)
+  #   type: category | seasonal | legacy (省略時 category)
+  #     category: キーが azisaba:<category>/ で始まる実績を表示
+  #     seasonal: SEASONAL フラグ付きの実績を表示
+  #     legacy:   UNOBTAINABLE フラグ付きの実績を表示
+  #   category: type が category のときのサーバーカテゴリ (省略時は id)
+  buttons:
+    general:
+      slot: 10
+      item: GRASS_BLOCK
+      category: general
+      name:
+        ja: "&a全般"
+        en: "&aGeneral"
+    life:
+      slot: 11
+      item: WHEAT
+      category: life
+      name: "&6Life"
+    lgw:
+      slot: 12
+      item: BOW
+      category: lgw
+      name: "&6Leon Gun War"
+    diverse:
+      slot: 13
+      item: POPPY
+      category: diverse
+      name: "&6DIVERSE"
+    sclat:
+      slot: 14
+      item: WATER_BUCKET
+      category: sclat
+      name: "&6Sclat"
+    vanilife:
+      slot: 15
+      item: CHEST
+      category: vanilife
+      name:
+        ja: "&6ばにらいふ！"
+        en: "&6Vanilife"
+    despawn:
+      slot: 16
+      item: ENDERMAN_SPAWN_EGG
+      category: despawn
+      name: "&6Despawn"
+    seasonal:
+      slot: 21
+      item: APPLE
+      type: seasonal
+      name:
+        ja: "&aシーズン実績"
+        en: "&aSeasonal Achievements"
+      lore:
+        ja: "&eこれらの実績は期間限定で解除が可能です。"
+        en: "&eThese achievements are only available for a limited time."
+    legacy:
+      slot: 23
+      item: DIAMOND_BLOCK
+      type: legacy
+      name:
+        ja: "&a古い実績"
+        en: "&aLegacy Achievements"
+      lore:
+        ja: "&eこれらの実績は現在は解除できません。"
+        en: "&eThese achievements are no longer obtainable"

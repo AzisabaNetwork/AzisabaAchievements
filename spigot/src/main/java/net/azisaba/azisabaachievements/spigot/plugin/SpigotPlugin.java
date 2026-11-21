@@ -16,16 +16,19 @@ import net.azisaba.azisabaachievements.spigot.command.AzisabaAchievementsCommand
 import net.azisaba.azisabaachievements.spigot.data.AchievementDataCache;
 import net.azisaba.azisabaachievements.spigot.gui.AchievementListScreen;
 import net.azisaba.azisabaachievements.spigot.gui.AchievementsMainScreen;
+import net.azisaba.azisabaachievements.spigot.gui.MainMenuConfig;
 import net.azisaba.azisabaachievements.spigot.listener.AchievementUnlockedListener;
 import net.azisaba.azisabaachievements.spigot.listener.PlayerJoinListener;
 import net.azisaba.azisabaachievements.spigot.network.SpigotPacketListener;
 import net.azisaba.azisabaachievements.spigot.reward.RewardDeliveryExecutor;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -67,6 +70,7 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
         }
         saveDefaultConfig();
         pluginConfig = new PluginConfig(getConfig());
+        reloadGuiConfig();
         if ("default".equals(pluginConfig.rewardServerId)) {
             getLogger().warning("rewards.server-id is using the default value; configure a logical server id before enabling rewards.");
         }
@@ -105,6 +109,18 @@ public class SpigotPlugin extends JavaPlugin implements PacketRegistryPair {
             jedisBox.close();
             jedisBox = null;
         }
+    }
+
+    /**
+     * (Re)loads gui.yml, creating it from the bundled default when missing.
+     * @throws IllegalArgumentException if the file is invalid (the previous layout is kept)
+     */
+    public void reloadGuiConfig() {
+        File file = new File(getDataFolder(), "gui.yml");
+        if (!file.exists()) {
+            saveResource("gui.yml", false);
+        }
+        MainMenuConfig.set(MainMenuConfig.load(YamlConfiguration.loadConfiguration(file), getLogger()));
     }
 
     @Contract(" -> new")
